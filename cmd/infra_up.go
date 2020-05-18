@@ -16,21 +16,44 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira-libs/pkg/get"
 )
 
-// upCmd represents the up command
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento.",
 	Long: `Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("up called")
+		initInfra()
 	},
 }
 
 func init() {
 	infraCmd.AddCommand(upCmd)
+}
+
+func checkInfra() {
+	if exists, _ := config.ExistsBinary("kubectl"); !exists {
+		if err := get.DownloadKubectl(); err != nil {
+			panic("Não foi possível baixar o pacote kubectl")
+		}
+	}
+
+	if exists, _ := config.ExistsBinary("k3d"); !exists {
+		if err := get.DownloadK3d(); err != nil {
+			panic("Não foi possível baixar o pacote k3d")
+		}
+	}
+
+	if exists, _ := config.ExistsBinary("helm"); !exists {
+		if err := get.DownloadHelm(); err != nil {
+			panic("Não foi possível baixar o pacote helm")
+		}
+	}
+}
+
+func initInfra() {
+	checkInfra()
 }
