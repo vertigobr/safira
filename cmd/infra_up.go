@@ -39,19 +39,23 @@ func init() {
 }
 
 func checkInfra() {
+	fmt.Println("Verificando dependências...")
 	if exists, _ := config.ExistsBinary("kubectl"); !exists {
+		fmt.Println("Baixando kubectl...")
 		if err := get.DownloadKubectl(); err != nil {
 			panic("Não foi possível baixar o pacote kubectl")
 		}
 	}
 
 	if exists, _ := config.ExistsBinary("k3d"); !exists {
+		fmt.Println("Baixando k3d...")
 		if err := get.DownloadK3d(); err != nil {
 			panic("Não foi possível baixar o pacote k3d")
 		}
 	}
 
 	if exists, _ := config.ExistsBinary("helm"); !exists {
+		fmt.Println("Baixando helm...")
 		if err := get.DownloadHelm(); err != nil {
 			panic("Não foi possível baixar o pacote helm")
 		}
@@ -71,9 +75,10 @@ func createCluster(k3dPath string) error {
 			"-server-arg", "--no-deploy=traefik",
 			"-server-arg", "--no-deploy=servicelb",
 		},
-		StreamStdio: true,
+		StreamStdio: false,
 	}
 
+	fmt.Println("Provisionando cluster local...")
 	res, err := taskCreateCluster.Execute()
 	if err != nil {
 		return err
@@ -117,9 +122,10 @@ func helmUpgrade(helmPath string) error {
 			"repo", "add", "vtg-ipaas",
 			"https://vertigobr.gitlab.io/ipaas/vtg-ipaas-chart",
 		},
-		StreamStdio: true,
+		StreamStdio: false,
 	}
 
+	fmt.Println("Instalando o Vertigo iPaaS...")
 	resRepoAdd, err := taskRepoAdd.Execute()
 	if err != nil {
 		return err
@@ -134,7 +140,7 @@ func helmUpgrade(helmPath string) error {
 		Args:        []string{
 			"repo", "update",
 		},
-		StreamStdio: true,
+		StreamStdio: false,
 	}
 
 	resRepoUpdate, err := taskRepoUpdate.Execute()
@@ -154,7 +160,7 @@ func helmUpgrade(helmPath string) error {
 			"-f", "https://gist.githubusercontent.com/kyfelipe/1db230e45d14213ea5ca375aa74057e4/raw/859a26cbb488012f0af6520b8dab253abf2fd97e/k3d.yaml",
 			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
 		},
-		StreamStdio: true,
+		StreamStdio: false,
 	}
 
 	resUpgrade, err := taskUpgrade.Execute()
