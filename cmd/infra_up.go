@@ -179,8 +179,8 @@ func helmUpgrade(helmPath string) error {
 
 func initInfra() {
 	checkInfra()
-	k3dPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "k3d", "k3d")
-	helmPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "helm", "helm")
+	k3dPath := config.GetK3dPath()
+	helmPath := config.GetHelmPath()
 	if err := createCluster(k3dPath); err != nil {
 		panic(err)
 	}

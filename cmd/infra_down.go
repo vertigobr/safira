@@ -61,7 +61,7 @@ func deleteCluster(k3dPath string) error {
 
 func downInfra() {
 	checkInfra()
-	k3dPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "k3d", "k3d")
+	k3dPath := config.GetK3dPath()
 
 	if err := deleteCluster(k3dPath); err != nil {
 		fmt.Println("\nNenhum cluster encontrado")
