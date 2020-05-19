@@ -110,10 +110,74 @@ func createCluster(k3dPath string) error {
 	return nil
 }
 
+func helmUpgrade(helmPath string) error {
+	taskRepoAdd := execute.Task{
+		Command:     helmPath,
+		Args:        []string{
+			"repo", "add", "vtg-ipaas",
+			"https://vertigobr.gitlab.io/ipaas/vtg-ipaas-chart",
+		},
+		StreamStdio: true,
+	}
+
+	resRepoAdd, err := taskRepoAdd.Execute()
+	if err != nil {
+		return err
+	}
+
+	if resRepoAdd.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", resRepoAdd.ExitCode)
+	}
+
+	taskRepoUpdate := execute.Task{
+		Command:     helmPath,
+		Args:        []string{
+			"repo", "update",
+		},
+		StreamStdio: true,
+	}
+
+	resRepoUpdate, err := taskRepoUpdate.Execute()
+	if err != nil {
+		return err
+	}
+
+	if resRepoUpdate.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", resRepoUpdate.ExitCode)
+	}
+
+	taskUpgrade := execute.Task{
+		Command:     helmPath,
+		Args:        []string{
+			"upgrade", "-i",
+			"--kubeconfig", os.Getenv("KUBECONFIG"),
+			"-f", "https://gist.githubusercontent.com/kyfelipe/1db230e45d14213ea5ca375aa74057e4/raw/859a26cbb488012f0af6520b8dab253abf2fd97e/k3d.yaml",
+			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
+		},
+		StreamStdio: true,
+	}
+
+	resUpgrade, err := taskUpgrade.Execute()
+	if err != nil {
+		return err
+	}
+
+	if resUpgrade.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", resUpgrade.ExitCode)
+	}
+
+	return nil
+}
+
 func initInfra() {
 	checkInfra()
 	k3dPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "k3d", "k3d")
+	helmPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "helm", "helm")
 	if err := createCluster(k3dPath); err != nil {
+		panic(err)
+	}
+
+	if err := helmUpgrade(helmPath); err != nil {
 		panic(err)
 	}
 }
