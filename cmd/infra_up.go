@@ -25,6 +25,8 @@ import (
 	"time"
 )
 
+const clusterName = "clusterName"
+
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento.",
@@ -63,7 +65,6 @@ func checkInfra() {
 }
 
 func createCluster(k3dPath string) error {
-	clusterName := "ipaas-local"
 	taskCreateCluster := execute.Task{
 		Command:     k3dPath,
 		Args:        []string{
