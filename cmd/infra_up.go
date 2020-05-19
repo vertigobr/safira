@@ -31,6 +31,7 @@ var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento.",
 	Long: `Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas.`,
+	SuggestionsMinimumDistance: 1,
 	Run: func(cmd *cobra.Command, args []string) {
 		initInfra()
 	},

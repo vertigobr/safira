@@ -26,6 +26,7 @@ var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Derruba uma infraestrutura provisionada anteriormente.",
 	Long: `Derruba uma infraestrutura provisionada anteriormente para desenvolvimento.`,
+	SuggestionsMinimumDistance: 1,
 	Run: func(cmd *cobra.Command, args []string) {
 		downInfra()
 	},

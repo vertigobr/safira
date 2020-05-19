@@ -19,19 +19,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var infraCmd = &cobra.Command{
-	Use:   "infra",
-	Short: "Responsável por gerenciar a infraestrutura",
-	Long: `Responsável por gerenciar a infraestrutura em ambiente local.`, //  ou em nuvem
+// templateCmd represents the template command
+var templateCmd = &cobra.Command{
+	Use:   "template",
+	Short: "Permite navegar e puxar templates",
+	Long:  "Permite navegar e puxar templates",
 	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
-	rootCmd.AddCommand(infraCmd)
-
-	infraCmd.Flags().String(
-		"env",
-		"local",
-		"Recebe o ambiente aonde será provisionado o cluster Kubernetes.",
-	)
+	rootCmd.AddCommand(templateCmd)
 }
+
+
