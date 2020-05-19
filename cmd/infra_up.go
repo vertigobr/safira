@@ -187,4 +187,9 @@ func initInfra() {
 	if err := helmUpgrade(helmPath); err != nil {
 		panic(err)
 	}
+
+	fmt.Println("\nCluster criado com sucesso!")
+	fmt.Println("Konga    - konga.localdomain:8080")
+	fmt.Println("Gateway  - ipaas.localdomain:8080")
+	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
 }
