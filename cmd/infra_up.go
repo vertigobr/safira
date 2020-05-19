@@ -16,9 +16,13 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira-libs/pkg/execute"
 	"github.com/vertigobr/safira-libs/pkg/get"
+	"os"
+	"time"
 )
 
 var upCmd = &cobra.Command{
@@ -54,6 +58,62 @@ func checkInfra() {
 	}
 }
 
+func createCluster(k3dPath string) error {
+	clusterName := "ipaas-local"
+	taskCreateCluster := execute.Task{
+		Command:     k3dPath,
+		Args:        []string{
+			"create",
+			"-n", clusterName,
+			"--enable-registry",
+			"--registry-name", "registry.localdomain",
+			"--publish", "8080:32080",
+			"-server-arg", "--no-deploy=traefik",
+			"-server-arg", "--no-deploy=servicelb",
+		},
+		StreamStdio: true,
+	}
+
+	res, err := taskCreateCluster.Execute()
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+
+	time.Sleep(time.Second * 10)
+
+	taskCreateKubeconfig := execute.Task{
+		Command:     k3dPath,
+		Args:        []string{
+			"get-kubeconfig",
+			"-n", clusterName,
+		},
+		StreamStdio: false,
+	}
+
+	resCreateKubeconfig, err := taskCreateKubeconfig.Execute()
+	if err != nil {
+		return err
+	}
+
+	if resCreateKubeconfig.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", resCreateKubeconfig.ExitCode)
+	}
+
+	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func initInfra() {
 	checkInfra()
+	k3dPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "k3d", "k3d")
+	if err := createCluster(k3dPath); err != nil {
+		panic(err)
+	}
 }
