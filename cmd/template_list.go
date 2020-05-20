@@ -17,16 +17,19 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira-libs/pkg/execute"
+	"os"
+
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira-libs/pkg/repository"
 )
 
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lista os templates oficiais do Vertigo iPaaS",
 	Long: `Lista os templates oficiais do Vertigo iPaaS`,
-	Run: func(cmd *cobra.Command, args []string) {
-		listTemplates()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return initTemplateList()
 	},
 }
 
@@ -34,7 +37,36 @@ func init() {
 	templateCmd.AddCommand(listCmd)
 }
 
-func listTemplates() {
-	fmt.Println("\nTemplates oficiais:")
-	repository.ListTemplates()
+func listTemplates(faasCliPath string) error {
+	_ = os.Setenv("OPENFAAS_TEMPLATE_STORE_URL", "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json")
+
+	taskList := execute.Task{
+		Command:     faasCliPath,
+		Args:        []string{
+			"template", "store", "list",
+		},
+		StreamStdio: true,
+	}
+
+	res, err := taskList.Execute()
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+
+	return nil
+
+}
+
+func initTemplateList() error {
+	faasCliPath := config.GetFaasCliPath()
+
+	if err := listTemplates(faasCliPath); err != nil {
+		return err
+	}
+
+	return nil
 }

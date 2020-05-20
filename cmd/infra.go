@@ -16,7 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira-libs/pkg/get"
 )
 
 var infraCmd = &cobra.Command{
@@ -34,4 +37,28 @@ func init() {
 		"local",
 		"Recebe o ambiente aonde será provisionado o cluster Kubernetes.",
 	)
+}
+
+func checkInfra() {
+	fmt.Println("Verificando dependências...")
+	if exists, _ := config.ExistsBinary("kubectl"); !exists {
+		fmt.Println("Baixando kubectl...")
+		if err := get.DownloadKubectl(); err != nil {
+			panic("Não foi possível baixar o pacote kubectl")
+		}
+	}
+
+	if exists, _ := config.ExistsBinary("k3d"); !exists {
+		fmt.Println("Baixando k3d...")
+		if err := get.DownloadK3d(); err != nil {
+			panic("Não foi possível baixar o pacote k3d")
+		}
+	}
+
+	if exists, _ := config.ExistsBinary("helm"); !exists {
+		fmt.Println("Baixando helm...")
+		if err := get.DownloadHelm(); err != nil {
+			panic("Não foi possível baixar o pacote helm")
+		}
+	}
 }

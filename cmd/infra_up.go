@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
-	"github.com/vertigobr/safira-libs/pkg/get"
 	"os"
 	"time"
 )
@@ -39,30 +38,6 @@ var upCmd = &cobra.Command{
 
 func init() {
 	infraCmd.AddCommand(upCmd)
-}
-
-func checkInfra() {
-	fmt.Println("Verificando dependências...")
-	if exists, _ := config.ExistsBinary("kubectl"); !exists {
-		fmt.Println("Baixando kubectl...")
-		if err := get.DownloadKubectl(); err != nil {
-			panic("Não foi possível baixar o pacote kubectl")
-		}
-	}
-
-	if exists, _ := config.ExistsBinary("k3d"); !exists {
-		fmt.Println("Baixando k3d...")
-		if err := get.DownloadK3d(); err != nil {
-			panic("Não foi possível baixar o pacote k3d")
-		}
-	}
-
-	if exists, _ := config.ExistsBinary("helm"); !exists {
-		fmt.Println("Baixando helm...")
-		if err := get.DownloadHelm(); err != nil {
-			panic("Não foi possível baixar o pacote helm")
-		}
-	}
 }
 
 func createCluster(k3dPath string) error {

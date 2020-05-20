@@ -16,7 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira-libs/pkg/get"
 )
 
 // templateCmd represents the template command
@@ -31,4 +34,12 @@ func init() {
 	rootCmd.AddCommand(templateCmd)
 }
 
-
+func checkOpenFaas() {
+	fmt.Println("Verificando dependências...")
+	if exists, _ := config.ExistsBinary("faas-cli"); !exists {
+		fmt.Println("Baixando faas-cli...")
+		if err := get.DownloadFaasCli(); err != nil {
+			panic("Não foi possível baixar o pacote faas-cli")
+		}
+	}
+}
