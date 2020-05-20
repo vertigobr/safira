@@ -31,7 +31,7 @@ var rootCmd = &cobra.Command{
 	Use:   "safira",
 	Short: "O Safira é uma ferramenta de auxílio ao Vertigo iPaaS",
 	Long: `O Safira é uma ferramenta para auxiliar os desenvolvedores no Vertigo iPaaS.`,
-	Version: "v0.0.1",
+	Version: "v0.1.0",
 	//SilenceUsage: true,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:

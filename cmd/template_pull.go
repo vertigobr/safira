@@ -28,7 +28,7 @@ var pullCmd = &cobra.Command{
 	Use:   "pull [REPOSITORY]",
 	Args: validArgs,
 	Short: "Faz download de templates",
-	Long: `Faz download de templates podendo declarar templates oficiais ou privados`,
+	Long: `Faz download de templates, podendo declarar templates oficiais (utilizando apenas o nome) ou privados (passando a URL)`,
 	Example: `
   safira template pull vtg-ipaas-java11
   safira template pull https://github.com/owner/repository

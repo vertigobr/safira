@@ -28,16 +28,34 @@ const clusterName = "clusterName"
 
 var upCmd = &cobra.Command{
 	Use:   "up",
-	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento.",
-	Long: `Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas.`,
+	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento",
+	Long: `Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas`,
 	SuggestionsMinimumDistance: 1,
 	Run: func(cmd *cobra.Command, args []string) {
-		initInfra()
+		initInfraUp()
 	},
 }
 
 func init() {
 	infraCmd.AddCommand(upCmd)
+}
+
+func initInfraUp() {
+	checkInfra()
+	k3dPath := config.GetK3dPath()
+	helmPath := config.GetHelmPath()
+	if err := createCluster(k3dPath); err != nil {
+		panic(err)
+	}
+
+	if err := helmUpgrade(helmPath); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("\nCluster criado com sucesso!")
+	fmt.Println("Konga    - konga.localdomain:8080")
+	fmt.Println("Gateway  - ipaas.localdomain:8080")
+	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
 }
 
 func createCluster(k3dPath string) error {
@@ -150,22 +168,4 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	return nil
-}
-
-func initInfra() {
-	checkInfra()
-	k3dPath := config.GetK3dPath()
-	helmPath := config.GetHelmPath()
-	if err := createCluster(k3dPath); err != nil {
-		panic(err)
-	}
-
-	if err := helmUpgrade(helmPath); err != nil {
-		panic(err)
-	}
-
-	fmt.Println("\nCluster criado com sucesso!")
-	fmt.Println("Konga    - konga.localdomain:8080")
-	fmt.Println("Gateway  - ipaas.localdomain:8080")
-	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
 }

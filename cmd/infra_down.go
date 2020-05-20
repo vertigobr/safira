@@ -24,16 +24,28 @@ import (
 
 var downCmd = &cobra.Command{
 	Use:   "down",
-	Short: "Derruba uma infraestrutura provisionada anteriormente.",
-	Long: `Derruba uma infraestrutura provisionada anteriormente para desenvolvimento.`,
+	Short: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
+	Long: `Derruba uma infraestrutura de desenvolvimento provisionada anteriormente`,
 	SuggestionsMinimumDistance: 1,
 	Run: func(cmd *cobra.Command, args []string) {
-		downInfra()
+		initInfraDown()
 	},
 }
 
 func init() {
 	infraCmd.AddCommand(downCmd)
+}
+
+func initInfraDown() {
+	checkInfra()
+	k3dPath := config.GetK3dPath()
+
+	if err := deleteCluster(k3dPath); err != nil {
+		fmt.Println("\nNenhum cluster encontrado")
+		return
+	}
+
+	fmt.Println("\nCluster destruído com sucesso!")
 }
 
 func deleteCluster(k3dPath string) error {
@@ -57,16 +69,4 @@ func deleteCluster(k3dPath string) error {
 	}
 
 	return nil
-}
-
-func downInfra() {
-	checkInfra()
-	k3dPath := config.GetK3dPath()
-
-	if err := deleteCluster(k3dPath); err != nil {
-		fmt.Println("\nNenhum cluster encontrado")
-		return
-	}
-
-	fmt.Println("\nCluster destruído com sucesso!")
 }

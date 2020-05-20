@@ -26,6 +26,7 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lista os templates oficiais do Vertigo iPaaS",
 	Long: `Lista os templates oficiais do Vertigo iPaaS`,
+	SuggestionsMinimumDistance: 1,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return initTemplateList()
 	},
