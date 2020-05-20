@@ -17,11 +17,13 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"github.com/vertigobr/safira-libs/pkg/execute"
+	"github.com/vertigobr/safira-libs/pkg/repository"
 
 	"github.com/spf13/cobra"
 )
 
-// pullCmd represents the pull command
 var pullCmd = &cobra.Command{
 	Use:   "pull [REPOSITORY] [NAME]",
 	Args: validArgs,
@@ -54,6 +56,28 @@ func validArgs(cmd *cobra.Command, args []string) error {
 }
 
 func templatePull(args []string) error {
+	repo, err := repository.GetRepositoryURL(args[0])
+	if err != nil {
+		return err
+	}
+
+	taskPull := execute.Task{
+		Command:     "git",
+		Args:        []string{
+			"clone", repo, args[1],
+		},
+		StreamStdio: false,
+	}
+
+	fmt.Println("Baixando template...")
+	res, err := taskPull.Execute()
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
 
 	return nil
 }
