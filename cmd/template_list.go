@@ -22,32 +22,41 @@ import (
 	"github.com/vertigobr/safira-libs/pkg/execute"
 )
 
-var downCmd = &cobra.Command{
-	Use:   "down",
-	Short: "Derruba uma infraestrutura provisionada anteriormente.",
-	Long: `Derruba uma infraestrutura provisionada anteriormente para desenvolvimento.`,
-	SuggestionsMinimumDistance: 1,
-	Run: func(cmd *cobra.Command, args []string) {
-		downInfra()
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "Lista os templates oficiais do Vertigo iPaaS",
+	Long: `Lista os templates oficiais do Vertigo iPaaS`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return initTemplateList()
 	},
 }
 
 func init() {
-	infraCmd.AddCommand(downCmd)
+	templateCmd.AddCommand(listCmd)
 }
 
-func deleteCluster(k3dPath string) error {
-	taskDeleteCluster := execute.Task{
-		Command:     k3dPath,
-		Args:        []string{
-			"delete",
-			"-n", clusterName,
-		},
-		StreamStdio: false,
+func initTemplateList() error {
+	faasCliPath := config.GetFaasCliPath()
+
+	if err := templateList(faasCliPath); err != nil {
+		return err
 	}
 
-	fmt.Println("Destruindo cluster local...")
-	res, err := taskDeleteCluster.Execute()
+	return nil
+}
+
+func templateList(faasCliPath string) error {
+	checkOpenFaas()
+
+	taskList := execute.Task{
+		Command:     faasCliPath,
+		Args:        []string{
+			"template", "store", "list",
+		},
+		StreamStdio: true,
+	}
+
+	res, err := taskList.Execute()
 	if err != nil {
 		return err
 	}
@@ -57,16 +66,4 @@ func deleteCluster(k3dPath string) error {
 	}
 
 	return nil
-}
-
-func downInfra() {
-	checkInfra()
-	k3dPath := config.GetK3dPath()
-
-	if err := deleteCluster(k3dPath); err != nil {
-		fmt.Println("\nNenhum cluster encontrado")
-		return
-	}
-
-	fmt.Println("\nCluster destruído com sucesso!")
 }
