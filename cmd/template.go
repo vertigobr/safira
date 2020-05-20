@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/get"
+	"os"
 )
 
 // templateCmd represents the template command
@@ -32,6 +33,7 @@ var templateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(templateCmd)
+	setStore()
 }
 
 func checkOpenFaas() {
@@ -42,4 +44,8 @@ func checkOpenFaas() {
 			panic("Não foi possível baixar o pacote faas-cli")
 		}
 	}
+}
+
+func setStore() {
+	_ = os.Setenv("OPENFAAS_TEMPLATE_STORE_URL", "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json")
 }

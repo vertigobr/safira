@@ -17,11 +17,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
-	"os"
-
-	"github.com/spf13/cobra"
 )
 
 var listCmd = &cobra.Command{
@@ -37,8 +35,18 @@ func init() {
 	templateCmd.AddCommand(listCmd)
 }
 
-func listTemplates(faasCliPath string) error {
-	_ = os.Setenv("OPENFAAS_TEMPLATE_STORE_URL", "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json")
+func initTemplateList() error {
+	faasCliPath := config.GetFaasCliPath()
+
+	if err := templateList(faasCliPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func templateList(faasCliPath string) error {
+	checkOpenFaas()
 
 	taskList := execute.Task{
 		Command:     faasCliPath,
@@ -55,17 +63,6 @@ func listTemplates(faasCliPath string) error {
 
 	if res.ExitCode != 0 {
 		return fmt.Errorf("exit code %d", res.ExitCode)
-	}
-
-	return nil
-
-}
-
-func initTemplateList() error {
-	faasCliPath := config.GetFaasCliPath()
-
-	if err := listTemplates(faasCliPath); err != nil {
-		return err
 	}
 
 	return nil

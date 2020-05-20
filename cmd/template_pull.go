@@ -18,29 +18,25 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/vertigobr/safira-libs/pkg/execute"
-	"github.com/vertigobr/safira-libs/pkg/repository"
-
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira-libs/pkg/execute"
+	"net/url"
 )
 
 var pullCmd = &cobra.Command{
-	Use:   "pull [REPOSITORY] [NAME]",
+	Use:   "pull [REPOSITORY]",
 	Args: validArgs,
 	Short: "Faz download de templates",
 	Long: `Faz download de templates podendo declarar templates oficiais ou privados`,
 	Example: `
-  safira template pull java11 project-name
-  safira template pull https://github.com/owner/repository project-name
+  safira template pull vtg-ipaas-java11
+  safira template pull https://github.com/owner/repository
 `,
 	SuggestionsMinimumDistance: 1,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return templatePull(args)
+		return initTemplatePull(args[0])
 	},
-}
-
-func init() {
-	templateCmd.AddCommand(pullCmd)
 }
 
 func validArgs(cmd *cobra.Command, args []string) error {
@@ -48,36 +44,65 @@ func validArgs(cmd *cobra.Command, args []string) error {
 		return errors.New("repositório não inserido")
 	}
 
-	if len(args) < 2 {
-		return errors.New("nome do projeto não inserido")
+	return nil
+}
+
+func init() {
+	templateCmd.AddCommand(pullCmd)
+}
+
+func initTemplatePull(repository string) error {
+	faasCliPath := config.GetFaasCliPath()
+
+	repo, official := checkRepositoryTemplate(repository)
+
+	if err := templatePull(faasCliPath, repo, official); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func templatePull(args []string) error {
-	repo, err := repository.GetRepositoryURL(args[0])
-	if err != nil {
-		return err
+func templatePull(faasCliPath, repo string, official bool) error {
+	checkOpenFaas()
+	var taskPull execute.Task
+
+	if official {
+		taskPull = execute.Task{
+			Command:     faasCliPath,
+			Args:        []string{
+				"template", "store", "pull", repo,
+			},
+			StreamStdio: true,
+		}
+	} else {
+		taskPull = execute.Task{
+			Command:     faasCliPath,
+			Args:        []string{
+				"template", "pull", repo,
+			},
+			StreamStdio: true,
+		}
 	}
 
-	taskPull := execute.Task{
-		Command:     "git",
-		Args:        []string{
-			"clone", repo, args[1],
-		},
-		StreamStdio: false,
-	}
-
-	fmt.Println("Baixando template...")
 	res, err := taskPull.Execute()
 	if err != nil {
 		return err
 	}
 
-	if res.ExitCode != 0 {
+	if res.ExitCode > 1 {
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
 
 	return nil
+}
+
+func checkRepositoryTemplate(repository string) (string, bool) {
+	u, _ := url.Parse(repository)
+
+	if u.Host == "" {
+		return repository, true
+	} else {
+		return repository, false
+	}
 }
