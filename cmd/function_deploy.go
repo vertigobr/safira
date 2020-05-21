@@ -17,41 +17,42 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
+
+	"github.com/spf13/cobra"
 )
 
-var buildCmd = &cobra.Command{
-	Use:   "build -f YAML_FILE",
-	Short: "Executa o build de funções",
-	Long: `Executa o build de funções`,
-	SuggestionsMinimumDistance: 1,
-	PreRunE: PreRunFunctionBuild,
-	RunE: initFunctionBuild,
+// deployCmd represents the deploy command
+var deployCmd = &cobra.Command{
+	Use:   "deploy -f YAML_FILE",
+	Short: "Executa deploy das funções",
+	Long: `Executa deploy das funções`,
+	PreRunE: PreRunFunctionDeploy,
+	RunE: initFunctionDeploy,
 }
 
 func init() {
-	functionCmd.AddCommand(buildCmd)
+	functionCmd.AddCommand(deployCmd)
 }
 
-func initFunctionBuild(cmd *cobra.Command, args []string) error {
+func initFunctionDeploy(cmd *cobra.Command, args []string) error {
 	faasCliPath := config.GetFaasCliPath()
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 
-	return functionBuild(faasCliPath, flagYaml)
+	return functionDeploy(faasCliPath, flagYaml)
 }
 
-func functionBuild(faasCliPath, flagYaml string) error {
-	taskFunctionBuild := execute.Task{
+func functionDeploy(faasCliPath, flagYaml string) error {
+	taskFunctionDeploy := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"build", "-f", flagYaml,
+			"deploy", "-f", flagYaml,
 		},
 		StreamStdio: true,
 	}
 
-	res, err := taskFunctionBuild.Execute()
+	res, err := taskFunctionDeploy.Execute()
 	if err != nil {
 		return err
 	}
@@ -63,7 +64,7 @@ func functionBuild(faasCliPath, flagYaml string) error {
 	return nil
 }
 
-func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
+func PreRunFunctionDeploy(cmd *cobra.Command, args []string) error {
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 	if len(flagYaml) == 0 {
 		return fmt.Errorf("a flag --yaml/-f é obrigatória")

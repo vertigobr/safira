@@ -30,4 +30,5 @@ var functionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(functionCmd)
+	functionCmd.PersistentFlags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
 }
