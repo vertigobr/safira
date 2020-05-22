@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
@@ -25,27 +26,28 @@ import (
 var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
-	Long: `Derruba uma infraestrutura de desenvolvimento provisionada anteriormente`,
+	Long: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
 	SuggestionsMinimumDistance: 1,
-	Run: func(cmd *cobra.Command, args []string) {
-		initInfraDown()
-	},
+	RunE: initInfraDown,
 }
 
 func init() {
 	infraCmd.AddCommand(downCmd)
 }
 
-func initInfraDown() {
-	checkInfra()
+func initInfraDown(cmd *cobra.Command, args []string) error {
+	if err := checkInfra(); err != nil {
+		return err
+	}
+
 	k3dPath := config.GetK3dPath()
 
 	if err := deleteCluster(k3dPath); err != nil {
-		fmt.Println("\nNenhum cluster encontrado")
-		return
+		return errors.New("\nNenhum cluster encontrado!")
 	}
 
 	fmt.Println("\nCluster destruído com sucesso!")
+	return nil
 }
 
 func deleteCluster(k3dPath string) error {

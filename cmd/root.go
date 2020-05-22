@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 	Long: `O Safira é uma ferramenta para auxiliar os desenvolvedores no Vertigo iPaaS.`,
 	Version: "v0.1.0",
 	SilenceUsage: true,
-	//SilenceErrors: true,
+	SilenceErrors: true,
 }
 
 func Execute() {

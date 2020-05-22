@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
@@ -24,38 +25,40 @@ import (
 	"time"
 )
 
-const clusterName = "clusterName"
-
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento",
-	Long: `Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas`,
+	Long: "Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas",
 	SuggestionsMinimumDistance: 1,
-	Run: func(cmd *cobra.Command, args []string) {
-		initInfraUp()
-	},
+	RunE: initInfraUp,
 }
 
 func init() {
 	infraCmd.AddCommand(upCmd)
 }
 
-func initInfraUp() {
-	checkInfra()
+func initInfraUp(cmd *cobra.Command, args []string) error {
+	if err := checkInfra(); err != nil {
+		return err
+	}
+
 	k3dPath := config.GetK3dPath()
 	helmPath := config.GetHelmPath()
+
 	if err := createCluster(k3dPath); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := helmUpgrade(helmPath); err != nil {
-		panic(err)
+		return err
 	}
 
 	fmt.Println("\nCluster criado com sucesso!")
 	fmt.Println("Konga    - konga.localdomain:8080")
 	fmt.Println("Gateway  - ipaas.localdomain:8080")
 	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
+
+	return nil
 }
 
 func createCluster(k3dPath string) error {
@@ -80,7 +83,7 @@ func createCluster(k3dPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return errors.New("\nCluster local já está levantado!")
 	}
 
 	time.Sleep(time.Second * 10)
@@ -100,11 +103,11 @@ func createCluster(k3dPath string) error {
 	}
 
 	if resCreateKubeconfig.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resCreateKubeconfig.ExitCode)
+		return errors.New("\nFalha na exportação do KUBECONFIG, tente novamente!")
 	}
 
 	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
-		return err
+		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
 	}
 
 	return nil

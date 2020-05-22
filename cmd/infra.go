@@ -22,6 +22,8 @@ import (
 	"github.com/vertigobr/safira-libs/pkg/get"
 )
 
+const clusterName = "vertigo-ipaas"
+
 var infraCmd = &cobra.Command{
 	Use:   "infra",
 	Short: "Responsável por gerenciar a infraestrutura",
@@ -32,33 +34,37 @@ var infraCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(infraCmd)
 
-	infraCmd.Flags().String(
+	infraCmd.PersistentFlags().String(
 		"env",
 		"local",
 		"Recebe o ambiente aonde será provisionado o cluster Kubernetes.",
 	)
 }
 
-func checkInfra() {
+func checkInfra() error {
+	msgError := "não foi possível baixar o pacote "
 	fmt.Println("Verificando dependências...")
+
 	if exists, _ := config.ExistsBinary("kubectl"); !exists {
 		fmt.Println("Baixando kubectl...")
 		if err := get.DownloadKubectl(); err != nil {
-			panic("Não foi possível baixar o pacote kubectl")
+			return fmt.Errorf(msgError + "kubectl")
 		}
 	}
 
 	if exists, _ := config.ExistsBinary("k3d"); !exists {
 		fmt.Println("Baixando k3d...")
 		if err := get.DownloadK3d(); err != nil {
-			panic("Não foi possível baixar o pacote k3d")
+			return fmt.Errorf(msgError + "k3d")
 		}
 	}
 
 	if exists, _ := config.ExistsBinary("helm"); !exists {
 		fmt.Println("Baixando helm...")
 		if err := get.DownloadHelm(); err != nil {
-			panic("Não foi possível baixar o pacote helm")
+			return fmt.Errorf(msgError + "helm")
 		}
 	}
+
+	return nil
 }
