@@ -101,7 +101,10 @@ func createFunction(faasCliPath, projectName, lang string) error {
 	taskCreateFunction := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"new", projectName, "--lang", lang,
+			"new", projectName,
+			"--lang", lang,
+			"--gateway", "http://gateway.ipaas.localdomain:8080",
+			"--prefix", "registry.localdomain:5000",
 		},
 		StreamStdio: true,
 	}
