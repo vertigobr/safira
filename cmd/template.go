@@ -23,7 +23,6 @@ import (
 	"os"
 )
 
-// templateCmd represents the template command
 var templateCmd = &cobra.Command{
 	Use:   "template",
 	Short: "Permite navegar e puxar templates",
@@ -33,7 +32,6 @@ var templateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(templateCmd)
-	setStore()
 }
 
 func checkOpenFaas() {

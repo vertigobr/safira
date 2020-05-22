@@ -27,7 +27,7 @@ const clusterName = "vertigo-ipaas"
 var infraCmd = &cobra.Command{
 	Use:   "infra",
 	Short: "Responsável por gerenciar a infraestrutura",
-	Long: `Responsável por gerenciar a infraestrutura em ambiente local`, //  ou em nuvem
+	Long:  "Responsável por gerenciar a infraestrutura em ambiente local", //  ou em nuvem
 	SuggestionsMinimumDistance: 1,
 }
 

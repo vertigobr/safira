@@ -28,8 +28,9 @@ var newCmd = &cobra.Command{
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
 	Example: "safira function new project-name --lang=java",
-	PreRunE: validFlagsFunctionNew,
-	RunE:    initFunctionNew,
+	PreRunE: PreRunFunctionNew,
+	RunE:    runFunctionNew,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
@@ -48,7 +49,7 @@ func validArgsFunctionNew(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func validFlagsFunctionNew(cmd *cobra.Command, args []string) error {
+func PreRunFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 	if len(flagLang) == 0 {
 		return fmt.Errorf("a flag --lang é obrigatória")
@@ -57,7 +58,7 @@ func validFlagsFunctionNew(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func initFunctionNew(cmd *cobra.Command, args []string) error {
+func runFunctionNew(cmd *cobra.Command, args []string) error {
 	faasCliPath := config.GetFaasCliPath()
 	flagLang, _ := cmd.Flags().GetString("lang")
 	checkOpenFaas()

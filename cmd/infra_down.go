@@ -26,16 +26,16 @@ import (
 var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
-	Long: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
+	Long:  "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
+	RunE:  runInfraDown,
 	SuggestionsMinimumDistance: 1,
-	RunE: initInfraDown,
 }
 
 func init() {
 	infraCmd.AddCommand(downCmd)
 }
 
-func initInfraDown(cmd *cobra.Command, args []string) error {
+func runInfraDown(cmd *cobra.Command, args []string) error {
 	if err := checkInfra(); err != nil {
 		return err
 	}

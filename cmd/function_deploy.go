@@ -23,20 +23,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
-	Use:   "deploy -f YAML_FILE",
-	Short: "Executa deploy das funções",
-	Long: `Executa deploy das funções`,
+	Use:     "deploy -f YAML_FILE",
+	Short:   "Executa deploy das funções",
+	Long:    "Executa deploy das funções",
 	PreRunE: PreRunFunctionDeploy,
-	RunE: initFunctionDeploy,
+	RunE:    runFunctionDeploy,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	functionCmd.AddCommand(deployCmd)
 }
 
-func initFunctionDeploy(cmd *cobra.Command, args []string) error {
+func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	faasCliPath := config.GetFaasCliPath()
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 

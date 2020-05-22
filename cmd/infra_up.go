@@ -28,16 +28,16 @@ import (
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento",
-	Long: "Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas",
+	Long:  "Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas",
+	RunE:  runInfraUp,
 	SuggestionsMinimumDistance: 1,
-	RunE: initInfraUp,
 }
 
 func init() {
 	infraCmd.AddCommand(upCmd)
 }
 
-func initInfraUp(cmd *cobra.Command, args []string) error {
+func runInfraUp(cmd *cobra.Command, args []string) error {
 	if err := checkInfra(); err != nil {
 		return err
 	}

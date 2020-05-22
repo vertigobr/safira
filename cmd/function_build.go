@@ -23,19 +23,29 @@ import (
 )
 
 var buildCmd = &cobra.Command{
-	Use:   "build -f YAML_FILE",
-	Short: "Executa o build de funções",
-	Long: `Executa o build de funções`,
-	SuggestionsMinimumDistance: 1,
+	Use:     "build -f YAML_FILE",
+	Short:   "Executa o build de funções",
+	Long:    "Executa o build de funções",
 	PreRunE: PreRunFunctionBuild,
-	RunE: initFunctionBuild,
+	RunE:    runFunctionBuild,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	functionCmd.AddCommand(buildCmd)
+	functionCmd.Flags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
 }
 
-func initFunctionBuild(cmd *cobra.Command, args []string) error {
+func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
+	flagYaml, _ := cmd.Flags().GetString("yaml")
+	if len(flagYaml) == 0 {
+		return fmt.Errorf("a flag --yaml/-f é obrigatória")
+	}
+
+	return nil
+}
+
+func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	faasCliPath := config.GetFaasCliPath()
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 
@@ -58,15 +68,6 @@ func functionBuild(faasCliPath, flagYaml string) error {
 
 	if res.ExitCode != 0 {
 		return fmt.Errorf("exit code %d", res.ExitCode)
-	}
-
-	return nil
-}
-
-func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
-	flagYaml, _ := cmd.Flags().GetString("yaml")
-	if len(flagYaml) == 0 {
-		return fmt.Errorf("a flag --yaml/-f é obrigatória")
 	}
 
 	return nil

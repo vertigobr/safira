@@ -19,16 +19,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// functionCmd represents the function command
 var functionCmd = &cobra.Command{
-	Use:   "function",
+	Use:     "function",
 	Aliases: []string{"func"},
-	Short: "Permite gerenciamento das functions",
-	Long: `Permite gerenciamento das functions`,
+	Short:   "Permite gerenciamento das functions",
+	Long:    "Permite gerenciamento das functions",
 	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	rootCmd.AddCommand(functionCmd)
-	functionCmd.PersistentFlags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
 }

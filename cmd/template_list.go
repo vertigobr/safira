@@ -25,19 +25,18 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lista os templates oficiais do Vertigo iPaaS",
-	Long: `Lista os templates oficiais do Vertigo iPaaS`,
+	Long:  "Lista os templates oficiais do Vertigo iPaaS",
+	RunE:  runTemplateList,
 	SuggestionsMinimumDistance: 1,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return initTemplateList()
-	},
 }
 
 func init() {
 	templateCmd.AddCommand(listCmd)
 }
 
-func initTemplateList() error {
+func runTemplateList(cmd *cobra.Command, args []string) error {
 	faasCliPath := config.GetFaasCliPath()
+	checkOpenFaas()
 
 	if err := templateList(faasCliPath); err != nil {
 		return err
@@ -47,7 +46,7 @@ func initTemplateList() error {
 }
 
 func templateList(faasCliPath string) error {
-	checkOpenFaas()
+	setStore()
 
 	taskList := execute.Task{
 		Command:     faasCliPath,
