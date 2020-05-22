@@ -128,7 +128,7 @@ downloadFile() {
 # Added hostnames for develop in local environment
 addHost() {
   HOSTS_FILE="/etc/hosts"
-  HOST_NAMES="127.0.0.1       ipaas.localdomain konga.localdomain gateway.ipaas.localdomain"
+  HOST_NAMES="127.0.0.1 registry.localdomain ipaas.localdomain konga.localdomain gateway.ipaas.localdomain"
   FOUND=false
   while IFS="" read -r p || [ -n "$p" ]
   do
