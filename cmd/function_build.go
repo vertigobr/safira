@@ -33,7 +33,7 @@ var buildCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(buildCmd)
-	functionCmd.Flags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
+	buildCmd.Flags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
 }
 
 func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
@@ -49,7 +49,15 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	faasCliPath := config.GetFaasCliPath()
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 
-	return functionBuild(faasCliPath, flagYaml)
+	if err := functionBuild(faasCliPath, flagYaml); err != nil {
+		return err
+	}
+
+	if err := functionPush(faasCliPath, flagYaml); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func functionBuild(faasCliPath, flagYaml string) error {
@@ -62,6 +70,27 @@ func functionBuild(faasCliPath, flagYaml string) error {
 	}
 
 	res, err := taskFunctionBuild.Execute()
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+
+	return nil
+}
+
+func functionPush(faasCliPath, flagYaml string) error {
+	taskFunctionPush := execute.Task{
+		Command:     faasCliPath,
+		Args:        []string{
+			"push", "-f", flagYaml,
+		},
+		StreamStdio: true,
+	}
+
+	res, err := taskFunctionPush.Execute()
 	if err != nil {
 		return err
 	}
