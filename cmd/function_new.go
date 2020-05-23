@@ -20,11 +20,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
+	"os"
+	"regexp"
 )
 
 var newCmd = &cobra.Command{
 	Use:     "new FUNCTION_NAME --lang=FUNCTION_LANGUAGE",
-	Args:    validArgsFunctionNew,
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
 	Example: "safira function new project-name --lang=java",
@@ -39,20 +40,34 @@ func init() {
 	newCmd.Flags().String("lang", "", "Linguagem para criação do template")
 }
 
-func validArgsFunctionNew(cmd *cobra.Command, args []string) error {
-	if len(args) == 0 {
+func PreRunFunctionNew(cmd *cobra.Command, args []string) error {
+	flagLang, _ := cmd.Flags().GetString("lang")
+
+	if len(flagLang) == 0 && len(args) < 1 {
+		cmd.Help()
+		os.Exit(0)
+	} else if len(args) < 1 {
 		_ = cmd.Help()
 		fmt.Println()
 		return fmt.Errorf("nome da função não inserido")
+	} else if len(flagLang) == 0 {
+		return fmt.Errorf("a flag --lang é obrigatória")
+	}
+
+	functionName := args[0]
+	if err := validateFunctionName(functionName); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func PreRunFunctionNew(cmd *cobra.Command, args []string) error {
-	flagLang, _ := cmd.Flags().GetString("lang")
-	if len(flagLang) == 0 {
-		return fmt.Errorf("a flag --lang é obrigatória")
+func validateFunctionName(functionName string) error {
+	// Regex for RFC-1123 validation:
+	// k8s.io/kubernetes/pkg/util/validation/validation.go
+	var validDNS = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
+	if matched := validDNS.MatchString(functionName); !matched {
+		return fmt.Errorf("o nome da função deve conter apenas caracteres: a-z, 0-9 e traços")
 	}
 
 	return nil
