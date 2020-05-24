@@ -20,8 +20,8 @@ import (
 	"os"
 
 	"github.com/vertigobr/safira-libs/pkg/config"
-	"github.com/vertigobr/safira-libs/pkg/execute"
 	"github.com/vertigobr/safira-libs/pkg/deploy"
+	"github.com/vertigobr/safira-libs/pkg/execute"
 
 	"github.com/spf13/cobra"
 )
