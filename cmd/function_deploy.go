@@ -17,8 +17,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
+	"github.com/vertigobr/safira-libs/pkg/deploy"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +30,6 @@ var deployCmd = &cobra.Command{
 	Use:     "deploy -f YAML_FILE",
 	Short:   "Executa deploy das funções",
 	Long:    "Executa deploy das funções",
-	PreRunE: PreRunFunctionDeploy,
 	RunE:    runFunctionDeploy,
 	SuggestionsMinimumDistance: 1,
 }
@@ -37,17 +39,30 @@ func init() {
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
-	faasCliPath := config.GetFaasCliPath()
-	flagYaml, _ := cmd.Flags().GetString("yaml")
+	kubectlPath := config.GetKubectlPath()
 
-	return functionDeploy(faasCliPath, flagYaml)
+	if err := checkDeployFiles(); err!= nil {
+		return err
+	}
+
+	if err := functionDeploy(kubectlPath); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func functionDeploy(faasCliPath, flagYaml string) error {
+func functionDeploy(kubectlPath string) error {
+	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
+		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
+	}
+
 	taskFunctionDeploy := execute.Task{
-		Command:     faasCliPath,
+		Command:     kubectlPath,
 		Args:        []string{
-			"deploy", "-f", flagYaml,
+			"apply",
+			"--kubeconfig", os.Getenv("KUBECONFIG"),
+			"-f", "deploy/",
 		},
 		StreamStdio: true,
 	}
@@ -64,10 +79,33 @@ func functionDeploy(faasCliPath, flagYaml string) error {
 	return nil
 }
 
-func PreRunFunctionDeploy(cmd *cobra.Command, args []string) error {
-	flagYaml, _ := cmd.Flags().GetString("yaml")
-	if len(flagYaml) == 0 {
-		return fmt.Errorf("a flag --yaml/-f é obrigatória")
+func checkDeployFiles() error {
+	deployFolder := "./deploy"
+
+	if _, err := os.Stat(deployFolder); err != nil {
+		if err = os.MkdirAll(deployFolder, 0700); err != nil {
+			return err
+		}
+	}
+
+	if _, err := os.Stat(deployFolder); err != nil {
+		return fmt.Errorf("arquivo .env não encontrado")
+	}
+
+	if err := deploy.CreateYamlFunction(deployFolder + "/function.yml"); err != nil {
+		return err
+	}
+
+	if err := deploy.CreateYamlIngress(deployFolder + "/ingress.yml"); err != nil {
+		return err
+	}
+
+	if err := deploy.CreateYamlKongPlugin(deployFolder + "/kongplugin.yml"); err != nil {
+		return err
+	}
+
+	if err := deploy.CreateYamlService(deployFolder + "/" + "service.yml"); err != nil {
+		return err
 	}
 
 	return nil
