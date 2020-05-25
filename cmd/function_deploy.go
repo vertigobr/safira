@@ -88,7 +88,7 @@ func checkDeployFiles() error {
 		}
 	}
 
-	if _, err := os.Stat(deployFolder); err != nil {
+	if _, err := os.Stat(".env"); err != nil {
 		return fmt.Errorf("arquivo .env não encontrado")
 	}
 
