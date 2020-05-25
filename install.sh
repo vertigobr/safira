@@ -143,22 +143,32 @@ addHost() {
   fi
 }
 
-#addPath() {
-#  PROFILE_FILE="$HOME/.profile"
-#  FOLDER_SAFIRA="PATH=\$PATH:$HOME/.safira/bin"
-#  FOUND=false
-#  while IFS="" read -r p || [ -n "$p" ]
-#  do
-#    if [[ "$p" == "$FOLDER_SAFIRA" ]]; then
-#      FOUND=true
-#      break
-#    fi
-#  done < "$PROFILE_FILE"
-#
-#  if [ "$FOUND" = false ]; then
-#    echo "$FOLDER_SAFIRA" >> "$PROFILE_FILE"
-#  fi
-#}
+addPath() {
+  BASH_FILE="$HOME/.bashrc"
+  ZSH_FILE="$HOME/.zshrc"
+  FOLDER_SAFIRA="export PATH=\$HOME/.safira/bin:\$PATH"
+  FOUND=false
+  FILE=""
+
+  if [ -f "$ZSH_FILE" ]; then
+    FILE=$ZSH_FILE
+  else
+    FILE=$BASH_FILE
+  fi
+
+  while IFS="" read -r p || [ -n "$p" ]
+  do
+    if [[ "$p" == "$FOLDER_SAFIRA" ]]; then
+      FOUND=true
+      break
+    fi
+  done < "$FILE"
+
+  if [ "$FOUND" = false ]; then
+    echo "$FOLDER_SAFIRA" >> "$FILE"
+    source "$FILE" 2> /dev/null
+  fi
+}
 
 # installFile verifies the MD5 for the file, then unpacks and
 # installs it.
@@ -178,7 +188,7 @@ installFile() {
   echo "Preparing to install $BINARY_NAME into ${SAFIRA_INSTALL_DIR}"
   runAsRoot cp "$SAFIRA_TMP_BIN" "$SAFIRA_INSTALL_DIR/$BINARY_NAME"
   addHost
-#  addPath
+  addPath
   echo "$BINARY_NAME installed into $SAFIRA_INSTALL_DIR/$BINARY_NAME"
 }
 
