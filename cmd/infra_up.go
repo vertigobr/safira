@@ -17,51 +17,48 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
 	"github.com/vertigobr/safira-libs/pkg/execute"
-	"github.com/vertigobr/safira-libs/pkg/get"
 	"os"
 	"time"
 )
 
-const clusterName = "clusterName"
-
 var upCmd = &cobra.Command{
 	Use:   "up",
-	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento.",
-	Long: `Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		initInfra()
-	},
+	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento",
+	Long:  "Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas",
+	RunE:  runInfraUp,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	infraCmd.AddCommand(upCmd)
 }
 
-func checkInfra() {
-	fmt.Println("Verificando dependências...")
-	if exists, _ := config.ExistsBinary("kubectl"); !exists {
-		fmt.Println("Baixando kubectl...")
-		if err := get.DownloadKubectl(); err != nil {
-			panic("Não foi possível baixar o pacote kubectl")
-		}
+func runInfraUp(cmd *cobra.Command, args []string) error {
+	if err := checkInfra(); err != nil {
+		return err
 	}
 
-	if exists, _ := config.ExistsBinary("k3d"); !exists {
-		fmt.Println("Baixando k3d...")
-		if err := get.DownloadK3d(); err != nil {
-			panic("Não foi possível baixar o pacote k3d")
-		}
+	k3dPath := config.GetK3dPath()
+	helmPath := config.GetHelmPath()
+
+	if err := createCluster(k3dPath); err != nil {
+		return err
 	}
 
-	if exists, _ := config.ExistsBinary("helm"); !exists {
-		fmt.Println("Baixando helm...")
-		if err := get.DownloadHelm(); err != nil {
-			panic("Não foi possível baixar o pacote helm")
-		}
+	if err := helmUpgrade(helmPath); err != nil {
+		return err
 	}
+
+	fmt.Println("\nCluster criado com sucesso!")
+	fmt.Println("Konga    - konga.localdomain:8080")
+	fmt.Println("Gateway  - ipaas.localdomain:8080")
+	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
+
+	return nil
 }
 
 func createCluster(k3dPath string) error {
@@ -86,7 +83,7 @@ func createCluster(k3dPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return errors.New("\nCluster local já está levantado!")
 	}
 
 	time.Sleep(time.Second * 10)
@@ -106,11 +103,11 @@ func createCluster(k3dPath string) error {
 	}
 
 	if resCreateKubeconfig.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resCreateKubeconfig.ExitCode)
+		return errors.New("\nFalha na exportação do KUBECONFIG, tente novamente!")
 	}
 
 	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
-		return err
+		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
 	}
 
 	return nil
@@ -174,22 +171,4 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	return nil
-}
-
-func initInfra() {
-	checkInfra()
-	k3dPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "k3d", "k3d")
-	helmPath := fmt.Sprintf("%sbin/.%s/%s", config.GetUserDir(), "helm", "helm")
-	if err := createCluster(k3dPath); err != nil {
-		panic(err)
-	}
-
-	if err := helmUpgrade(helmPath); err != nil {
-		panic(err)
-	}
-
-	fmt.Println("\nCluster criado com sucesso!")
-	fmt.Println("Konga    - konga.localdomain:8080")
-	fmt.Println("Gateway  - ipaas.localdomain:8080")
-	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
 }

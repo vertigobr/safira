@@ -1,7 +1,7 @@
-- Adicionar na etapada de instalação o kubectl;
-- versionar projeto;
-- organizar os nomes e argumentos;
-- fazer ajustes para não deixar arquivos sobrando na hora da instalação;
-- adicionar verificação da virtualização.
+# Safira
 
-arkade
+##Intalação
+
+```shell script
+curl https://raw.githubusercontent.com/vertigobr/safira/master/install.sh | bash
+```
