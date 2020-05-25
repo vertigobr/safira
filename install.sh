@@ -16,7 +16,7 @@
 
 # shellcheck disable=SC2223
 : ${BINARY_NAME:="safira"}
-: ${REPO_URL:="https://github.com/kyfelipe/safira"}
+: ${REPO_URL:="https://github.com/vertigobr/safira"}
 : ${USE_SUDO:="true"}
 : ${SAFIRA_INSTALL_DIR:="/usr/local/bin"}
 
