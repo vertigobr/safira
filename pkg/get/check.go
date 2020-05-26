@@ -1,8 +1,9 @@
-package config
+package get
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira-libs/pkg/get"
+	"github.com/vertigobr/safira/pkg/config"
+	"os/exec"
 )
 
 var errorCheck = "não foi possível baixar o pacote "
@@ -10,7 +11,7 @@ var errorCheck = "não foi possível baixar o pacote "
 func CheckKubectl() error {
 	if exists, _ := ExistsBinary("kubectl"); !exists {
 		fmt.Println("Baixando kubectl...")
-		if err := get.DownloadKubectl(); err != nil {
+		if err := DownloadKubectl(); err != nil {
 			return fmt.Errorf(errorCheck + "kubectl")
 		}
 	}
@@ -21,7 +22,7 @@ func CheckKubectl() error {
 func CheckK3d() error {
 	if exists, _ := ExistsBinary("k3d"); !exists {
 		fmt.Println("Baixando k3d...")
-		if err := get.DownloadK3d(); err != nil {
+		if err := DownloadK3d(); err != nil {
 			return fmt.Errorf(errorCheck + "k3d")
 		}
 	}
@@ -32,7 +33,7 @@ func CheckK3d() error {
 func CheckHelm() error {
 	if exists, _ := ExistsBinary("helm"); !exists {
 		fmt.Println("Baixando helm...")
-		if err := get.DownloadHelm(); err != nil {
+		if err := DownloadHelm(); err != nil {
 			return fmt.Errorf(errorCheck + "helm")
 		}
 	}
@@ -43,10 +44,16 @@ func CheckHelm() error {
 func CheckFaasCli() error {
 	if exists, _ := ExistsBinary("faas-cli"); !exists {
 		fmt.Println("Baixando faas-cli...")
-		if err := get.DownloadHelm(); err != nil {
+		if err := DownloadFaasCli(); err != nil {
 			return fmt.Errorf(errorCheck + "faas-cli")
 		}
 	}
 
 	return nil
+}
+
+func ExistsBinary(binary string) (exists bool, err error) {
+	path, err := exec.LookPath(fmt.Sprintf("%sbin/%s", config.GetUserDir(), binary))
+	exists = path != ""
+	return
 }

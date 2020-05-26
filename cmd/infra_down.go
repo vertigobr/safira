@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira-libs/pkg/config"
-	"github.com/vertigobr/safira-libs/pkg/execute"
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/execute"
 )
 
 var downCmd = &cobra.Command{

@@ -1,8 +1,6 @@
 package get
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const faasVersion = "0.12.2"
 

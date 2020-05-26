@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira-libs/pkg/config"
-	"github.com/vertigobr/safira-libs/pkg/execute"
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/execute"
 	"os"
 	"time"
 )
@@ -155,7 +155,7 @@ func helmUpgrade(helmPath string) error {
 		Args:        []string{
 			"upgrade", "-i",
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
-			"-f", "https://gist.githubusercontent.com/kyfelipe/1db230e45d14213ea5ca375aa74057e4/raw/859a26cbb488012f0af6520b8dab253abf2fd97e/k3d.yaml",
+			"-f", "https://raw.githubusercontent.com/vertigobr/safira/master/k3d.yaml",
 			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
 		},
 		StreamStdio: false,
