@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira-libs/pkg/config"
-	"github.com/vertigobr/safira-libs/pkg/get"
 )
 
 const clusterName = "vertigo-ipaas"
@@ -42,28 +41,18 @@ func init() {
 }
 
 func checkInfra() error {
-	msgError := "não foi possível baixar o pacote "
-	fmt.Println("Verificando dependências...")
+	fmt.Println(checkDefaultMessage)
 
-	if exists, _ := config.ExistsBinary("kubectl"); !exists {
-		fmt.Println("Baixando kubectl...")
-		if err := get.DownloadKubectl(); err != nil {
-			return fmt.Errorf(msgError + "kubectl")
-		}
+	if err := config.CheckKubectl(); err != nil {
+		return err
 	}
 
-	if exists, _ := config.ExistsBinary("k3d"); !exists {
-		fmt.Println("Baixando k3d...")
-		if err := get.DownloadK3d(); err != nil {
-			return fmt.Errorf(msgError + "k3d")
-		}
+	if err := config.CheckK3d(); err != nil {
+		return err
 	}
 
-	if exists, _ := config.ExistsBinary("helm"); !exists {
-		fmt.Println("Baixando helm...")
-		if err := get.DownloadHelm(); err != nil {
-			return fmt.Errorf(msgError + "helm")
-		}
+	if err := config.CheckHelm(); err != nil {
+		return err
 	}
 
 	return nil

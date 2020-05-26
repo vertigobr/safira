@@ -46,6 +46,11 @@ func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
 }
 
 func runFunctionBuild(cmd *cobra.Command, args []string) error {
+	fmt.Println(checkDefaultMessage)
+	if err := config.CheckFaasCli(); err != nil {
+		return err
+	}
+
 	faasCliPath := config.GetFaasCliPath()
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 

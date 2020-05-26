@@ -74,9 +74,13 @@ func validateFunctionName(functionName string) error {
 }
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
+	fmt.Println(checkDefaultMessage)
+	if err := config.CheckFaasCli(); err != nil {
+		return err
+	}
+
 	faasCliPath := config.GetFaasCliPath()
 	flagLang, _ := cmd.Flags().GetString("lang")
-	checkOpenFaas()
 
 	if err := downloadTemplate(faasCliPath, flagLang); err != nil {
 		return err
