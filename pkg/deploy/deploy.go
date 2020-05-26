@@ -13,7 +13,7 @@ func createYamlFile(fileName string, bytes []byte) error {
 		fileName = fileName + ".yml"
 	}
 
-	f, err := os.OpenFile(fileName, os.O_SYNC|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}

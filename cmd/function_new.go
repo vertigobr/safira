@@ -139,5 +139,16 @@ func createFunction(faasCliPath, projectName, lang string) error {
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
 
+	f, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte("deploy\n"))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
