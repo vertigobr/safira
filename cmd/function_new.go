@@ -139,6 +139,18 @@ func createFunction(faasCliPath, projectName, lang string) error {
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
 
+	if err := writeGitignore(); err != nil {
+		return err
+	}
+
+	if err := addFileEnv(projectName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func writeGitignore() error {
 	f, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
@@ -146,6 +158,26 @@ func createFunction(faasCliPath, projectName, lang string) error {
 	defer f.Close()
 
 	_, err = f.Write([]byte("deploy\n"))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addFileEnv(projectName string) error {
+	envProjectName := "PROJECT_NAME=" + projectName + "\n"
+	envImage := "IMAGE=registry.localdomain:5000/" + projectName + ":latest\n"
+	envPort := "PORT=8080\n"
+	envDomain := "DOMAIN=ipaas.localdomain\n"
+
+	f, err := os.OpenFile(".env", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte(envProjectName + envImage + envPort + envDomain))
 	if err != nil {
 		return err
 	}
