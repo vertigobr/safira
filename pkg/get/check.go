@@ -44,7 +44,7 @@ func CheckHelm() error {
 func CheckFaasCli() error {
 	if exists, _ := ExistsBinary("faas-cli"); !exists {
 		fmt.Println("Baixando faas-cli...")
-		if err := DownloadHelm(); err != nil {
+		if err := DownloadFaasCli(); err != nil {
 			return fmt.Errorf(errorCheck + "faas-cli")
 		}
 	}
