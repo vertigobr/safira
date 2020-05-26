@@ -1,8 +1,6 @@
 package get
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const helmVersion = "v3.1.2"
 

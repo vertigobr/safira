@@ -17,11 +17,12 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/vertigobr/safira/pkg/get"
 	"os"
 
-	"github.com/vertigobr/safira-libs/pkg/config"
-	"github.com/vertigobr/safira-libs/pkg/deploy"
-	"github.com/vertigobr/safira-libs/pkg/execute"
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/deploy"
+	"github.com/vertigobr/safira/pkg/execute"
 
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,7 @@ func init() {
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	fmt.Println(checkDefaultMessage)
-	if err := config.CheckKubectl(); err != nil {
+	if err := get.CheckKubectl(); err != nil {
 		return err
 	}
 

@@ -2,7 +2,7 @@ package get
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira/pkg/config"
 	"io"
 	"io/ioutil"
 	"net/http"

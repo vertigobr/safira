@@ -1,8 +1,6 @@
 package deploy
 
-import (
-	y "gopkg.in/yaml.v2"
-)
+import y "gopkg.in/yaml.v2"
 
 type service struct {
 	ApiVersion string   `yaml:"apiVersion"`

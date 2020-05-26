@@ -18,8 +18,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira-libs/pkg/config"
-	"github.com/vertigobr/safira-libs/pkg/execute"
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/get"
 	"os"
 	"regexp"
 )
@@ -75,7 +76,7 @@ func validateFunctionName(functionName string) error {
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
 	fmt.Println(checkDefaultMessage)
-	if err := config.CheckFaasCli(); err != nil {
+	if err := get.CheckFaasCli(); err != nil {
 		return err
 	}
 

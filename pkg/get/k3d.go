@@ -1,8 +1,6 @@
 package get
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const k3dVersion = "v1.7.0"
 

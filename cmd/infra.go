@@ -18,7 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira-libs/pkg/config"
+	"github.com/vertigobr/safira/pkg/get"
 )
 
 const clusterName = "vertigo-ipaas"
@@ -43,15 +43,15 @@ func init() {
 func checkInfra() error {
 	fmt.Println(checkDefaultMessage)
 
-	if err := config.CheckKubectl(); err != nil {
+	if err := get.CheckKubectl(); err != nil {
 		return err
 	}
 
-	if err := config.CheckK3d(); err != nil {
+	if err := get.CheckK3d(); err != nil {
 		return err
 	}
 
-	if err := config.CheckHelm(); err != nil {
+	if err := get.CheckHelm(); err != nil {
 		return err
 	}
 

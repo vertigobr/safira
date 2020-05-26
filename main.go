@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"safira/cmd"
+	"github.com/vertigobr/safira/cmd"
 )
 
 func main() {

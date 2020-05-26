@@ -1,8 +1,6 @@
 package config
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func GetKubectlPath() string {
 	return fmt.Sprintf("%sbin/kubectl", GetUserDir())
