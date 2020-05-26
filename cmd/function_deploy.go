@@ -39,6 +39,11 @@ func init() {
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
+	fmt.Println(checkDefaultMessage)
+	if err := config.CheckKubectl(); err != nil {
+		return err
+	}
+
 	kubectlPath := config.GetKubectlPath()
 
 	if err := checkDeployFiles(); err!= nil {

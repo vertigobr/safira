@@ -27,11 +27,13 @@ import (
 
 var cfgFile string
 
+const checkDefaultMessage = "Verificando dependências..."
+
 var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "O Safira é uma ferramenta de auxílio ao Vertigo iPaaS",
 	Long:          "O Safira é uma ferramenta para auxiliar os desenvolvedores no Vertigo iPaaS",
-	Version:       "v0.1.0",
+	Version:       "v0.0.1-beta",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }

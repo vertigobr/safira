@@ -35,8 +35,12 @@ func init() {
 }
 
 func runTemplateList(cmd *cobra.Command, args []string) error {
+	fmt.Println(checkDefaultMessage)
+	if err := config.CheckFaasCli(); err != nil {
+		return err
+	}
+
 	faasCliPath := config.GetFaasCliPath()
-	checkOpenFaas()
 
 	if err := templateList(faasCliPath); err != nil {
 		return err
