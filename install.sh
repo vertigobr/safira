@@ -20,6 +20,13 @@
 : ${USE_SUDO:="true"}
 : ${SAFIRA_INSTALL_DIR:="/usr/local/bin"}
 
+checkRoot () {
+  if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 2
+  fi
+}
+
 # initArch discovers the architecture for this system.
 initArch() {
   ARCH=$(uname -m)
@@ -166,7 +173,7 @@ addPath() {
 
   if [ "$FOUND" = false ]; then
     echo "$FOLDER_SAFIRA" >> "$FILE"
-    source "$FILE" 2> /dev/null
+    source "$FILE" 2>/dev/null
   fi
 }
 
@@ -186,22 +193,22 @@ installFile() {
   tar xf "$SAFIRA_TMP_FILE" -C "$SAFIRA_TMP"
   SAFIRA_TMP_BIN="$SAFIRA_TMP/safira"
   echo "Preparing to install $BINARY_NAME into ${SAFIRA_INSTALL_DIR}"
-  runAsRoot cp "$SAFIRA_TMP_BIN" "$SAFIRA_INSTALL_DIR/$BINARY_NAME"
   addHost
   addPath
+  runAsRoot cp "$SAFIRA_TMP_BIN" "$SAFIRA_INSTALL_DIR/$BINARY_NAME"
   echo "$BINARY_NAME installed into $SAFIRA_INSTALL_DIR/$BINARY_NAME"
 }
 
 # fail_trap is executed if an error occurs.
 fail_trap() {
   result=$?
-  if [ "$result" != "0" ]; then
+  if [[ "$result" != "0" && "$result" != "2" ]]; then
     if [[ -n "$INPUT_ARGUMENTS" ]]; then
       echo "Failed to install $BINARY_NAME with the arguments provided: $INPUT_ARGUMENTS"
     else
       echo "Failed to install $BINARY_NAME"
     fi
-    echo -e "\tFor support, go to $REPO_URL"
+    echo -e "For support, go to $REPO_URL"
   fi
   cleanup
   exit $result
@@ -240,7 +247,7 @@ while [[ $# -gt 0 ]]; do
        if [[ $# -ne 0 ]]; then
            export DESIRED_VERSION="${1}"
        else
-           echo -e "Please provide the desired version. e.g. --version v3.0.0 or -v canary"
+           echo -e "Please provide the desired version."
            exit 0
        fi
        ;;
@@ -257,6 +264,7 @@ while [[ $# -gt 0 ]]; do
 done
 set +u
 
+checkRoot
 initArch
 initOS
 verifySupported
