@@ -111,7 +111,7 @@ func downloadTemplate(faasCliPath, lang string) error {
 	}
 
 	if res.ExitCode > 1 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil
@@ -136,7 +136,7 @@ func createFunction(faasCliPath, projectName, lang string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	if err := writeGitignore(); err != nil {

@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-var errorCheck = "não foi possível baixar o pacote "
+var errorCheck = "não foi possível baixar o pacote: "
 
 func CheckKubectl() error {
 	if exists, _ := ExistsBinary("kubectl"); !exists {

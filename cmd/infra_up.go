@@ -57,6 +57,7 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 	fmt.Println("Konga    - konga.localdomain:8080")
 	fmt.Println("Gateway  - ipaas.localdomain:8080")
 	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
+	fmt.Println()
 
 	return nil
 }
@@ -83,7 +84,7 @@ func createCluster(k3dPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return errors.New("\nCluster local já está levantado!")
+		return fmt.Errorf(res.Stderr)
 	}
 
 	time.Sleep(time.Second * 10)
@@ -130,7 +131,7 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	if resRepoAdd.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resRepoAdd.ExitCode)
+		return fmt.Errorf(resRepoAdd.Stderr)
 	}
 
 	taskRepoUpdate := execute.Task{
@@ -147,7 +148,7 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	if resRepoUpdate.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resRepoUpdate.ExitCode)
+		return fmt.Errorf(resRepoUpdate.Stderr)
 	}
 
 	taskUpgrade := execute.Task{
@@ -167,7 +168,7 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	if resUpgrade.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resUpgrade.ExitCode)
+		return fmt.Errorf(resUpgrade.Stderr)
 	}
 
 	return nil

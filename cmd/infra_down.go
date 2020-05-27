@@ -47,6 +47,7 @@ func runInfraDown(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("\nCluster destruído com sucesso!")
+	fmt.Println()
 	return nil
 }
 
@@ -67,7 +68,7 @@ func deleteCluster(k3dPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil

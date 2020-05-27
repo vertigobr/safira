@@ -67,7 +67,7 @@ func templateList(faasCliPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil
