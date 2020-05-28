@@ -82,26 +82,27 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 
 	faasCliPath := config.GetFaasCliPath()
 	flagLang, _ := cmd.Flags().GetString("lang")
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
-	if err := downloadTemplate(faasCliPath, flagLang); err != nil {
+	if err := downloadTemplate(faasCliPath, flagLang, verboseFlag); err != nil {
 		return err
 	}
 	
-	if err := createFunction(faasCliPath, args[0], flagLang); err != nil {
+	if err := createFunction(faasCliPath, args[0], flagLang, verboseFlag); err != nil {
 		return err
 	}
 	
 	return nil
 }
 
-func downloadTemplate(faasCliPath, lang string) error {
+func downloadTemplate(faasCliPath, lang string, verboseFlag bool) error {
 	setStore()
 	taskDownloadTemplate := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
 			"template", "store", "pull", lang,
 		},
-		StreamStdio: true,
+		StreamStdio: verboseFlag,
 	}
 
 	fmt.Println("Baixando template...")
@@ -117,7 +118,7 @@ func downloadTemplate(faasCliPath, lang string) error {
 	return nil
 }
 
-func createFunction(faasCliPath, projectName, lang string) error {
+func createFunction(faasCliPath, projectName, lang string, verboseFlag bool) error {
 	taskCreateFunction := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
@@ -126,10 +127,10 @@ func createFunction(faasCliPath, projectName, lang string) error {
 			"--gateway", "http://gateway.ipaas.localdomain:8080",
 			"--prefix", "registry.localdomain:5000",
 		},
-		StreamStdio: true,
+		StreamStdio: verboseFlag,
 	}
 
-	fmt.Println("Criando template...")
+	fmt.Println("Criando a " + projectName + "...")
 	res, err := taskCreateFunction.Execute()
 	if err != nil {
 		return err

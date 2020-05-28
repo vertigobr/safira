@@ -44,12 +44,13 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 
 	k3dPath := config.GetK3dPath()
 	helmPath := config.GetHelmPath()
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
-	if err := createCluster(k3dPath); err != nil {
+	if err := createCluster(k3dPath, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := helmUpgrade(helmPath); err != nil {
+	if err := helmUpgrade(helmPath, verboseFlag); err != nil {
 		return err
 	}
 
@@ -62,7 +63,7 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func createCluster(k3dPath string) error {
+func createCluster(k3dPath string, verboseFlag bool) error {
 	taskCreateCluster := execute.Task{
 		Command:     k3dPath,
 		Args:        []string{
@@ -74,7 +75,7 @@ func createCluster(k3dPath string) error {
 			"-server-arg", "--no-deploy=traefik",
 			"-server-arg", "--no-deploy=servicelb",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	fmt.Println("Provisionando cluster local...")
@@ -114,14 +115,14 @@ func createCluster(k3dPath string) error {
 	return nil
 }
 
-func helmUpgrade(helmPath string) error {
+func helmUpgrade(helmPath string, verboseFlag bool) error {
 	taskRepoAdd := execute.Task{
 		Command:     helmPath,
 		Args:        []string{
 			"repo", "add", "vtg-ipaas",
 			"https://vertigobr.gitlab.io/ipaas/vtg-ipaas-chart",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	fmt.Println("Instalando o Vertigo iPaaS...")
@@ -139,7 +140,7 @@ func helmUpgrade(helmPath string) error {
 		Args:        []string{
 			"repo", "update",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	resRepoUpdate, err := taskRepoUpdate.Execute()
@@ -159,7 +160,7 @@ func helmUpgrade(helmPath string) error {
 			"-f", "https://raw.githubusercontent.com/vertigobr/safira/master/k3d.yaml",
 			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	resUpgrade, err := taskUpgrade.Execute()

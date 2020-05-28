@@ -27,7 +27,7 @@ var buildCmd = &cobra.Command{
 	Use:     "build -f YAML_FILE",
 	Short:   "Executa o build de funções",
 	Long:    "Executa o build de funções",
-	PreRunE: PreRunFunctionBuild,
+	PreRunE: preRunFunctionBuild,
 	RunE:    runFunctionBuild,
 	SuggestionsMinimumDistance: 1,
 }
@@ -37,7 +37,7 @@ func init() {
 	buildCmd.Flags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
 }
 
-func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
+func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 	if len(flagYaml) == 0 {
 		return fmt.Errorf("a flag --yaml/-f é obrigatória")
@@ -54,27 +54,30 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 
 	faasCliPath := config.GetFaasCliPath()
 	flagYaml, _ := cmd.Flags().GetString("yaml")
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	fmt.Println(verboseFlag)
 
-	if err := functionBuild(faasCliPath, flagYaml); err != nil {
+	if err := functionBuild(faasCliPath, flagYaml, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := functionPush(faasCliPath, flagYaml); err != nil {
+	if err := functionPush(faasCliPath, flagYaml, verboseFlag); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func functionBuild(faasCliPath, flagYaml string) error {
+func functionBuild(faasCliPath, flagYaml string, verboseFlag bool) error {
 	taskFunctionBuild := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
 			"build", "-f", flagYaml,
 		},
-		StreamStdio: true,
+		StreamStdio: verboseFlag,
 	}
 
+	fmt.Println("Executando build da função...")
 	res, err := taskFunctionBuild.Execute()
 	if err != nil {
 		return err
@@ -87,15 +90,16 @@ func functionBuild(faasCliPath, flagYaml string) error {
 	return nil
 }
 
-func functionPush(faasCliPath, flagYaml string) error {
+func functionPush(faasCliPath, flagYaml string, verboseFlag bool) error {
 	taskFunctionPush := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
 			"push", "-f", flagYaml,
 		},
-		StreamStdio: true,
+		StreamStdio: verboseFlag,
 	}
 
+	fmt.Println("Salvando a função no registry...")
 	res, err := taskFunctionPush.Execute()
 	if err != nil {
 		return err
