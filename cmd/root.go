@@ -23,11 +23,19 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"gopkg.in/gookit/color.v1"
 )
 
 var cfgFile string
+var safiraInit = color.Bold.Sprintf("safira init")
+var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
 
-const checkDefaultMessage = "Verificando dependências..."
+const (
+	kubectlBinaryName = "kubectl"
+	k3dBinaryName = "k3d"
+	helmBinaryName = "helm"
+	faasBinaryName = "faas-cli"
+)
 
 var rootCmd = &cobra.Command{
 	Use:           "safira",

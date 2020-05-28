@@ -75,9 +75,13 @@ func validateFunctionName(functionName string) error {
 }
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
-	fmt.Println(checkDefaultMessage)
-	if err := get.CheckFaasCli(); err != nil {
+	exist, err := get.CheckBinary(faasBinaryName, false)
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	faasCliPath := config.GetFaasCliPath()

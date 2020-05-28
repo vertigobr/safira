@@ -38,8 +38,13 @@ func init() {
 }
 
 func runInfraUp(cmd *cobra.Command, args []string) error {
-	if err := checkInfra(); err != nil {
+	exist, err := checkInfra()
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	k3dPath := config.GetK3dPath()

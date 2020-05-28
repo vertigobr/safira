@@ -40,9 +40,13 @@ func init() {
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
-	fmt.Println(checkDefaultMessage)
-	if err := get.CheckKubectl(); err != nil {
+	exist, err := get.CheckBinary(kubectlBinaryName, false)
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	kubectlPath := config.GetKubectlPath()
