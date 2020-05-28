@@ -24,9 +24,10 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "",
-	Long:  "",
+	Short: "Sincroniza todas as depências",
+	Long:  "Sincroniza todas as depências para uso do Safira",
 	RunE: runInit,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
@@ -34,7 +35,8 @@ func init() {
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
-	_, err := checkAllBinaries()
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	_, err := checkAllBinaries(verboseFlag)
 	if err != nil {
 		return err
 	}
@@ -44,23 +46,23 @@ func runInit(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func checkAllBinaries() (bool, error) {
-	_, err := get.CheckBinary(kubectlBinaryName, true)
+func checkAllBinaries(verboseFlag bool) (bool, error) {
+	_, err := get.CheckBinary(kubectlBinaryName, true, verboseFlag)
 	if err != nil {
 		return true, err
 	}
 
-	_, err = get.CheckBinary(k3dBinaryName, true)
+	_, err = get.CheckBinary(k3dBinaryName, true, verboseFlag)
 	if err != nil {
 		return true, err
 	}
 
-	_, err = get.CheckBinary(helmBinaryName, true)
+	_, err = get.CheckBinary(helmBinaryName, true, verboseFlag)
 	if err != nil {
 		return true, err
 	}
 
-	_, err = get.CheckBinary(faasBinaryName, true)
+	_, err = get.CheckBinary(faasBinaryName, true, verboseFlag)
 	if err != nil {
 		return true, err
 	}

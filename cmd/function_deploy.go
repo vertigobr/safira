@@ -40,7 +40,8 @@ func init() {
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
-	exist, err := get.CheckBinary(kubectlBinaryName, false)
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
 	}
@@ -50,7 +51,6 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	kubectlPath := config.GetKubectlPath()
-	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
 	if err := checkDeployFiles(); err!= nil {
 		return err
@@ -75,7 +75,8 @@ func functionDeploy(kubectlPath string, verboseFlag bool) error {
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
 			"-f", "deploy/",
 		},
-		StreamStdio: verboseFlag,
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
 	}
 
 	fmt.Println("Executando deploy da função...")

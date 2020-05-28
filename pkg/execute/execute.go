@@ -27,7 +27,7 @@ func (t Task) Execute() (Response, error) {
 	var cmd *exec.Cmd
 
 	if t.PrintCommand {
-		fmt.Printf("Executando: %s %s", t.Command, t.Args)
+		fmt.Printf("[+] %s %s", t.Command, t.Args)
 	}
 
 	if t.Shell {

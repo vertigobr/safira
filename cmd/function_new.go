@@ -75,7 +75,8 @@ func validateFunctionName(functionName string) error {
 }
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
-	exist, err := get.CheckBinary(faasBinaryName, false)
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,6 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 
 	faasCliPath := config.GetFaasCliPath()
 	flagLang, _ := cmd.Flags().GetString("lang")
-	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
 	if err := downloadTemplate(faasCliPath, flagLang, verboseFlag); err != nil {
 		return err
@@ -106,7 +106,8 @@ func downloadTemplate(faasCliPath, lang string, verboseFlag bool) error {
 		Args:        []string{
 			"template", "store", "pull", lang,
 		},
-		StreamStdio: verboseFlag,
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
 	}
 
 	fmt.Println("Baixando template...")
@@ -131,7 +132,8 @@ func createFunction(faasCliPath, projectName, lang string, verboseFlag bool) err
 			"--gateway", "http://gateway.ipaas.localdomain:8080",
 			"--prefix", "registry.localdomain:5000",
 		},
-		StreamStdio: verboseFlag,
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
 	}
 
 	fmt.Println("Criando a " + projectName + "...")

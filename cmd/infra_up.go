@@ -38,7 +38,8 @@ func init() {
 }
 
 func runInfraUp(cmd *cobra.Command, args []string) error {
-	exist, err := checkInfra()
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := checkInfra(verboseFlag)
 	if err != nil {
 		return err
 	}
@@ -49,7 +50,6 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 
 	k3dPath := config.GetK3dPath()
 	helmPath := config.GetHelmPath()
-	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
 	if err := createCluster(k3dPath, verboseFlag); err != nil {
 		return err

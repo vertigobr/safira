@@ -47,7 +47,8 @@ func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
 }
 
 func runFunctionBuild(cmd *cobra.Command, args []string) error {
-	exist, err := get.CheckBinary(faasBinaryName, false)
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
 	}
@@ -57,28 +58,27 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	}
 
 	faasCliPath := config.GetFaasCliPath()
-	flagYaml, _ := cmd.Flags().GetString("yaml")
-	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	fmt.Println(verboseFlag)
+	yamlFlag, _ := cmd.Flags().GetString("yaml")
 
-	if err := functionBuild(faasCliPath, flagYaml, verboseFlag); err != nil {
+	if err := functionBuild(faasCliPath, yamlFlag, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := functionPush(faasCliPath, flagYaml, verboseFlag); err != nil {
+	if err := functionPush(faasCliPath, yamlFlag, verboseFlag); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func functionBuild(faasCliPath, flagYaml string, verboseFlag bool) error {
+func functionBuild(faasCliPath, yamlFlag string, verboseFlag bool) error {
 	taskFunctionBuild := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"build", "-f", flagYaml,
+			"build", "-f", yamlFlag,
 		},
-		StreamStdio: verboseFlag,
+		StreamStdio:  true,
+		PrintCommand: verboseFlag,
 	}
 
 	fmt.Println("Executando build da função...")
@@ -94,13 +94,14 @@ func functionBuild(faasCliPath, flagYaml string, verboseFlag bool) error {
 	return nil
 }
 
-func functionPush(faasCliPath, flagYaml string, verboseFlag bool) error {
+func functionPush(faasCliPath, yamlFlag string, verboseFlag bool) error {
 	taskFunctionPush := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"push", "-f", flagYaml,
+			"push", "-f", yamlFlag,
 		},
-		StreamStdio: verboseFlag,
+		StreamStdio:  true,
+		PrintCommand: verboseFlag,
 	}
 
 	fmt.Println("Salvando a função no registry...")

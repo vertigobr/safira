@@ -39,8 +39,8 @@ func init() {
 	)
 }
 
-func checkInfra() (bool, error) {
-	exist, err := get.CheckBinary(kubectlBinaryName, false)
+func checkInfra(verboseFlag bool) (bool, error) {
+	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
 		return exist, err
 	}
@@ -49,7 +49,7 @@ func checkInfra() (bool, error) {
 		return exist, nil
 	}
 
-	exist, err = get.CheckBinary(k3dBinaryName, false)
+	exist, err = get.CheckBinary(k3dBinaryName, false, verboseFlag)
 	if err != nil {
 		return exist, err
 	}
@@ -58,7 +58,7 @@ func checkInfra() (bool, error) {
 		return exist, nil
 	}
 
-	exist, err = get.CheckBinary(helmBinaryName, false)
+	exist, err = get.CheckBinary(helmBinaryName, false, verboseFlag)
 	if err != nil {
 		return exist, err
 	}

@@ -36,7 +36,8 @@ func init() {
 }
 
 func runTemplateList(cmd *cobra.Command, args []string) error {
-	exist, err := get.CheckBinary(faasBinaryName, false)
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
 	}
@@ -47,14 +48,14 @@ func runTemplateList(cmd *cobra.Command, args []string) error {
 
 	faasCliPath := config.GetFaasCliPath()
 
-	if err := templateList(faasCliPath); err != nil {
+	if err := templateList(faasCliPath, verboseFlag); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func templateList(faasCliPath string) error {
+func templateList(faasCliPath string, verboseFlag bool) error {
 	setStore()
 
 	taskList := execute.Task{
@@ -62,7 +63,8 @@ func templateList(faasCliPath string) error {
 		Args:        []string{
 			"template", "store", "list",
 		},
-		StreamStdio: true,
+		StreamStdio:  true,
+		PrintCommand: verboseFlag,
 	}
 
 	res, err := taskList.Execute()
