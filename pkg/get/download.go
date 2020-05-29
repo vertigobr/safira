@@ -8,6 +8,8 @@ import (
 	"net/http"
 	u "net/url"
 	"os"
+	"os/user"
+	"strconv"
 )
 
 func download(url, name string, binary bool) error {
@@ -47,6 +49,15 @@ func download(url, name string, binary bool) error {
 			return err
 		}
 	}
+
+	sudoUser := os.Getenv("SUDO_USER")
+
+	u, err := user.Lookup(sudoUser)
+
+	Uid, err := strconv.Atoi(u.Uid)
+	Gid, err := strconv.Atoi(u.Gid)
+
+	os.Chown(fmt.Sprintf("%s/%s", dest, name), Uid, Gid)
 
 	return nil
 }

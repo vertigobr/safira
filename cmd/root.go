@@ -27,7 +27,7 @@ import (
 )
 
 var cfgFile string
-var safiraInit = color.Bold.Sprintf("safira init")
+var safiraInit = color.Bold.Sprintf("sudo -E safira init")
 var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
 
 const (

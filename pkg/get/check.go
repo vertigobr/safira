@@ -7,9 +7,13 @@ import (
 )
 
 func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, error) {
-	fmt.Println("Verificando dependências...")
 	exists, _ := existsBinary(binary)
 	errorCheck := "não foi possível baixar o pacote: "
+
+	if verboseFlag {
+		fmt.Println("[+] Verificando " + binary)
+	}
+
 	if !exists && downloadIfNotExist {
 		fmt.Println("Baixando " + binary + "...")
 		switch binary {
@@ -41,6 +45,8 @@ func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, err
 				}
 				return false, fmt.Errorf(errorCheck + "faas-cli")
 			}
+		default:
+			return false, fmt.Errorf("nome de binário inválido")
 		}
 	}
 
