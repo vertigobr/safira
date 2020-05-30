@@ -43,6 +43,11 @@ func CreateInBinDir() (string, error) {
 		return "", err
 	}
 
+	safiraFolder := GetUserDir()
+	if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
+		return "", err
+	}
+
 	return path, err
 }
 

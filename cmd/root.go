@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/config"
 	"os"
 	"strings"
 
@@ -31,6 +32,7 @@ var safiraInit = color.Bold.Sprintf("sudo -E safira init")
 var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
 
 const (
+	faasTemplateStoreURL = "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json"
 	kubectlBinaryName = "kubectl"
 	k3dBinaryName = "k3d"
 	helmBinaryName = "helm"
@@ -58,6 +60,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	setPath()
 	rootCmd.PersistentFlags().Bool("verbose", false, "enable verbose output")
 }
 
@@ -85,4 +88,9 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func setPath() {
+	path := config.GetUserDir() + "bin:" + os.Getenv("PATH")
+	_ = os.Setenv("PATH", path)
 }

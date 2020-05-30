@@ -22,28 +22,28 @@ func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, err
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "kubectl")
+				return false, fmt.Errorf(errorCheck + "kubectl. Tente novamente")
 			}
 		case "k3d":
 			if err := DownloadK3d(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "k3d")
+				return false, fmt.Errorf(errorCheck + "k3d. Tente novamente")
 			}
 		case "helm":
 			if err := DownloadHelm(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "helm")
+				return false, fmt.Errorf(errorCheck + "helm. Tente novamente")
 			}
 		case "faas-cli":
 			if err := DownloadFaasCli(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "faas-cli")
+				return false, fmt.Errorf(errorCheck + "faas-cli. Tente novamente")
 			}
 		default:
 			return false, fmt.Errorf("nome de binário inválido")

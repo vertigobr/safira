@@ -25,11 +25,11 @@ import (
 )
 
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Sincroniza todas as depências",
-	Long:  "Sincroniza todas as depências para uso do Safira",
+	Use:     "init",
+	Short:   "Sincroniza todas as dependências",
+	Long:    "Sincroniza todas as dependências para uso do Safira",
 	PreRunE: PreRunInit,
-	RunE: runInit,
+	RunE:    runInit,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -40,7 +40,7 @@ func init() {
 func PreRunInit(cmd *cobra.Command, args []string) error {
 	home := os.Getenv("HOME")
 
-	if home == "/root" {
+	if home == "/root" || os.Getuid() != 0 {
 		return fmt.Errorf("comando init executado de forma inválida, execute: \n\n\t" + safiraInit)
 	}
 

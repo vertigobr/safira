@@ -14,7 +14,6 @@ import (
 )
 
 // Usado como base: https://github.com/alexellis/arkade/blob/master/pkg/helm/untar.go
-
 func Untar(r io.Reader, dir string) (err error) {
 	t0 := time.Now()
 	nFiles := 0
@@ -33,6 +32,14 @@ func Untar(r io.Reader, dir string) (err error) {
 			break
 		}
 
+		if strings.Contains(f.Name, "LICENSE") {
+			break
+		}
+
+		if strings.Contains(f.Name, "README") {
+			break
+		}
+
 		if err != nil {
 			log.Printf("falha na leitura do tar: %v", err)
 			return fmt.Errorf("error no tar: %v", err)
@@ -44,7 +51,6 @@ func Untar(r io.Reader, dir string) (err error) {
 
 		baseFile := filepath.Base(f.Name)
 		abs := path.Join(dir, baseFile)
-		//fmt.Println(abs, f.Name)
 
 		fi := f.FileInfo()
 		mode := fi.Mode()
