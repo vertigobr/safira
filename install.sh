@@ -132,51 +132,6 @@ downloadFile() {
   fi
 }
 
-# Added hostnames for develop in local environment
-addHost() {
-  HOSTS_FILE="/etc/hosts"
-  HOST_NAMES="127.0.0.1 registry.localdomain ipaas.localdomain konga.localdomain gateway.ipaas.localdomain"
-  FOUND=false
-  while IFS="" read -r p || [ -n "$p" ]
-  do
-    if [[ "$p" == "$HOST_NAMES" ]]; then
-      FOUND=true
-      break
-    fi
-  done < $HOSTS_FILE
-
-  if [ "$FOUND" = false ]; then
-    echo "$HOST_NAMES" >> $HOSTS_FILE
-  fi
-}
-
-addPath() {
-  BASH_FILE="$HOME/.bashrc"
-  ZSH_FILE="$HOME/.zshrc"
-  FOLDER_SAFIRA="export PATH=\$HOME/.safira/bin:\$PATH"
-  FOUND=false
-  FILE=""
-
-  if [ -f "$ZSH_FILE" ]; then
-    FILE=$ZSH_FILE
-  else
-    FILE=$BASH_FILE
-  fi
-
-  while IFS="" read -r p || [ -n "$p" ]
-  do
-    if [[ "$p" == "$FOLDER_SAFIRA" ]]; then
-      FOUND=true
-      break
-    fi
-  done < "$FILE"
-
-  if [ "$FOUND" = false ]; then
-    echo "$FOLDER_SAFIRA" >> "$FILE"
-    source "$FILE" 2>/dev/null
-  fi
-}
-
 # installFile verifies the MD5 for the file, then unpacks and
 # installs it.
 installFile() {
@@ -193,8 +148,6 @@ installFile() {
   tar xf "$SAFIRA_TMP_FILE" -C "$SAFIRA_TMP"
   SAFIRA_TMP_BIN="$SAFIRA_TMP/safira"
   echo "Preparing to install $BINARY_NAME into ${SAFIRA_INSTALL_DIR}"
-  addHost
-  addPath
   runAsRoot cp "$SAFIRA_TMP_BIN" "$SAFIRA_INSTALL_DIR/$BINARY_NAME"
   echo "$BINARY_NAME installed into $SAFIRA_INSTALL_DIR/$BINARY_NAME"
 }
