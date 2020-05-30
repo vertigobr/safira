@@ -87,24 +87,26 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 
 	faasCliPath := config.GetFaasCliPath()
 	flagLang, _ := cmd.Flags().GetString("lang")
+	functionName := args[0]
 
 	if err := downloadTemplate(faasCliPath, flagLang, verboseFlag); err != nil {
 		return err
 	}
 	
-	if err := createFunction(faasCliPath, args[0], flagLang, verboseFlag); err != nil {
+	if err := createFunction(faasCliPath, functionName, flagLang, verboseFlag); err != nil {
 		return err
 	}
-	
+
+	fmt.Println("\nFunction " + functionName + " criada com sucesso!")
+
 	return nil
 }
 
 func downloadTemplate(faasCliPath, lang string, verboseFlag bool) error {
-	setStore()
 	taskDownloadTemplate := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"template", "store", "pull", lang,
+			"template", "store", "pull", lang, "--url", faasTemplateStoreURL,
 		},
 		StreamStdio:  verboseFlag,
 		PrintCommand: verboseFlag,
@@ -123,11 +125,11 @@ func downloadTemplate(faasCliPath, lang string, verboseFlag bool) error {
 	return nil
 }
 
-func createFunction(faasCliPath, projectName, lang string, verboseFlag bool) error {
+func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) error {
 	taskCreateFunction := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"new", projectName,
+			"new", functionName,
 			"--lang", lang,
 			"--gateway", "http://gateway.ipaas.localdomain:8080",
 			"--prefix", "registry.localdomain:5000",
@@ -136,7 +138,7 @@ func createFunction(faasCliPath, projectName, lang string, verboseFlag bool) err
 		PrintCommand: verboseFlag,
 	}
 
-	fmt.Println("Criando a " + projectName + "...")
+	fmt.Println("Criando function " + functionName + "...")
 	res, err := taskCreateFunction.Execute()
 	if err != nil {
 		return err
@@ -150,7 +152,7 @@ func createFunction(faasCliPath, projectName, lang string, verboseFlag bool) err
 		return err
 	}
 
-	if err := addFileEnv(projectName); err != nil {
+	if err := addFileEnv(functionName); err != nil {
 		return err
 	}
 

@@ -60,6 +60,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Println("\nDeploy realizado com sucesso!")
+
 	return nil
 }
 

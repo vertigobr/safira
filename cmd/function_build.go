@@ -68,6 +68,8 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Println("\nBuild realizado com sucesso!")
+
 	return nil
 }
 

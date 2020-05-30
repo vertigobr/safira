@@ -56,12 +56,10 @@ func runTemplateList(cmd *cobra.Command, args []string) error {
 }
 
 func templateList(faasCliPath string, verboseFlag bool) error {
-	setStore()
-
 	taskList := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"template", "store", "list",
+			"template", "store", "list", "--url", faasTemplateStoreURL,
 		},
 		StreamStdio:  true,
 		PrintCommand: verboseFlag,

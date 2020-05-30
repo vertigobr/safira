@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var templateCmd = &cobra.Command{
@@ -29,8 +28,4 @@ var templateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(templateCmd)
-}
-
-func setStore() {
-	_ = os.Setenv("OPENFAAS_TEMPLATE_STORE_URL", "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json")
 }
