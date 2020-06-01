@@ -20,12 +20,12 @@
 : ${USE_SUDO:="true"}
 : ${SAFIRA_INSTALL_DIR:="/usr/local/bin"}
 
-checkRoot () {
-  if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root"
-    exit 2
-  fi
-}
+#checkRoot () {
+#  if [[ $EUID -ne 0 ]]; then
+#    echo "This script must be run as root"
+#    exit 2
+#  fi
+#}
 
 # initArch discovers the architecture for this system.
 initArch() {
@@ -217,7 +217,7 @@ while [[ $# -gt 0 ]]; do
 done
 set +u
 
-checkRoot
+#checkRoot
 initArch
 initOS
 verifySupported
