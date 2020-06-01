@@ -51,6 +51,14 @@ func CreateInBinDir() (string, error) {
 	return path, err
 }
 
-func CreateInTemplateDir() (string, error) {
-	return initUserDir("/template/")
+//func CreateInTemplateDir() (string, error) {
+//	return initUserDir("/template/")
+//}
+
+func SetKubeconfig(clusterName string) error {
+	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
+		return fmt.Errorf("não foi possível criar a variável de ambiente: KUBECONFIG")
+	}
+
+	return nil
 }

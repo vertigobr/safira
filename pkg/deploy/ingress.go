@@ -85,7 +85,7 @@ func CreateYamlIngress(fileName string) error {
 }
 
 func getIngressEnvs() (string, string, int, error) {
-	projectName, err := getProjectName()
+	projectName, err := GetProjectName()
 	if err != nil {
 		return "", "", 0, err
 	}

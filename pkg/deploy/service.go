@@ -72,7 +72,7 @@ func CreateYamlService(fileName string) error {
 }
 
 func getServiceEnvs() (string, int, error) {
-	projectName, err := getProjectName()
+	projectName, err := GetProjectName()
 	if err != nil {
 		return "", 0, err
 	}

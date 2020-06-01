@@ -37,7 +37,7 @@ func readFileEnv() error {
 	return nil
 }
 
-func getProjectName() (string, error) {
+func GetProjectName() (string, error) {
 	s := os.Getenv("PROJECT_NAME")
 	if len(s) == 0 {
 		return "", fmt.Errorf("variável PROJECT_NAME não encontrada no arquivo .env")

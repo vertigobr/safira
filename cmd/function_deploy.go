@@ -66,15 +66,50 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 }
 
 func functionDeploy(kubectlPath string, verboseFlag bool) error {
-	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
-		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
+	err := config.SetKubeconfig(clusterName)
+	if err != nil {
+		return err
+	}
+
+	hasFunction, err := deploy.CheckFunction(clusterName)
+	if err != nil {
+		return err
+	}
+
+	projectName, err := deploy.GetProjectName()
+	if err != nil {
+		return err
+	}
+
+	if hasFunction {
+		taskRemoveFunction := execute.Task{
+			Command:     kubectlPath,
+			Args:        []string{
+				"rollout", "restart", "deployments", projectName,
+				"-n", deploy.GetNamespaceFunction(),
+			},
+			StreamStdio:  verboseFlag,
+			PrintCommand: verboseFlag,
+		}
+
+		if verboseFlag {
+			fmt.Printf("[+] Reiniciando as função")
+		}
+
+		res, err := taskRemoveFunction.Execute()
+		if err != nil {
+			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf(res.Stderr)
+		}
 	}
 
 	taskFunctionDeploy := execute.Task{
 		Command:     kubectlPath,
 		Args:        []string{
-			"apply",
-			"--kubeconfig", os.Getenv("KUBECONFIG"),
+			"apply", "--wait",
 			"-f", "deploy/",
 		},
 		StreamStdio:  verboseFlag,

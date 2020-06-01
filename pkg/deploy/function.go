@@ -1,6 +1,11 @@
 package deploy
 
-import y "gopkg.in/yaml.v2"
+import (
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/execute"
+	y "gopkg.in/yaml.v2"
+	"strings"
+)
 
 type function struct {
 	ApiVersion string           `yaml:"apiVersion"`
@@ -38,11 +43,11 @@ func CreateYamlFunction(fileName string) error {
 	}
 	
 	function := function{
-		ApiVersion: "openfaas.com/v1alpha2",
+		ApiVersion: "openfaas.com/v1", // openfaas.com/v1alpha2
 		Kind:       "Function",
 		Metadata: functionMetadata{
 			Name:      projectName,
-			Namespace: "openfaas-fn",
+			Namespace: GetNamespaceFunction(),
 		},
 		Spec: functionSpec{
 			Name:  projectName,
@@ -76,7 +81,7 @@ func CreateYamlFunction(fileName string) error {
 }
 
 func getFunctionEnvs() (string, string, error) {
-	projectName, err := getProjectName()
+	projectName, err := GetProjectName()
 	if err != nil {
 		return "", "", err
 	}
@@ -87,4 +92,41 @@ func getFunctionEnvs() (string, string, error) {
 	}
 
 	return projectName, imageName, nil
+}
+
+func GetNamespaceFunction() string {
+	return "openfaas-fn"
+}
+
+func CheckFunction(clusterName string) (bool, error) {
+	err := config.SetKubeconfig(clusterName)
+	if err != nil {
+		return false, err
+	}
+
+	taskCheckFunction := execute.Task{
+		Command:     config.GetKubectlPath(),
+		Args:        []string{
+			"get", "deployments", "-n", GetNamespaceFunction(),
+		},
+		StreamStdio:  false,
+		PrintCommand: false,
+	}
+
+	res, err := taskCheckFunction.Execute()
+	if err != nil {
+		return false, err
+	}
+
+	if res.ExitCode != 0 {
+		return false, nil
+	}
+
+	projectName, err := GetProjectName()
+
+	if strings.Contains(res.Stdout, projectName) {
+		return true, nil
+	}
+
+	return false, nil
 }
