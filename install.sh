@@ -65,7 +65,7 @@ runAsRoot() {
 
 # verifySupported checks that the os/arch combination is supported for binary builds.
 verifySupported() {
-  local supported="darwin-amd64\nlinux-386\nlinux-amd64\nlinux-arm\nlinux-arm64"
+  local supported="linux-386\nlinux-amd64\nlinux-arm\nlinux-arm64" # darwin-amd64\n
   if ! echo "${supported}" | grep -q "${OS}-${ARCH}"; then
     echo "No prebuilt binary for ${OS}-${ARCH}."
     echo "To build from source, go to $REPO_URL"
