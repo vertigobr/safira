@@ -38,20 +38,25 @@ func init() {
 }
 
 func runInfraSecrets(cmd *cobra.Command, args []string) error {
-	fmt.Println(checkDefaultMessage)
-	if err := get.CheckKubectl(); err != nil {
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
+	if err != nil {
 		return err
 	}
 
+	if !exist {
+		return fmt.Errorf(notExistBinary)
+	}
+
 	kubectlPath := config.GetKubectlPath()
-	if err := getSecrets(kubectlPath); err != nil {
+	if err := getSecrets(kubectlPath, verboseFlag); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func getSecrets(kubectlPath string) error {
+func getSecrets(kubectlPath string, verboseFlag bool) error {
 	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
 		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
 	}
@@ -62,7 +67,8 @@ func getSecrets(kubectlPath string) error {
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
 			"get", "secret", "basic-auth", "-o",`jsonpath={.data.basic-auth-password}`,
 		},
-		StreamStdio: false,
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
 	}
 
 	res, err := taskDeleteCluster.Execute()

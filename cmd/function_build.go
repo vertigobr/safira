@@ -27,7 +27,7 @@ var buildCmd = &cobra.Command{
 	Use:     "build -f YAML_FILE",
 	Short:   "Executa o build de funções",
 	Long:    "Executa o build de funções",
-	PreRunE: PreRunFunctionBuild,
+	PreRunE: preRunFunctionBuild,
 	RunE:    runFunctionBuild,
 	SuggestionsMinimumDistance: 1,
 }
@@ -37,7 +37,7 @@ func init() {
 	buildCmd.Flags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
 }
 
-func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
+func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
 	flagYaml, _ := cmd.Flags().GetString("yaml")
 	if len(flagYaml) == 0 {
 		return fmt.Errorf("a flag --yaml/-f é obrigatória")
@@ -47,62 +47,73 @@ func PreRunFunctionBuild(cmd *cobra.Command, args []string) error {
 }
 
 func runFunctionBuild(cmd *cobra.Command, args []string) error {
-	fmt.Println(checkDefaultMessage)
-	if err := get.CheckFaasCli(); err != nil {
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	faasCliPath := config.GetFaasCliPath()
-	flagYaml, _ := cmd.Flags().GetString("yaml")
+	yamlFlag, _ := cmd.Flags().GetString("yaml")
 
-	if err := functionBuild(faasCliPath, flagYaml); err != nil {
+	if err := functionBuild(faasCliPath, yamlFlag, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := functionPush(faasCliPath, flagYaml); err != nil {
+	if err := functionPush(faasCliPath, yamlFlag, verboseFlag); err != nil {
 		return err
 	}
+
+	fmt.Println("\nBuild realizado com sucesso!")
 
 	return nil
 }
 
-func functionBuild(faasCliPath, flagYaml string) error {
+func functionBuild(faasCliPath, yamlFlag string, verboseFlag bool) error {
 	taskFunctionBuild := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"build", "-f", flagYaml,
+			"build", "-f", yamlFlag,
 		},
-		StreamStdio: true,
+		StreamStdio:  true,
+		PrintCommand: verboseFlag,
 	}
 
+	fmt.Println("Executando build da função...")
 	res, err := taskFunctionBuild.Execute()
 	if err != nil {
 		return err
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil
 }
 
-func functionPush(faasCliPath, flagYaml string) error {
+func functionPush(faasCliPath, yamlFlag string, verboseFlag bool) error {
 	taskFunctionPush := execute.Task{
 		Command:     faasCliPath,
 		Args:        []string{
-			"push", "-f", flagYaml,
+			"push", "-f", yamlFlag,
 		},
-		StreamStdio: true,
+		StreamStdio:  true,
+		PrintCommand: verboseFlag,
 	}
 
+	fmt.Println("Salvando a função no registry...")
 	res, err := taskFunctionPush.Execute()
 	if err != nil {
 		return err
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil

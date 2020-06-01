@@ -18,22 +18,32 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/config"
 	"os"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"gopkg.in/gookit/color.v1"
 )
 
 var cfgFile string
+var safiraInit = color.Bold.Sprintf("sudo -E safira init")
+var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
 
-const checkDefaultMessage = "Verificando dependências..."
+const (
+	faasTemplateStoreURL = "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json"
+	kubectlBinaryName = "kubectl"
+	k3dBinaryName = "k3d"
+	helmBinaryName = "helm"
+	faasBinaryName = "faas-cli"
+)
 
 var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "O Safira é uma ferramenta de auxílio ao Vertigo iPaaS",
 	Long:          "O Safira é uma ferramenta para auxiliar os desenvolvedores no Vertigo iPaaS",
-	Version:       "v0.0.1-beta",
+	Version:       "v0.0.1-beta.2",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
@@ -41,13 +51,17 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		e := err.Error()
-		fmt.Println(strings.ToUpper(e[:1]) + e[1:])
+		if len(e) != 0 {
+			fmt.Println(strings.ToUpper(e[:1]) + e[1:])
+		}
 		os.Exit(1)
 	}
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	setPath()
+	rootCmd.PersistentFlags().Bool("verbose", false, "enable verbose output")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -74,4 +88,9 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func setPath() {
+	path := config.GetUserDir() + "bin:" + os.Getenv("PATH")
+	_ = os.Setenv("PATH", path)
 }

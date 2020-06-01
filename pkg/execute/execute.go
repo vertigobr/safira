@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Task struct {
@@ -26,7 +27,7 @@ func (t Task) Execute() (Response, error) {
 	var cmd *exec.Cmd
 
 	if t.PrintCommand {
-		fmt.Printf("Executando: %s %s", t.Command, t.Args)
+		fmt.Printf("[+] %s %s\n", t.Command, t.Args)
 	}
 
 	if t.Shell {
@@ -70,9 +71,20 @@ func (t Task) Execute() (Response, error) {
 		}
 	}
 
+	err := string(stderrBuff.Bytes())
+	index := strings.LastIndex(err, "msg=")
+
+	var msgError string
+	if index != -1 {
+		length := len(err)
+		msgError = "\n" + err[index+5:length-2] + "\n"
+	} else {
+		msgError = err
+	}
+
 	return Response{
 		Stdout: string(stdoutBuff.Bytes()),
-		Stderr: string(stderrBuff.Bytes()),
+		Stderr: msgError,
 		ExitCode: exitCode,
 	}, nil
 }

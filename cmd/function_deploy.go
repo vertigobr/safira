@@ -40,9 +40,14 @@ func init() {
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
-	fmt.Println(checkDefaultMessage)
-	if err := get.CheckKubectl(); err != nil {
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	kubectlPath := config.GetKubectlPath()
@@ -51,14 +56,16 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := functionDeploy(kubectlPath); err != nil {
+	if err := functionDeploy(kubectlPath, verboseFlag); err != nil {
 		return err
 	}
+
+	fmt.Println("\nDeploy realizado com sucesso!")
 
 	return nil
 }
 
-func functionDeploy(kubectlPath string) error {
+func functionDeploy(kubectlPath string, verboseFlag bool) error {
 	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
 		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
 	}
@@ -70,16 +77,18 @@ func functionDeploy(kubectlPath string) error {
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
 			"-f", "deploy/",
 		},
-		StreamStdio: true,
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
 	}
 
+	fmt.Println("Executando deploy da função...")
 	res, err := taskFunctionDeploy.Execute()
 	if err != nil {
 		return err
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil

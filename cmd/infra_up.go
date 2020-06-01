@@ -38,18 +38,24 @@ func init() {
 }
 
 func runInfraUp(cmd *cobra.Command, args []string) error {
-	if err := checkInfra(); err != nil {
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := checkInfra(verboseFlag)
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	k3dPath := config.GetK3dPath()
 	helmPath := config.GetHelmPath()
 
-	if err := createCluster(k3dPath); err != nil {
+	if err := createCluster(k3dPath, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := helmUpgrade(helmPath); err != nil {
+	if err := helmUpgrade(helmPath, verboseFlag); err != nil {
 		return err
 	}
 
@@ -57,11 +63,12 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 	fmt.Println("Konga    - konga.localdomain:8080")
 	fmt.Println("Gateway  - ipaas.localdomain:8080")
 	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
+	fmt.Println()
 
 	return nil
 }
 
-func createCluster(k3dPath string) error {
+func createCluster(k3dPath string, verboseFlag bool) error {
 	taskCreateCluster := execute.Task{
 		Command:     k3dPath,
 		Args:        []string{
@@ -73,7 +80,7 @@ func createCluster(k3dPath string) error {
 			"-server-arg", "--no-deploy=traefik",
 			"-server-arg", "--no-deploy=servicelb",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	fmt.Println("Provisionando cluster local...")
@@ -83,7 +90,7 @@ func createCluster(k3dPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return errors.New("\nCluster local já está levantado!")
+		return fmt.Errorf(res.Stderr)
 	}
 
 	time.Sleep(time.Second * 10)
@@ -113,14 +120,14 @@ func createCluster(k3dPath string) error {
 	return nil
 }
 
-func helmUpgrade(helmPath string) error {
+func helmUpgrade(helmPath string, verboseFlag bool) error {
 	taskRepoAdd := execute.Task{
 		Command:     helmPath,
 		Args:        []string{
 			"repo", "add", "vtg-ipaas",
 			"https://vertigobr.gitlab.io/ipaas/vtg-ipaas-chart",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	fmt.Println("Instalando o Vertigo iPaaS...")
@@ -130,7 +137,7 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	if resRepoAdd.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resRepoAdd.ExitCode)
+		return fmt.Errorf(resRepoAdd.Stderr)
 	}
 
 	taskRepoUpdate := execute.Task{
@@ -138,7 +145,7 @@ func helmUpgrade(helmPath string) error {
 		Args:        []string{
 			"repo", "update",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	resRepoUpdate, err := taskRepoUpdate.Execute()
@@ -147,7 +154,7 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	if resRepoUpdate.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resRepoUpdate.ExitCode)
+		return fmt.Errorf(resRepoUpdate.Stderr)
 	}
 
 	taskUpgrade := execute.Task{
@@ -158,7 +165,7 @@ func helmUpgrade(helmPath string) error {
 			"-f", "https://raw.githubusercontent.com/vertigobr/safira/master/k3d.yaml",
 			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
 		},
-		StreamStdio: false,
+		StreamStdio: verboseFlag,
 	}
 
 	resUpgrade, err := taskUpgrade.Execute()
@@ -167,7 +174,7 @@ func helmUpgrade(helmPath string) error {
 	}
 
 	if resUpgrade.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", resUpgrade.ExitCode)
+		return fmt.Errorf(resUpgrade.Stderr)
 	}
 
 	return nil

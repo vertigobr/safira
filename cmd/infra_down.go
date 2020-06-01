@@ -36,28 +36,36 @@ func init() {
 }
 
 func runInfraDown(cmd *cobra.Command, args []string) error {
-	if err := checkInfra(); err != nil {
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	exist, err := checkInfra(verboseFlag)
+	if err != nil {
 		return err
+	}
+
+	if !exist {
+		return fmt.Errorf(notExistBinary)
 	}
 
 	k3dPath := config.GetK3dPath()
 
-	if err := deleteCluster(k3dPath); err != nil {
+	if err := deleteCluster(k3dPath, verboseFlag); err != nil {
 		return errors.New("\nNenhum cluster encontrado!")
 	}
 
 	fmt.Println("\nCluster destruído com sucesso!")
+	fmt.Println()
 	return nil
 }
 
-func deleteCluster(k3dPath string) error {
+func deleteCluster(k3dPath string, verboseFlag bool) error {
 	taskDeleteCluster := execute.Task{
 		Command:     k3dPath,
 		Args:        []string{
 			"delete",
 			"-n", clusterName,
 		},
-		StreamStdio: false,
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
 	}
 
 	fmt.Println("Destruindo cluster local...")
@@ -67,7 +75,7 @@ func deleteCluster(k3dPath string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil

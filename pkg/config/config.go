@@ -3,7 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
+	"os/user"
 	p "path"
+	"strconv"
 )
 
 func GetUserDir() string {
@@ -11,23 +13,42 @@ func GetUserDir() string {
 	return fmt.Sprintf("%s/.safira/", home)
 }
 
-func initUserDir(root string) (string, error) {
+func initUserDir(folder string) (string, error) {
 	safiraDir := GetUserDir()
 
-	if len(safiraDir) == 0{
-		return safiraDir, fmt.Errorf("variável HOME não encontrada")
+	if len(safiraDir) <= 16 {
+		return "", fmt.Errorf("variável SUDO_USER não encontrada")
 	}
 
-	path := p.Join(safiraDir, root)
-	if err := os.MkdirAll(path, 0700); err != nil {
-		return path, err
+	path := p.Join(safiraDir, folder)
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return "", err
 	}
 
 	return path, nil
 }
 
 func CreateInBinDir() (string, error) {
-	return initUserDir("/bin/")
+	path, err := initUserDir("/bin/")
+	if err != nil {
+		return "", err
+	}
+
+	sudoUser := os.Getenv("SUDO_USER")
+	u, _ := user.Lookup(sudoUser)
+	Uid, _ := strconv.Atoi(u.Uid)
+	Gid, _ := strconv.Atoi(u.Gid)
+
+	if err := os.Chown(path, Uid, Gid); err != nil {
+		return "", err
+	}
+
+	safiraFolder := GetUserDir()
+	if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
+		return "", err
+	}
+
+	return path, err
 }
 
 func CreateInTemplateDir() (string, error) {

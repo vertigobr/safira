@@ -20,6 +20,13 @@
 : ${USE_SUDO:="true"}
 : ${SAFIRA_INSTALL_DIR:="/usr/local/bin"}
 
+#checkRoot () {
+#  if [[ $EUID -ne 0 ]]; then
+#    echo "This script must be run as root"
+#    exit 2
+#  fi
+#}
+
 # initArch discovers the architecture for this system.
 initArch() {
   ARCH=$(uname -m)
@@ -125,51 +132,6 @@ downloadFile() {
   fi
 }
 
-# Added hostnames for develop in local environment
-addHost() {
-  HOSTS_FILE="/etc/hosts"
-  HOST_NAMES="127.0.0.1 registry.localdomain ipaas.localdomain konga.localdomain gateway.ipaas.localdomain"
-  FOUND=false
-  while IFS="" read -r p || [ -n "$p" ]
-  do
-    if [[ "$p" == "$HOST_NAMES" ]]; then
-      FOUND=true
-      break
-    fi
-  done < $HOSTS_FILE
-
-  if [ "$FOUND" = false ]; then
-    echo "$HOST_NAMES" >> $HOSTS_FILE
-  fi
-}
-
-addPath() {
-  BASH_FILE="$HOME/.bashrc"
-  ZSH_FILE="$HOME/.zshrc"
-  FOLDER_SAFIRA="export PATH=\$HOME/.safira/bin:\$PATH"
-  FOUND=false
-  FILE=""
-
-  if [ -f "$ZSH_FILE" ]; then
-    FILE=$ZSH_FILE
-  else
-    FILE=$BASH_FILE
-  fi
-
-  while IFS="" read -r p || [ -n "$p" ]
-  do
-    if [[ "$p" == "$FOLDER_SAFIRA" ]]; then
-      FOUND=true
-      break
-    fi
-  done < "$FILE"
-
-  if [ "$FOUND" = false ]; then
-    echo "$FOLDER_SAFIRA" >> "$FILE"
-    source "$FILE" 2> /dev/null
-  fi
-}
-
 # installFile verifies the MD5 for the file, then unpacks and
 # installs it.
 installFile() {
@@ -187,21 +149,19 @@ installFile() {
   SAFIRA_TMP_BIN="$SAFIRA_TMP/safira"
   echo "Preparing to install $BINARY_NAME into ${SAFIRA_INSTALL_DIR}"
   runAsRoot cp "$SAFIRA_TMP_BIN" "$SAFIRA_INSTALL_DIR/$BINARY_NAME"
-  addHost
-  addPath
   echo "$BINARY_NAME installed into $SAFIRA_INSTALL_DIR/$BINARY_NAME"
 }
 
 # fail_trap is executed if an error occurs.
 fail_trap() {
   result=$?
-  if [ "$result" != "0" ]; then
+  if [[ "$result" != "0" && "$result" != "2" ]]; then
     if [[ -n "$INPUT_ARGUMENTS" ]]; then
       echo "Failed to install $BINARY_NAME with the arguments provided: $INPUT_ARGUMENTS"
     else
       echo "Failed to install $BINARY_NAME"
     fi
-    echo -e "\tFor support, go to $REPO_URL"
+    echo -e "For support, go to $REPO_URL"
   fi
   cleanup
   exit $result
@@ -240,7 +200,7 @@ while [[ $# -gt 0 ]]; do
        if [[ $# -ne 0 ]]; then
            export DESIRED_VERSION="${1}"
        else
-           echo -e "Please provide the desired version. e.g. --version v3.0.0 or -v canary"
+           echo -e "Please provide the desired version."
            exit 0
        fi
        ;;
@@ -257,6 +217,7 @@ while [[ $# -gt 0 ]]; do
 done
 set +u
 
+#checkRoot
 initArch
 initOS
 verifySupported

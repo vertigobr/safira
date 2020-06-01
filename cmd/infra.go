@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/get"
 )
@@ -40,20 +39,33 @@ func init() {
 	)
 }
 
-func checkInfra() error {
-	fmt.Println(checkDefaultMessage)
-
-	if err := get.CheckKubectl(); err != nil {
-		return err
+func checkInfra(verboseFlag bool) (bool, error) {
+	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
+	if err != nil {
+		return exist, err
 	}
 
-	if err := get.CheckK3d(); err != nil {
-		return err
+	if !exist {
+		return exist, nil
 	}
 
-	if err := get.CheckHelm(); err != nil {
-		return err
+	exist, err = get.CheckBinary(k3dBinaryName, false, verboseFlag)
+	if err != nil {
+		return exist, err
 	}
 
-	return nil
+	if !exist {
+		return exist, nil
+	}
+
+	exist, err = get.CheckBinary(helmBinaryName, false, verboseFlag)
+	if err != nil {
+		return exist, err
+	}
+
+	if !exist {
+		return exist, nil
+	}
+
+	return true, nil
 }
