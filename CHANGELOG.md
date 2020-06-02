@@ -10,6 +10,7 @@ Improvements:
 
 - `safira function deploy` Add flag `update`, force the deploy to take a new image
 - `safira infra secrets` Add Konga secrets
+- `safira function new` Yaml project renamed to stack
 
 ## Version v0.0.1-beta.2 - 2020-06-01
 

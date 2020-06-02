@@ -156,6 +156,10 @@ func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) er
 		return err
 	}
 
+	if err := renameYamlProject(functionName); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -192,4 +196,8 @@ func addFileEnv(projectName string) error {
 	}
 
 	return nil
+}
+
+func renameYamlProject(functionName string) error {
+	return os.Rename(functionName + ".yml", "teste.yml")
 }
