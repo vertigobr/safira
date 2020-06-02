@@ -3,8 +3,12 @@
 package deploy
 
 import (
+	"fmt"
+	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
+	"strconv"
+	"strings"
 )
 
 type ingress struct {
@@ -41,32 +45,33 @@ type backend struct {
 	ServicePort int    `yaml:"servicePort"`
 }
 
-func CreateYamlIngress(fileName string) error {
-	if err := readFileEnv(); err != nil {
+func CreateYamlIngress(fileName, functionName string) error {
+	stack, err := s.LoadStackFile("./stack.yml")
+	if err != nil {
 		return err
 	}
 
-	projectName, domain, port, err := getIngressEnvs()
+	gateway, port, err := getGatewayPort(stack.Provider.GatewayURL)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	ingress := ingress{
 		ApiVersion: "extensions/v1beta1",
 		Kind:       "Ingress",
 		Metadata: ingressMetadata{
-			Name: projectName,
+			Name: functionName,
 		},
 		Spec: ingressSpec{
 			Rules: []rule{
 				{
-					Host: domain,
+					Host: gateway,
 					Http: http{
 						Paths: []path{
 							{
-								Path: "/function/" + projectName,
+								Path: "/function/" + functionName,
 								Backend: backend{
-									ServiceName: projectName,
+									ServiceName: functionName,
 									ServicePort: port,
 								},
 							},
@@ -89,21 +94,19 @@ func CreateYamlIngress(fileName string) error {
 	return nil
 }
 
-func getIngressEnvs() (string, string, int, error) {
-	projectName, err := GetProjectName()
-	if err != nil {
-		return "", "", 0, err
+func getGatewayPort(url string) (gateway string, port int, err error) {
+	if strings.Index(url, "http://") != -1 {
+		gateway = strings.Trim(url, "http://")
+	} else if strings.Index(url, "https://") != -1 {
+		gateway = strings.Trim(url, "https://")
 	}
 
-	domain, err := getDomain()
+	s := strings.Split(gateway, ":")
+	gateway = s[0]
+	port, err = strconv.Atoi(s[1])
 	if err != nil {
-		return "", "", 0, err
+		return "", 0, fmt.Errorf("stack: url do gateway inválida")
 	}
 
-	port, err := getPort()
-	if err != nil {
-		return "", "", 0, err
-	}
-
-	return projectName, domain, port, nil
+	return
 }

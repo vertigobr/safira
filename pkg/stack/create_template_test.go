@@ -5,7 +5,14 @@ package stack
 import "testing"
 
 func TestCreateTemplate(t *testing.T) {
-	if err := CreateTemplate("func-teste", "teste", "teste.js", "teste:latest"); err != nil {
+	f := Function{
+		Name:     "func-teste",
+		Template: "teste",
+		Handler:  "teste.js",
+		Image:    "teste:latest",
+	}
+
+	if err := CreateTemplate(f); err != nil {
 		t.Fatal(err)
 	}
 }

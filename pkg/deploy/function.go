@@ -5,6 +5,7 @@ package deploy
 import (
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
 	"strings"
@@ -35,30 +36,23 @@ type cpuMemory struct {
 	Memory string `yaml:"memory"`
 }
 
-func CreateYamlFunction(fileName string) error {
-	if err := readFileEnv(); err != nil {
-		return err
-	}
-
-	projectName, imageName, err := getFunctionEnvs()
-	if err != nil {
-		return nil
-	}
+func CreateYamlFunction(fileName, functionName string) error {
+	stack, err := s.LoadStackFile("./stack.yml")
 	
 	function := function{
 		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",
 		Metadata: functionMetadata{
-			Name:      projectName,
+			Name:      functionName,
 			Namespace: GetNamespaceFunction(),
 		},
 		Spec: functionSpec{
-			Name:  projectName,
-			Image: imageName,
+			Name:  functionName,
+			Image: stack.Functions[functionName].Image,
 			Labels: map[string]string{
 				"com.openfaas.scale.min": "3",
 				"com.openfaas.scale.max": "5",
-				"function": projectName,
+				"function": functionName,
 			},
 			Limits: cpuMemory{
 				Cpu:    "200m",
@@ -83,25 +77,11 @@ func CreateYamlFunction(fileName string) error {
 	return nil
 }
 
-func getFunctionEnvs() (string, string, error) {
-	projectName, err := GetProjectName()
-	if err != nil {
-		return "", "", err
-	}
-
-	imageName, err := getImageName()
-	if err != nil {
-		return "", "", err
-	}
-
-	return projectName, imageName, nil
-}
-
 func GetNamespaceFunction() string {
 	return "openfaas-fn"
 }
 
-func CheckFunction(clusterName string) (bool, error) {
+func CheckFunction(clusterName, functionName string) (bool, error) {
 	err := config.SetKubeconfig(clusterName)
 	if err != nil {
 		return false, err
@@ -125,9 +105,7 @@ func CheckFunction(clusterName string) (bool, error) {
 		return false, nil
 	}
 
-	projectName, err := GetProjectName()
-
-	if strings.Contains(res.Stdout, projectName) {
+	if strings.Contains(res.Stdout, functionName) {
 		return true, nil
 	}
 

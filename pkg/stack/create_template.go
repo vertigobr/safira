@@ -7,19 +7,19 @@ import (
 	y "gopkg.in/yaml.v2"
 )
 
-func CreateTemplate(functionName, templateName, handlerFile, image string) error {
+func CreateTemplate(function Function) error {
 	stack := Stack{
 		Version:   "1.0",
 		Provider:  Provider{
-			Name: "openfaas",
-			GatewayURL: "http://gateway.ipaas.localdomain:8080",
+			Name: "kong",
+			GatewayURL: "ipaas.localdomain:8080",
 		},
 		Functions: map[string]Function{
-			functionName: {
-				Name: functionName,
-				Template: templateName,
-				Handler: handlerFile,
-				Image: image,
+			function.Name: {
+				Name: function.Name,
+				Template: function.Template,
+				Handler: function.Handler,
+				Image: function.Image,
 			},
 		},
 	}

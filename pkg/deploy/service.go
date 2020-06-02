@@ -3,6 +3,7 @@
 package deploy
 
 import (
+	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
 )
@@ -30,24 +31,24 @@ type port struct {
 	Port int `yaml:"port"`
 }
 
-
-func CreateYamlService(fileName string) error {
-	if err := readFileEnv(); err != nil {
+func CreateYamlService(fileName, functionName string) error {
+	stack, err := s.LoadStackFile("./stack.yml")
+	if err != nil {
 		return err
 	}
 
-	projectName, p, err := getServiceEnvs()
+	_, p, err := getGatewayPort(stack.Provider.GatewayURL)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	service := service{
 		ApiVersion: "v1",
 		Kind:       "Service",
 		Metadata: serviceMetadata{
-			Name:   projectName,
+			Name:   functionName,
 			Labels: map[string]string{
-				"app": projectName,
+				"app": functionName,
 			},
 			Annotations: map[string]string{
 				"konghq.com/plugins": "prometheus",
@@ -74,18 +75,4 @@ func CreateYamlService(fileName string) error {
 	}
 
 	return nil
-}
-
-func getServiceEnvs() (string, int, error) {
-	projectName, err := GetProjectName()
-	if err != nil {
-		return "", 0, err
-	}
-
-	port, err := getPort()
-	if err != nil {
-		return "", 0, err
-	}
-
-	return projectName, port, nil
 }
