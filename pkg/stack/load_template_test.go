@@ -2,10 +2,15 @@
 // Licensed under the  Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package stack
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestCreateTemplate(t *testing.T) {
-	if err := CreateTemplate("func-teste", "teste", "teste.js", "teste:latest"); err != nil {
+func TestLoadStackFile(t *testing.T) {
+	stack, err := LoadStackFile("stack.yml")
+	if err != nil {
 		t.Fatal(err)
 	}
+
+	t.Log(stack)
 }
