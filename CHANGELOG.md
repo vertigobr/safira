@@ -1,6 +1,10 @@
 # Release Notes
 
-## Version v0.0.1-beta.3 - 2020-06-03
+## Version v0.0.2 - 2020-06-03
+
+Features:
+
+- Add flag `kubeconfig` in `safira function deploy`
 
 Improvements:
 

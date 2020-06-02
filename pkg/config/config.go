@@ -62,3 +62,7 @@ func SetKubeconfig(clusterName string) error {
 
 	return nil
 }
+
+func GetKubeconfig() string {
+	return os.Getenv("KUBECONFIG")
+}

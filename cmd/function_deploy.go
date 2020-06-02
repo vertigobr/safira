@@ -37,12 +37,14 @@ var deployCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(deployCmd)
-	rootCmd.PersistentFlags().Bool("update", false, "Force the deploy to pull a new image")
+	deployCmd.Flags().Bool("update", false, "Force the deploy to pull a new image. (Default: false)")
+	deployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
+	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -58,7 +60,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := functionDeploy(kubectlPath, verboseFlag, updateFlag); err != nil {
+	if err := functionDeploy(kubectlPath, kubeconfigFlag, verboseFlag, updateFlag); err != nil {
 		return err
 	}
 
@@ -67,10 +69,17 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func functionDeploy(kubectlPath string, verboseFlag, updateFlag bool) error {
-	err := config.SetKubeconfig(clusterName)
-	if err != nil {
-		return err
+func functionDeploy(kubectlPath, kubeconfigFlag string, verboseFlag, updateFlag bool) error {
+	var kubeconfig string
+	if len(kubeconfigFlag) > 0 {
+		kubeconfig = kubeconfigFlag
+	} else {
+		err := config.SetKubeconfig(clusterName)
+		if err != nil {
+			return err
+		}
+
+		kubeconfig = config.GetKubeconfig()
 	}
 
 	hasFunction, err := deploy.CheckFunction(clusterName)
@@ -89,6 +98,7 @@ func functionDeploy(kubectlPath string, verboseFlag, updateFlag bool) error {
 			Args:        []string{
 				"rollout", "restart", "deployments", projectName,
 				"-n", deploy.GetNamespaceFunction(),
+				"--kubeconfig", kubeconfig,
 			},
 			StreamStdio:  verboseFlag,
 			PrintCommand: verboseFlag,
@@ -112,6 +122,7 @@ func functionDeploy(kubectlPath string, verboseFlag, updateFlag bool) error {
 		Command:     kubectlPath,
 		Args:        []string{
 			"apply", "--wait",
+			"--kubeconfig", kubeconfig,
 			"-f", "deploy/",
 		},
 		StreamStdio:  verboseFlag,
