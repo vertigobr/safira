@@ -24,10 +24,11 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Lista os templates oficiais do Vertigo iPaaS",
-	Long:  "Lista os templates oficiais do Vertigo iPaaS",
-	RunE:  runTemplateList,
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "Lista os templates oficiais do Vertigo iPaaS",
+	Long:    "Lista os templates oficiais do Vertigo iPaaS",
+	RunE:    runTemplateList,
 	SuggestionsMinimumDistance: 1,
 }
 

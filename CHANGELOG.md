@@ -4,7 +4,7 @@
 
 Improvements:
 
-- `safira function deploy` Add update pod to get new image
+- `safira function deploy` Add flag `update`, force the deploy to take a new image
 - `safira infra secrets` Add Konga secrets
 
 ## Version v0.0.1-beta.2 - 2020-06-01

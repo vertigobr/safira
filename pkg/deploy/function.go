@@ -43,7 +43,7 @@ func CreateYamlFunction(fileName string) error {
 	}
 	
 	function := function{
-		ApiVersion: "openfaas.com/v1", // openfaas.com/v1alpha2
+		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",
 		Metadata: functionMetadata{
 			Name:      projectName,

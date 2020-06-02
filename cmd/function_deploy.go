@@ -37,10 +37,12 @@ var deployCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(deployCmd)
+	rootCmd.PersistentFlags().Bool("update", false, "Force the deploy to pull a new image")
 }
 
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	updateFlag, _ := cmd.Flags().GetBool("update")
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -56,7 +58,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := functionDeploy(kubectlPath, verboseFlag); err != nil {
+	if err := functionDeploy(kubectlPath, verboseFlag, updateFlag); err != nil {
 		return err
 	}
 
@@ -65,7 +67,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func functionDeploy(kubectlPath string, verboseFlag bool) error {
+func functionDeploy(kubectlPath string, verboseFlag, updateFlag bool) error {
 	err := config.SetKubeconfig(clusterName)
 	if err != nil {
 		return err
@@ -81,7 +83,7 @@ func functionDeploy(kubectlPath string, verboseFlag bool) error {
 		return err
 	}
 
-	if hasFunction {
+	if hasFunction && updateFlag {
 		taskRemoveFunction := execute.Task{
 			Command:     kubectlPath,
 			Args:        []string{
