@@ -2,7 +2,10 @@
 // Licensed under the  Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package deploy
 
-import y "gopkg.in/yaml.v2"
+import (
+	"github.com/vertigobr/safira/pkg/utils"
+	y "gopkg.in/yaml.v2"
+)
 
 type service struct {
 	ApiVersion string   `yaml:"apiVersion"`
@@ -66,7 +69,7 @@ func CreateYamlService(fileName string) error {
 		return err
 	}
 
-	if err := createYamlFile(fileName, yamlBytes); err != nil {
+	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
 		return err
 	}
 

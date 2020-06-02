@@ -5,6 +5,7 @@ package deploy
 import (
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
 	"strings"
 )
@@ -75,7 +76,7 @@ func CreateYamlFunction(fileName string) error {
 		return err
 	}
 
-	if err := createYamlFile(fileName, yamlBytes); err != nil {
+	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
 		return err
 	}
 

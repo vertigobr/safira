@@ -7,29 +7,7 @@ import (
 	"github.com/subosito/gotenv"
 	"os"
 	"strconv"
-	"strings"
 )
-
-func createYamlFile(fileName string, bytes []byte) error {
-	if !strings.HasSuffix(fileName, ".yaml") && !strings.HasSuffix(fileName, ".yml") {
-		fileName = fileName + ".yml"
-	}
-
-	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	f.Truncate(0)
-
-	_, err = f.Write(bytes)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func readFileEnv() error {
 	if err := gotenv.Load(); err != nil {
