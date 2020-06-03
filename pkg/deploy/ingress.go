@@ -99,6 +99,8 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 		gateway = strings.Trim(url, "http://")
 	} else if strings.Index(url, "https://") != -1 {
 		gateway = strings.Trim(url, "https://")
+	} else {
+		gateway = url
 	}
 
 	s := strings.Split(gateway, ":")
