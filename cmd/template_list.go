@@ -1,5 +1,5 @@
 // Copyright © 2020 Vertigo Tecnologia. All rights reserved.
-// Licensed under the  Apache License, Version 2.0. See LICENSE file in the project root for full license information.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package cmd
 
 import (
@@ -105,7 +105,7 @@ func outputTemplateInfo(templates []TemplateInfo, verboseFlag bool) {
 	}
 
 	var buff bytes.Buffer
-	lineWriter := tabwriter.NewWriter(&buff, 0, 0, 1, ' ', 0)
+	lineWriter := tabwriter.NewWriter(&buff, 0, 0, 3, ' ', 0)
 
 	fmt.Fprintln(lineWriter)
 	fmt.Fprintf(lineWriter, "NAME\tLANGUAGE\tPLATFORM\tSOURCE\tDESCRIPTION\n")

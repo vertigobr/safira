@@ -1,5 +1,5 @@
 // Copyright © 2020 Vertigo Tecnologia. All rights reserved.
-// Licensed under the  Apache License, Version 2.0. See LICENSE file in the project root for full license information.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package cmd
 
 import (
@@ -20,10 +20,12 @@ var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safi
 
 const (
 	faasTemplateStoreURL = "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json"
-	kubectlBinaryName = "kubectl"
-	k3dBinaryName = "k3d"
-	helmBinaryName = "helm"
-	faasBinaryName = "faas-cli"
+	kubectlBinaryName    = "kubectl"
+	k3dBinaryName        = "k3d"
+	helmBinaryName       = "helm"
+	faasBinaryName       = "faas-cli"
+	clusterName          = "vertigo-ipaas"
+	functionsNamespace   = "ipaas-fn"
 )
 
 var rootCmd = &cobra.Command{
