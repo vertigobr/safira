@@ -19,7 +19,7 @@ func download(url, name string, binary bool) error {
 
 	res, err := http.DefaultClient.Get(parsedURL.String())
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao obter conteúdo da requisição: %s", err.Error())
 	}
 	defer res.Body.Close()
 
@@ -32,17 +32,17 @@ func download(url, name string, binary bool) error {
 		// Criar arquivo
 		out, err := os.Create(fmt.Sprintf("%s/%s", dest, name))
 		if err != nil {
-			return err
+			return fmt.Errorf("error ao criar arquivo %s: %s", name, err.Error())
 		}
 		defer out.Close()
 
 		// Escreve o corpo da resposta no arquivo
 		if _, err := io.Copy(out, res.Body); err != nil {
-			return err
+			return fmt.Errorf("error ao escrever conteúdo da requisição no arquivo %s: %s", name, err.Error())
 		}
 
 		if err := os.Chmod(fmt.Sprintf("%s/%s", dest, name), 0700); err != nil {
-			return err
+			return fmt.Errorf("error ao tornar o arquivo executavél - %s: %s", name, err.Error())
 		}
 	} else {
 		r := ioutil.NopCloser(res.Body)
@@ -59,7 +59,9 @@ func download(url, name string, binary bool) error {
 	Uid, err := strconv.Atoi(u.Uid)
 	Gid, err := strconv.Atoi(u.Gid)
 
-	os.Chown(fmt.Sprintf("%s/%s", dest, name), Uid, Gid)
+	if err := os.Chown(fmt.Sprintf("%s/%s", dest, name), Uid, Gid); err != nil {
+		return fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+	}
 
 	return nil
 }

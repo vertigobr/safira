@@ -3,6 +3,7 @@
 package deploy
 
 import (
+	"fmt"
 	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
@@ -67,7 +68,7 @@ func CreateYamlService(fileName, functionName string) error {
 
 	yamlBytes, err := y.Marshal(&service)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
 	}
 
 	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {

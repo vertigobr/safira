@@ -24,7 +24,7 @@ func initUserDir(folder string) (string, error) {
 
 	path := p.Join(safiraDir, folder)
 	if err := os.MkdirAll(path, 0755); err != nil {
-		return "", err
+		return "", fmt.Errorf("error ao criar pasta: %s", folder)
 	}
 
 	return path, nil
@@ -42,20 +42,16 @@ func CreateInBinDir() (string, error) {
 	Gid, _ := strconv.Atoi(u.Gid)
 
 	if err := os.Chown(path, Uid, Gid); err != nil {
-		return "", err
+		return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
 	}
 
 	safiraFolder := GetUserDir()
 	if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
-		return "", err
+		return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
 	}
 
 	return path, err
 }
-
-//func CreateInTemplateDir() (string, error) {
-//	return initUserDir("/template/")
-//}
 
 func SetKubeconfig(clusterName string) error {
 	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {

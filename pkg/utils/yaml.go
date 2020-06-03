@@ -3,6 +3,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"strings"
 )
@@ -14,7 +15,7 @@ func CreateYamlFile(fileName string, bytes []byte, clearFile bool) error {
 
 	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao abrir o arquivo %s: %s", fileName, err.Error())
 	}
 	defer f.Close()
 
@@ -24,7 +25,7 @@ func CreateYamlFile(fileName string, bytes []byte, clearFile bool) error {
 
 	_, err = f.Write(bytes)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao escrever no arquivo %s: %s", fileName, err.Error())
 	}
 
 	return nil

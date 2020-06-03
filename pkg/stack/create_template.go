@@ -3,6 +3,7 @@
 package stack
 
 import (
+	"fmt"
 	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
 )
@@ -26,7 +27,7 @@ func CreateTemplate(function Function) error {
 
 	yamlBytes, err := y.Marshal(&stack)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo stack.yml: %s", err.Error())
 	}
 
 	if err := utils.CreateYamlFile("stack.yml", yamlBytes, true); err != nil {

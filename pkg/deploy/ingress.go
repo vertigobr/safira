@@ -84,7 +84,7 @@ func CreateYamlIngress(fileName, functionName string) error {
 
 	yamlBytes, err := y.Marshal(&ingress)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
 	}
 
 	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
@@ -105,7 +105,7 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	gateway = s[0]
 	port, err = strconv.Atoi(s[1])
 	if err != nil {
-		return "", 0, fmt.Errorf("stack: url do gateway inválida")
+		return "", 0, fmt.Errorf("error ao pegar a porta do gateway: %s", err.Error())
 	}
 
 	return

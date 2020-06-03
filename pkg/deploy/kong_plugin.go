@@ -3,6 +3,7 @@
 package deploy
 
 import (
+	"fmt"
 	"github.com/vertigobr/safira/pkg/utils"
 	y "gopkg.in/yaml.v2"
 )
@@ -42,7 +43,7 @@ func CreateYamlKongPlugin(fileName string) error {
 
 	yamlBytes, err := y.Marshal(&kongPlugin)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
 	}
 
 	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
