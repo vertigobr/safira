@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package stack
 
+const stackFileName = "stack.yml"
+
 // Provider for the FaaS set of functions.
 type Provider struct {
 	Name       string `yaml:"name"`
@@ -14,8 +16,11 @@ type Function struct {
 	// Name of deployed function
 	Name string `yaml:"-"`
 
+	// Lang name
+	Lang string `yaml:"lang"`
+
 	// Template name
-	Template string `yaml:"lang"`
+	//Template string `yaml:"template"`
 
 	// Handler Local folder to use for function
 	Handler string `yaml:"handler"`
@@ -101,9 +106,10 @@ type Function struct {
 
 // Stack root level YAML file to define FaaS function-set
 type Stack struct {
-	Version            string              `yaml:"version,omitempty"`
-	Provider           Provider            `yaml:"provider,omitempty"`
-	Functions          map[string]Function `yaml:"functions,omitempty"`
+	Version   string              `yaml:"version,omitempty"`
+	Provider  Provider            `yaml:"provider,omitempty"`
+	Hostname  string              `yaml:"hostname,omitempty"`
+	Functions map[string]Function `yaml:"functions,omitempty"`
 	//StackConfiguration StackConfiguration  `yaml:"configuration,omitempty"`
 }
 

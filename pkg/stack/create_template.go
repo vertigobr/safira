@@ -12,15 +12,16 @@ func CreateTemplate(function Function) error {
 	stack := Stack{
 		Version:   "1.0",
 		Provider:  Provider{
-			Name: "kong",
-			GatewayURL: "ipaas.localdomain:8080",
+			Name:       "openfaas",
+			GatewayURL: "gateway.ipaas.localdomain:8080",
 		},
+		Hostname: "ipaas.localdomain:8080",
 		Functions: map[string]Function{
 			function.Name: {
-				Name: function.Name,
-				Template: function.Template,
+				Name:    function.Name,
+				Lang:    function.Lang,
 				Handler: function.Handler,
-				Image: function.Image,
+				Image:   function.Image,
 			},
 		},
 	}
@@ -30,7 +31,7 @@ func CreateTemplate(function Function) error {
 		return fmt.Errorf("error ao executar o marshal para o arquivo stack.yml: %s", err.Error())
 	}
 
-	if err := utils.CreateYamlFile("stack.yml", yamlBytes, true); err != nil {
+	if err := utils.CreateYamlFile(stackFileName, yamlBytes, true); err != nil {
 		return err
 	}
 

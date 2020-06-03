@@ -38,7 +38,7 @@ func CreateYamlService(fileName, functionName string) error {
 		return err
 	}
 
-	_, p, err := getGatewayPort(stack.Provider.GatewayURL)
+	_, p, err := getGatewayPort(stack.Hostname)
 	if err != nil {
 		return err
 	}

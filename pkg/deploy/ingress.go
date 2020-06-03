@@ -51,7 +51,7 @@ func CreateYamlIngress(fileName, functionName string) error {
 		return err
 	}
 
-	gateway, port, err := getGatewayPort(stack.Provider.GatewayURL)
+	gateway, port, err := getGatewayPort(stack.Hostname)
 	if err != nil {
 		return err
 	}

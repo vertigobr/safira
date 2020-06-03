@@ -8,6 +8,7 @@ import (
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
+	"github.com/vertigobr/safira/pkg/stack"
 	"os"
 	"regexp"
 )
@@ -79,7 +80,24 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	if err := downloadTemplate(faasCliPath, flagLang, verboseFlag); err != nil {
 		return err
 	}
-	
+
+	function := stack.Function{
+		Name:    functionName,
+		Lang:    flagLang,
+		Handler: "./" + functionName,
+		Image:   "registry.localdomain:5000/" + functionName + ":latest",
+	}
+
+	if _, err = os.Stat("stack.yml"); err != nil {
+		if err := stack.CreateTemplate(function); err != nil {
+			return err
+		}
+	} else {
+		if err := stack.AppendFunction(function); err != nil {
+			return err
+		}
+	}
+
 	if err := createFunction(faasCliPath, functionName, flagLang, verboseFlag); err != nil {
 		return err
 	}
@@ -139,12 +157,8 @@ func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) er
 		return err
 	}
 
-	if err := addFileEnv(functionName); err != nil {
-		return err
-	}
-
-	if err := renameYamlProject(functionName); err != nil {
-		return err
+	if err := deleteYamlFunction(functionName); err != nil {
+		return fmt.Errorf("error ao remover yaml da função gerada %s.yml: %s", functionName, err.Error())
 	}
 
 	return nil
@@ -165,26 +179,6 @@ func writeGitignore() error {
 	return nil
 }
 
-func addFileEnv(projectName string) error {
-	envProjectName := "PROJECT_NAME=" + projectName + "\n"
-	envImage := "IMAGE=registry.localdomain:5000/" + projectName + ":latest\n"
-	envPort := "PORT=8080\n"
-	envDomain := "DOMAIN=ipaas.localdomain\n"
-
-	f, err := os.OpenFile(".env", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.Write([]byte(envProjectName + envImage + envPort + envDomain))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func renameYamlProject(functionName string) error {
-	return os.Rename(functionName + ".yml", "teste.yml")
+func deleteYamlFunction(functionName string) error {
+	return os.Remove(functionName + ".yml")
 }
