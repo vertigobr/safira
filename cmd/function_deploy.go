@@ -15,9 +15,10 @@ import (
 )
 
 var deployCmd = &cobra.Command{
-	Use:     "deploy -f YAML_FILE",
+	Use:     "deploy [FUNCTION_NAME]",
 	Short:   "Executa deploy das funções",
 	Long:    "Executa deploy das funções",
+	PreRunE: preRunFunctionDeploy,
 	RunE:    runFunctionDeploy,
 	SuggestionsMinimumDistance: 1,
 }
@@ -28,10 +29,20 @@ func init() {
 	deployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
 }
 
+func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("nome da função é obrigatório")
+	}
+
+	return nil
+}
+
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
+	functionName := args[0]
+
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -43,11 +54,11 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 
 	kubectlPath := config.GetKubectlPath()
 
-	if err := checkDeployFiles(); err!= nil {
+	if err := checkDeployFiles(functionName); err!= nil {
 		return err
 	}
 
-	if err := functionDeploy(kubectlPath, kubeconfigFlag, verboseFlag, updateFlag); err != nil {
+	if err := functionDeploy(kubectlPath, kubeconfigFlag, functionName, verboseFlag, updateFlag); err != nil {
 		return err
 	}
 
@@ -56,7 +67,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func functionDeploy(kubectlPath, kubeconfigFlag string, verboseFlag, updateFlag bool) error {
+func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFlag, updateFlag bool) error {
 	var kubeconfig string
 	if len(kubeconfigFlag) > 0 {
 		kubeconfig = kubeconfigFlag
@@ -69,12 +80,7 @@ func functionDeploy(kubectlPath, kubeconfigFlag string, verboseFlag, updateFlag 
 		kubeconfig = config.GetKubeconfig()
 	}
 
-	hasFunction, err := deploy.CheckFunction(clusterName)
-	if err != nil {
-		return err
-	}
-
-	projectName, err := deploy.GetProjectName()
+	hasFunction, err := deploy.CheckFunction(clusterName, functionName)
 	if err != nil {
 		return err
 	}
@@ -83,7 +89,7 @@ func functionDeploy(kubectlPath, kubeconfigFlag string, verboseFlag, updateFlag 
 		taskRemoveFunction := execute.Task{
 			Command:     kubectlPath,
 			Args:        []string{
-				"rollout", "restart", "deployments", projectName,
+				"rollout", "restart", "deployments", functionName,
 				"-n", deploy.GetNamespaceFunction(),
 				"--kubeconfig", kubeconfig,
 			},
@@ -129,8 +135,12 @@ func functionDeploy(kubectlPath, kubeconfigFlag string, verboseFlag, updateFlag 
 	return nil
 }
 
-func checkDeployFiles() error {
-	deployFolder := "./deploy"
+func checkDeployFiles(functionName string) error {
+	deployFolder   := "./deploy"
+	functionYaml   := deployFolder + "/function.yml"
+	ingressYaml    := deployFolder + "/ingress.yml"
+	kongPluginYaml := deployFolder + "/kong_plugin.yml"
+	serviceYaml    := deployFolder + "/service.yml"
 
 	if _, err := os.Stat(deployFolder); err != nil {
 		if err = os.MkdirAll(deployFolder, 0700); err != nil {
@@ -138,23 +148,23 @@ func checkDeployFiles() error {
 		}
 	}
 
-	if _, err := os.Stat(".env"); err != nil {
-		return fmt.Errorf("arquivo .env não encontrado")
-	}
+	//if _, err := os.Stat(".env"); err != nil {
+	//	return fmt.Errorf("arquivo .env não encontrado")
+	//}
 
-	if err := deploy.CreateYamlFunction(deployFolder + "/function.yml"); err != nil {
+	if err := deploy.CreateYamlFunction(functionYaml, functionName); err != nil {
 		return err
 	}
 
-	if err := deploy.CreateYamlIngress(deployFolder + "/ingress.yml"); err != nil {
+	if err := deploy.CreateYamlIngress(ingressYaml, functionName); err != nil {
 		return err
 	}
 
-	if err := deploy.CreateYamlKongPlugin(deployFolder + "/kongplugin.yml"); err != nil {
+	if err := deploy.CreateYamlKongPlugin(kongPluginYaml); err != nil {
 		return err
 	}
 
-	if err := deploy.CreateYamlService(deployFolder + "/" + "service.yml"); err != nil {
+	if err := deploy.CreateYamlService(serviceYaml, functionName); err != nil {
 		return err
 	}
 
