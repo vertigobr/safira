@@ -137,10 +137,9 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 
 func checkDeployFiles(functionName string) error {
 	deployFolder   := "./deploy"
-	functionYaml   := deployFolder + "/function.yml"
-	ingressYaml    := deployFolder + "/ingress.yml"
-	kongPluginYaml := deployFolder + "/kong_plugin.yml"
-	serviceYaml    := deployFolder + "/service.yml"
+	functionYaml   := deployFolder + "/" + functionName + "-function.yml"
+	ingressYaml    := deployFolder + "/" + functionName + "-ingress.yml"
+	serviceYaml    := deployFolder + "/" + functionName + "-service.yml"
 
 	if _, err := os.Stat(deployFolder); err != nil {
 		if err = os.MkdirAll(deployFolder, 0700); err != nil {
@@ -148,19 +147,11 @@ func checkDeployFiles(functionName string) error {
 		}
 	}
 
-	//if _, err := os.Stat(".env"); err != nil {
-	//	return fmt.Errorf("arquivo .env não encontrado")
-	//}
-
 	if err := deploy.CreateYamlFunction(functionYaml, functionName); err != nil {
 		return err
 	}
 
 	if err := deploy.CreateYamlIngress(ingressYaml, functionName); err != nil {
-		return err
-	}
-
-	if err := deploy.CreateYamlKongPlugin(kongPluginYaml); err != nil {
 		return err
 	}
 
