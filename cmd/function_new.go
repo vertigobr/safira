@@ -3,6 +3,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
@@ -165,13 +166,27 @@ func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) er
 }
 
 func writeGitignore() error {
-	f, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_WRONLY, 0600)
+	gitIgnoreFile := ".gitignore"
+	fileRead, err := os.Open(gitIgnoreFile)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer fileRead.Close()
 
-	_, err = f.Write([]byte("deploy\n"))
+	scanner := bufio.NewScanner(fileRead)
+	for scanner.Scan() {
+		if scanner.Text() == "deploy" {
+			return nil
+		}
+	}
+
+	fileWrite, err := os.OpenFile(gitIgnoreFile, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer fileWrite.Close()
+
+	_, err = fileWrite.Write([]byte("deploy\n"))
 	if err != nil {
 		return err
 	}

@@ -13,7 +13,7 @@ func AppendFunction(function Function) error {
 	}
 
 	if stack.Functions[function.Name].Handler != "" {
-		return fmt.Errorf(fmt.Sprintf("\nNome da função em uso, tente usar outro!\n"))
+		return fmt.Errorf(fmt.Sprintf("\nNome da função em uso, tente usar outro!"))
 	}
 
 	stack.Functions[function.Name] = function
