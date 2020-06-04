@@ -20,6 +20,7 @@ var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safi
 
 const (
 	faasTemplateStoreURL = "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json"
+	faasTemplateRepo     = "https://github.com/vertigobr/openfaas-templates.git"
 	kubectlBinaryName    = "kubectl"
 	k3dBinaryName        = "k3d"
 	helmBinaryName       = "helm"

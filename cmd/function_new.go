@@ -9,6 +9,7 @@ import (
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
+	"github.com/vertigobr/safira/pkg/git"
 	"github.com/vertigobr/safira/pkg/stack"
 	"os"
 	"regexp"
@@ -78,7 +79,7 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 	functionName := args[0]
 
-	if err := downloadTemplate(faasCliPath, flagLang, verboseFlag); err != nil {
+	if err := downloadTemplate(verboseFlag); err != nil {
 		return err
 	}
 
@@ -108,24 +109,9 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func downloadTemplate(faasCliPath, lang string, verboseFlag bool) error {
-	taskDownloadTemplate := execute.Task{
-		Command:     faasCliPath,
-		Args:        []string{
-			"template", "store", "pull", lang, "--url", faasTemplateStoreURL,
-		},
-		StreamStdio:  verboseFlag,
-		PrintCommand: verboseFlag,
-	}
-
-	fmt.Println("Baixando template...")
-	res, err := taskDownloadTemplate.Execute()
-	if err != nil {
+func downloadTemplate(verboseFlag bool) error {
+	if err := git.PullTemplate(faasTemplateRepo, verboseFlag); err != nil {
 		return err
-	}
-
-	if res.ExitCode > 1 {
-		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil
