@@ -13,7 +13,7 @@ func CreateTemplate(function Function) error {
 		Version:   "1.0",
 		Provider:  Provider{
 			Name:       "openfaas",
-			GatewayURL: "gateway.ipaas.localdomain:8080",
+			GatewayURL: "http://gateway.ipaas.localdomain:8080",
 		},
 		Hostname: "ipaas.localdomain:8080",
 		Functions: map[string]Function{
