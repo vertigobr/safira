@@ -5,13 +5,13 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/config"
-	"github.com/vertigobr/safira/pkg/execute"
-	"github.com/vertigobr/safira/pkg/get"
+	"github.com/vertigobr/safira/pkg/docker"
+	s "github.com/vertigobr/safira/pkg/stack"
+	"os"
 )
 
 var buildCmd = &cobra.Command{
-	Use:     "build -f YAML_FILE",
+	Use:     "build [FUNCTION_NAME]",
 	Short:   "Executa o build de funções",
 	Long:    "Executa o build de funções",
 	PreRunE: preRunFunctionBuild,
@@ -21,37 +21,30 @@ var buildCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(buildCmd)
-	buildCmd.Flags().StringP("yaml", "f", "", "Caminho para o yaml de uma função")
+	buildCmd.Flags().BoolP("all-functions", "A", false, "Build all functions")
+	buildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
 }
 
 func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
-	flagYaml, _ := cmd.Flags().GetString("yaml")
-	if len(flagYaml) == 0 {
-		return fmt.Errorf("a flag --yaml/-f é obrigatória")
+	all, _ := cmd.Flags().GetBool("all-functions")
+	if len(args) < 1 && !all {
+		_ = cmd.Help()
+		os.Exit(0)
 	}
 
 	return nil
 }
 
 func runFunctionBuild(cmd *cobra.Command, args []string) error {
-	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
+	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
+	all, _ := cmd.Flags().GetBool("all-functions")
+
+	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
 	}
 
-	if !exist {
-		return fmt.Errorf(notExistBinary)
-	}
-
-	faasCliPath := config.GetFaasCliPath()
-	yamlFlag, _ := cmd.Flags().GetString("yaml")
-
-	if err := functionBuild(faasCliPath, yamlFlag, verboseFlag); err != nil {
-		return err
-	}
-
-	if err := functionPush(faasCliPath, yamlFlag, verboseFlag); err != nil {
+	if err := buildFunction(stack, args, all, noCacheFlag); err != nil {
 		return err
 	}
 
@@ -60,47 +53,46 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func functionBuild(faasCliPath, yamlFlag string, verboseFlag bool) error {
-	taskFunctionBuild := execute.Task{
-		Command:     faasCliPath,
-		Args:        []string{
-			"build", "-f", yamlFlag,
-		},
-		StreamStdio:  true,
-		PrintCommand: verboseFlag,
-	}
+func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool) error {
+	buildArgsStack := stack.StackConfig.BuildArgs
+	functions := stack.Functions
 
-	fmt.Println("Executando build da função...")
-	res, err := taskFunctionBuild.Execute()
-	if err != nil {
-		return err
-	}
+	if allFunctions {
+		for functionName, f := range functions {
+			var buildArgs map[string]string
 
-	if res.ExitCode != 0 {
-		return fmt.Errorf(res.Stderr)
-	}
+			if len(f.FunctionConfig.BuildArgs) != 0 {
+				buildArgs = f.FunctionConfig.BuildArgs
+			} else {
+				buildArgs = buildArgsStack
+			}
 
-	return nil
-}
+			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		for index, functionArg := range args {
+			functionName := args[index]
+			if checkFunctionExists(functionName, functions) {
+				f := functions[functionArg]
+				var buildArgs map[string]string
 
-func functionPush(faasCliPath, yamlFlag string, verboseFlag bool) error {
-	taskFunctionPush := execute.Task{
-		Command:     faasCliPath,
-		Args:        []string{
-			"push", "-f", yamlFlag,
-		},
-		StreamStdio:  true,
-		PrintCommand: verboseFlag,
-	}
+				if len(f.FunctionConfig.BuildArgs) != 0 {
+					buildArgs = f.FunctionConfig.BuildArgs
+				} else {
+					buildArgs = buildArgsStack
+				}
 
-	fmt.Println("Salvando a função no registry...")
-	res, err := taskFunctionPush.Execute()
-	if err != nil {
-		return err
-	}
-
-	if res.ExitCode != 0 {
-		return fmt.Errorf(res.Stderr)
+				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs)
+				if err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+			}
+		}
 	}
 
 	return nil

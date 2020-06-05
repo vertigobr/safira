@@ -7,7 +7,7 @@ import (
 )
 
 func AppendFunction(function Function) error {
-	stack, err := LoadStackFile(stackFileName)
+	stack, err := LoadStackFile()
 	if err != nil {
 		return err
 	}

@@ -19,14 +19,13 @@ type Function struct {
 	// Lang name
 	Lang string `yaml:"lang"`
 
-	// Template name
-	//Template string `yaml:"template"`
-
 	// Handler Local folder to use for function
 	Handler string `yaml:"handler"`
 
 	// Docker image name
 	Image string `yaml:"image"`
+
+	FunctionConfig Config `yaml:"config,omitempty"`
 
 	// Docker registry Authorization
 	//RegistryAuth string `yaml:"registry_auth,omitempty"`
@@ -65,9 +64,6 @@ type Function struct {
 
 	// Namespace of the function
 	//Namespace string `yaml:"namespace,omitempty"`
-
-	// BuildArgs for providing build-args
-	//BuildArgs map[string]string `yaml:"build_args,omitempty"`
 }
 
 // Configuration for the stack.yml file
@@ -75,17 +71,18 @@ type Function struct {
 //	StackConfig StackConfiguration `yaml:"configuration"`
 //}
 
-// StackConfiguration for the overall stack.yml
-//type StackConfiguration struct {
-//	TemplateConfigs []TemplateSource `yaml:"templates"`
-//	// CopyExtraPaths specifies additional paths (relative to the stack file) that will be copied
-//	// into the functions build context, e.g. specifying `"common"` will look for and copy the
-//	// "common/" folder of file in the same root as the stack file.  All paths must be contained
-//	// within the project root defined by the location of the stack file.
-//	//
-//	// The yaml uses the shorter name `copy` to make it easier for developers to read and use
-//	CopyExtraPaths []string `yaml:"copy"`
-//}
+// StackConfig apply all functions in stack.yaml
+type Config struct {
+	BuildArgs map[string]string `yaml:"buildArgs,omitempty"`
+	//TemplateConfigs []TemplateSource `yaml:"templates"`
+	// CopyExtraPaths specifies additional paths (relative to the stack file) that will be copied
+	// into the functions build context, e.g. specifying `"common"` will look for and copy the
+	// "common/" folder of file in the same root as the stack file.  All paths must be contained
+	// within the project root defined by the location of the stack file.
+	//
+	// The yaml uses the shorter name `copy` to make it easier for developers to read and use
+	//CopyExtraPaths []string `yaml:"copy"`
+}
 
 // TemplateSource for build templates
 //type TemplateSource struct {
@@ -106,11 +103,11 @@ type Function struct {
 
 // Stack root level YAML file to define FaaS function-set
 type Stack struct {
-	Version   string              `yaml:"version,omitempty"`
-	Provider  Provider            `yaml:"provider,omitempty"`
-	Hostname  string              `yaml:"hostname,omitempty"`
-	Functions map[string]Function `yaml:"functions,omitempty"`
-	//StackConfiguration StackConfiguration  `yaml:"configuration,omitempty"`
+	Version     string              `yaml:"version,omitempty"`
+	Provider    Provider            `yaml:"provider,omitempty"`
+	Hostname    string              `yaml:"hostname,omitempty"`
+	Functions   map[string]Function `yaml:"functions,omitempty"`
+	StackConfig Config              `yaml:"config,omitempty"`
 }
 
 // LanguageTemplate read from template.yml within root of a language template folder

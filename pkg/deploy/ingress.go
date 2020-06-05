@@ -46,7 +46,7 @@ type backend struct {
 }
 
 func CreateYamlIngress(fileName, functionName string) error {
-	stack, err := s.LoadStackFile("./stack.yml")
+	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
 	}

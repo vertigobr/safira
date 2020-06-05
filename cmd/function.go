@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/stack"
 )
 
 var functionCmd = &cobra.Command{
@@ -16,4 +17,9 @@ var functionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(functionCmd)
+}
+
+func checkFunctionExists(functionName string, functions map[string]stack.Function) bool {
+	f := functions[functionName]
+	return len(f.Handler) > 1 && len(f.Image) > 1
 }

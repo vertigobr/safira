@@ -33,7 +33,7 @@ type port struct {
 }
 
 func CreateYamlService(fileName, functionName string) error {
-	stack, err := s.LoadStackFile("./stack.yml")
+	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
 	}

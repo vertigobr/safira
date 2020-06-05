@@ -38,7 +38,7 @@ type cpuMemory struct {
 }
 
 func CreateYamlFunction(fileName, functionName string) error {
-	stack, err := s.LoadStackFile("./stack.yml")
+	stack, err := s.LoadStackFile()
 	
 	function := function{
 		ApiVersion: "openfaas.com/v1",
