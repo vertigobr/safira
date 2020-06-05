@@ -9,20 +9,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// buildPushCmd represents the buildPush command
 var buildPushCmd = &cobra.Command{
 	Use:     "build-push",
 	Short:   "Executa o build e push das imagens",
 	Long:    "Executa o build e push das imagens",
-	PreRunE: preRunFunctionBuildPush,
+	PreRunE:  preRunFunctionBuildPush,
 	RunE:     runFunctionBuildPush,
 	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	functionCmd.AddCommand(buildPushCmd)
-	buildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
-	pushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
+	buildPushCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
+	buildPushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
 }
 
 func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {

@@ -57,13 +57,11 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	kubectlPath := config.GetKubectlPath()
-
+	functions, err := stack.GetAllFunctions()
+	if err != nil {
+		return err
+	}
 	if all {
-		functions, err := stack.GetAllFunctions()
-		if err != nil {
-			return err
-		}
-
 		for index, _ := range functions {
 			if err := checkDeployFiles(index); err!= nil {
 				return err
@@ -74,17 +72,20 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 			}
 		}
 	} else {
-		functionName := args[0]
+		for index, functionArg := range args {
+			if checkFunctionExists(args[index], functions) {
+				if err := checkDeployFiles(functionArg); err!= nil {
+					return err
+				}
 
-		if err := checkDeployFiles(functionName); err!= nil {
-			return err
-		}
-
-		if err := functionDeploy(kubectlPath, kubeconfigFlag, functionName, verboseFlag, updateFlag); err != nil {
-			return err
+				if err := functionDeploy(kubectlPath, kubeconfigFlag, functionArg, verboseFlag, updateFlag); err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+			}
 		}
 	}
-
 
 	fmt.Println("\nDeploy realizado com sucesso!")
 
@@ -135,12 +136,13 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 		}
 	}
 
+	deployFolder := fmt.Sprintf("deploy/%s/", functionName)
 	taskFunctionDeploy := execute.Task{
 		Command:     kubectlPath,
 		Args:        []string{
 			"apply", "--wait",
 			"--kubeconfig", kubeconfig,
-			"-f", "deploy/",
+			"-f", deployFolder,
 		},
 		StreamStdio:  verboseFlag,
 		PrintCommand: verboseFlag,
@@ -160,10 +162,10 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 }
 
 func checkDeployFiles(functionName string) error {
-	deployFolder   := "./deploy"
-	functionYaml   := deployFolder + "/" + functionName + "-function.yml"
-	ingressYaml    := deployFolder + "/" + functionName + "-ingress.yml"
-	serviceYaml    := deployFolder + "/" + functionName + "-service.yml"
+	deployFolder := fmt.Sprintf("./deploy/%s/", functionName)
+	functionYaml := deployFolder + "function.yml"
+	ingressYaml  := deployFolder + "ingress.yml"
+	serviceYaml  := deployFolder + "service.yml"
 
 	if _, err := os.Stat(deployFolder); err != nil {
 		if err = os.MkdirAll(deployFolder, 0700); err != nil {
