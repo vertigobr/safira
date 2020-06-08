@@ -90,7 +90,7 @@ pgadmin:
 
 openfaas:
   enabled: true
-  functionNamespace: openfaas-fn
+  functionNamespace: ipaas-fn
   generateBasicAuth: true
   operator:
     create: true

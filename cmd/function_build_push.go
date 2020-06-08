@@ -10,7 +10,7 @@ import (
 )
 
 var buildPushCmd = &cobra.Command{
-	Use:     "build-push",
+	Use:     "build-push [FUNCTION_NAME]",
 	Short:   "Executa o build e push das imagens",
 	Long:    "Executa o build e push das imagens",
 	PreRunE:  preRunFunctionBuildPush,

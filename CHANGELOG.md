@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version v0.0.2 - 2020-06-03
+## Version v0.0.2 - 2020-06-08
 
 Features:
 

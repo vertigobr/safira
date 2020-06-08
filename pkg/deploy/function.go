@@ -37,7 +37,7 @@ type cpuMemory struct {
 	Memory string `yaml:"memory"`
 }
 
-func CreateYamlFunction(fileName, functionName string) error {
+func CreateYamlFunction(fileName, functionName, namespace string) error {
 	stack, err := s.LoadStackFile()
 	
 	function := function{
@@ -45,7 +45,7 @@ func CreateYamlFunction(fileName, functionName string) error {
 		Kind:       "Function",
 		Metadata: functionMetadata{
 			Name:      functionName,
-			Namespace: GetNamespaceFunction(),
+			Namespace: namespace,
 		},
 		Spec: functionSpec{
 			Name:  functionName,
@@ -78,11 +78,7 @@ func CreateYamlFunction(fileName, functionName string) error {
 	return nil
 }
 
-func GetNamespaceFunction() string {
-	return "openfaas-fn"
-}
-
-func CheckFunction(clusterName, functionName string) (bool, error) {
+func CheckFunction(clusterName, functionName, namespace string) (bool, error) {
 	err := config.SetKubeconfig(clusterName)
 	if err != nil {
 		return false, err
@@ -91,7 +87,7 @@ func CheckFunction(clusterName, functionName string) (bool, error) {
 	taskCheckFunction := execute.Task{
 		Command:     config.GetKubectlPath(),
 		Args:        []string{
-			"get", "deployments", "-n", GetNamespaceFunction(),
+			"get", "deployments", "-n", namespace,
 		},
 		StreamStdio:  false,
 		PrintCommand: false,

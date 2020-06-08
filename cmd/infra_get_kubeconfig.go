@@ -12,6 +12,7 @@ var kubeconfigCmd = &cobra.Command{
 	Short: "Imprime o caminho do kubeconfig",
 	Long:  "Imprime o caminho do kubeconfig",
 	RunE:  runGetKubeconfig,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {

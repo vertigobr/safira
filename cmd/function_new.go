@@ -16,7 +16,7 @@ import (
 )
 
 var newCmd = &cobra.Command{
-	Use:     "new FUNCTION_NAME --lang=FUNCTION_LANGUAGE",
+	Use:     "new [FUNCTION_NAME] --lang=FUNCTION_LANGUAGE",
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
 	Example: "safira function new project-name --lang=java",

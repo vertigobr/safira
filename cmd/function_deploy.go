@@ -106,7 +106,7 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 		kubeconfig = config.GetKubeconfig()
 	}
 
-	hasFunction, err := deploy.CheckFunction(clusterName, functionName)
+	hasFunction, err := deploy.CheckFunction(clusterName, functionName, functionsNamespace)
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 			Command:     kubectlPath,
 			Args:        []string{
 				"rollout", "restart", "deployments", functionName,
-				"-n", deploy.GetNamespaceFunction(),
+				"-n", functionsNamespace,
 				"--kubeconfig", kubeconfig,
 			},
 			StreamStdio:  verboseFlag,
@@ -174,7 +174,7 @@ func checkDeployFiles(functionName string) error {
 		}
 	}
 
-	if err := deploy.CreateYamlFunction(functionYaml, functionName); err != nil {
+	if err := deploy.CreateYamlFunction(functionYaml, functionName, functionsNamespace); err != nil {
 		return err
 	}
 

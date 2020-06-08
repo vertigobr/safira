@@ -29,7 +29,7 @@ const (
 	helmBinaryName       = "helm"
 	faasBinaryName       = "faas-cli"
 	clusterName          = "vertigo-ipaas"
-	functionsNamespace   = "openfaas-fn" // ipaas-fn
+	functionsNamespace   = "ipaas-fn"
 )
 
 var rootCmd = &cobra.Command{

@@ -14,7 +14,7 @@ import (
 )
 
 var removeCmd = &cobra.Command{
-	Use:     "remove",
+	Use:     "remove [FUNCTION_NAME]",
 	Aliases: []string{"rm"},
 	Short:   "Remove uma ou mais funções do cluster",
 	Long:    "Remove uma ou mais funções do cluster",
