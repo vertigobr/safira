@@ -37,8 +37,13 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 
 	k3dPath := config.GetK3dPath()
 	helmPath := config.GetHelmPath()
+	kubectlPath := config.GetKubectlPath()
 
 	if err := createCluster(k3dPath, verboseFlag); err != nil {
+		return err
+	}
+
+	if err := createNamespace(kubectlPath, verboseFlag); err != nil {
 		return err
 	}
 
@@ -106,6 +111,31 @@ func createCluster(k3dPath string, verboseFlag bool) error {
 
 	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
 		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
+	}
+
+	return nil
+}
+
+func createNamespace(kubectl string, verboseFlag bool) error {
+	taskCreateNamespace := execute.Task{
+		Command:     kubectl,
+		Args:        []string{
+			"create", "namespace", functionsNamespace,
+		},
+		StreamStdio: verboseFlag,
+	}
+
+	if verboseFlag {
+		fmt.Println("[+] Criando namespace ipaas-fn")
+	}
+
+	resCreateNamespace, err := taskCreateNamespace.Execute()
+	if err != nil {
+		return err
+	}
+
+	if resCreateNamespace.ExitCode != 0 {
+		return fmt.Errorf(resCreateNamespace.Stderr)
 	}
 
 	return nil
