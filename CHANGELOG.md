@@ -4,13 +4,20 @@
 
 Features:
 
-- Add flag `kubeconfig` in `safira function deploy`
+- Added new flag `kubeconfig` in `safira function deploy`
+- Added the new command `sapira infra status`
 
 Improvements:
 
 - `safira function deploy` Add flag `update`, force the deploy to take a new image
 - `safira infra secrets` Add Konga secrets
-- `safira function new` Yaml project renamed to stack
+- `safira function new` Yaml project renamed to stack.yaml
+- Changed the search for .env information from `safira function deploy` to yaml project
+- Improved various error messages
+- Removed kongplugin creation on deploy
+- Added new `all-functions` flag in the deploy
+- Separate the build and push command, maintaining an alternative to the two actions with the name of build-push
+- Atualizado o namespace do vertigo ipaas
 
 ## Version v0.0.1-beta.2 - 2020-06-01
 
