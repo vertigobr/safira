@@ -28,6 +28,7 @@ func init() {
 	functionCmd.AddCommand(deployCmd)
 	deployCmd.Flags().Bool("update", false, "Force the deploy to pull a new image (Default: false)")
 	deployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
+	deployCmd.Flags().String("hostname", "", "Set hostname to deploy")
 	deployCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
 }
 
@@ -45,6 +46,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
+	hostnameFlag, _ := cmd.Flags().GetString("hostname")
 	all, _ := cmd.Flags().GetBool("all-functions")
 
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
@@ -64,7 +66,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 
 	if all {
 		for index, _ := range functions {
-			if err := checkDeployFiles(index); err!= nil {
+			if err := checkDeployFiles(index, hostnameFlag); err!= nil {
 				return err
 			}
 
@@ -75,7 +77,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				if err := checkDeployFiles(functionArg); err!= nil {
+				if err := checkDeployFiles(functionArg, hostnameFlag); err!= nil {
 					return err
 				}
 
@@ -162,7 +164,7 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 	return nil
 }
 
-func checkDeployFiles(functionName string) error {
+func checkDeployFiles(functionName, hostnameFlag string) error {
 	deployFolder := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYaml := deployFolder + "function.yml"
 	ingressYaml  := deployFolder + "ingress.yml"
@@ -178,11 +180,11 @@ func checkDeployFiles(functionName string) error {
 		return err
 	}
 
-	if err := deploy.CreateYamlIngress(ingressYaml, functionName); err != nil {
+	if err := deploy.CreateYamlIngress(ingressYaml, functionName, hostnameFlag); err != nil {
 		return err
 	}
 
-	if err := deploy.CreateYamlService(serviceYaml, functionName); err != nil {
+	if err := deploy.CreateYamlService(serviceYaml, functionName, hostnameFlag); err != nil {
 		return err
 	}
 

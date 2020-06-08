@@ -45,13 +45,20 @@ type backend struct {
 	ServicePort int    `yaml:"servicePort"`
 }
 
-func CreateYamlIngress(fileName, functionName string) error {
+func CreateYamlIngress(fileName, functionName, hostnameFlag string) error {
 	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
 	}
 
-	gateway, port, err := getGatewayPort(stack.Hostname)
+	var port int
+	var gateway string
+	if len(hostnameFlag) > 1 {
+		gateway, port, err = getGatewayPort(hostnameFlag)
+	} else {
+		gateway, port, err = getGatewayPort(stack.Hostname)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -107,7 +114,7 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	gateway = s[0]
 	port, err = strconv.Atoi(s[1])
 	if err != nil {
-		return "", 0, fmt.Errorf("error ao pegar a porta do gateway: %s", err.Error())
+		return "", 0, fmt.Errorf("error ao pegar a porta do hostname: %s", err.Error())
 	}
 
 	return

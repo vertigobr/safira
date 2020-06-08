@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.3 - 2020-06-10
+
+Features:
+
+- Added new flag `hostname` in `safira function deploy`
+
 ## Version v0.0.2 - 2020-06-08
 
 Features:
