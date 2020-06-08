@@ -40,7 +40,6 @@ func runInfraDown(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("\nCluster destruído com sucesso!")
-	fmt.Println()
 	return nil
 }
 
