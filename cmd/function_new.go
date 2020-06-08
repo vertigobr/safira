@@ -20,7 +20,7 @@ var newCmd = &cobra.Command{
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
 	Example: "safira function new project-name --lang=java",
-	PreRunE: PreRunFunctionNew,
+	PreRunE: preRunFunctionNew,
 	RunE:    runFunctionNew,
 	SuggestionsMinimumDistance: 1,
 }
@@ -31,7 +31,7 @@ func init() {
 	newCmd.Flags().String("lang", "", "Linguagem para criação do template")
 }
 
-func PreRunFunctionNew(cmd *cobra.Command, args []string) error {
+func preRunFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 
 	if len(flagLang) == 0 && len(args) < 1 {

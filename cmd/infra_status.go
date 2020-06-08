@@ -7,24 +7,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/k8s"
 	"text/tabwriter"
 
 	"gopkg.in/gookit/color.v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	RunE: runInfraStatus,
+	Short: "Vizualiza o status dos serviços e funções do cluster local",
+	Long:  "Vizualiza o status dos serviços e funções do cluster local",
+	RunE:  runInfraStatus,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -35,9 +30,9 @@ func init() {
 func runInfraStatus(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
-	k8sClient, err := getClient("/home/lcortes/.config/k3d/vertigo-ipaas/kubeconfig.yaml")
+	k8sClient, err := k8s.GetClient(kubeconfigPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cluster local não encontrado!\n")
 	}
 
 	if err := outputStatus(k8sClient, verboseFlag); err != nil {
@@ -47,25 +42,11 @@ func runInfraStatus(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getClient(kubeconfig string) (*kubernetes.Clientset, error){
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		return nil, fmt.Errorf("error ao criar client, verifique o kubeconfig: %s", err.Error())
-	}
-
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf("error ao verificar kubeconfig: %s", err.Error())
-	}
-
-	return client, nil
-}
-
 func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 	deploymentsClient := client.AppsV1().Deployments("default")
 	list, _ := deploymentsClient.List(context.TODO(), v1.ListOptions{})
 
-	deploymentsFunctions := client.AppsV1().Deployments("openfaas-fn")
+	deploymentsFunctions := client.AppsV1().Deployments(functionsNamespace)
 	listFunction, _ := deploymentsFunctions.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {

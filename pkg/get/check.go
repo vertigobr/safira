@@ -56,7 +56,7 @@ func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, err
 }
 
 func existsBinary(binary string) (exists bool, err error) {
-	path, err := exec.LookPath(fmt.Sprintf("%sbin/%s", config.GetUserDir(), binary))
+	path, err := exec.LookPath(fmt.Sprintf("%sbin/%s", config.GetSafiraDir(), binary))
 	exists = path != ""
 	return
 }

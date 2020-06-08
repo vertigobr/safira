@@ -14,9 +14,12 @@ import (
 	"gopkg.in/gookit/color.v1"
 )
 
-var cfgFile string
-var safiraInit = color.Bold.Sprintf("sudo -E safira init")
-var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
+var (
+	cfgFile string
+	safiraInit = color.Bold.Sprintf("sudo -E safira init")
+	notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
+	kubeconfigPath = fmt.Sprintf("%s/.config/k3d/%s/kubeconfig.yaml", os.Getenv("HOME"), clusterName)
+)
 
 const (
 	faasTemplateStoreURL = "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json"
@@ -26,7 +29,7 @@ const (
 	helmBinaryName       = "helm"
 	faasBinaryName       = "faas-cli"
 	clusterName          = "vertigo-ipaas"
-	functionsNamespace   = "ipaas-fn"
+	functionsNamespace   = "openfaas-fn" // ipaas-fn
 )
 
 var rootCmd = &cobra.Command{
@@ -81,6 +84,6 @@ func initConfig() {
 }
 
 func setPath() {
-	path := config.GetUserDir() + "bin:" + os.Getenv("PATH")
+	path := config.GetSafiraDir() + "bin:" + os.Getenv("PATH")
 	_ = os.Setenv("PATH", path)
 }

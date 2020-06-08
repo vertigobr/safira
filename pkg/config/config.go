@@ -10,13 +10,13 @@ import (
 	"strconv"
 )
 
-func GetUserDir() string {
+func GetSafiraDir() string {
 	home := os.Getenv("HOME")
 	return fmt.Sprintf("%s/.safira/", home)
 }
 
 func initUserDir(folder string) (string, error) {
-	safiraDir := GetUserDir()
+	safiraDir := GetSafiraDir()
 
 	if len(safiraDir) <= 16 {
 		return "", fmt.Errorf("variável SUDO_USER não encontrada")
@@ -45,7 +45,7 @@ func CreateInBinDir() (string, error) {
 		return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
 	}
 
-	safiraFolder := GetUserDir()
+	safiraFolder := GetSafiraDir()
 	if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
 		return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
 	}
