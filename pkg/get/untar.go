@@ -1,3 +1,5 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package get
 
 import (
@@ -20,7 +22,7 @@ func Untar(r io.Reader, dir string) (err error) {
 
 	zr, err := gzip.NewReader(r)
 	if err != nil {
-		return fmt.Errorf("requer gzip-compressed: %v", err)
+		return fmt.Errorf("requer gzip-compressed: %s", err.Error())
 	}
 
 	tr := tar.NewReader(zr)
@@ -41,8 +43,7 @@ func Untar(r io.Reader, dir string) (err error) {
 		}
 
 		if err != nil {
-			log.Printf("falha na leitura do tar: %v", err)
-			return fmt.Errorf("error no tar: %v", err)
+			return fmt.Errorf("error na leitura do %s: %s", dir, err.Error())
 		}
 
 		if !validRelPath(f.Name) {
@@ -94,6 +95,7 @@ func Untar(r io.Reader, dir string) (err error) {
 		default:
 		}
 	}
+
 	return nil
 }
 

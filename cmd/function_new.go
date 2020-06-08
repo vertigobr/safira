@@ -1,36 +1,26 @@
-/*
-Copyright © Vertigo Tecnologia
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
+	"github.com/vertigobr/safira/pkg/git"
+	"github.com/vertigobr/safira/pkg/stack"
 	"os"
 	"regexp"
 )
 
 var newCmd = &cobra.Command{
-	Use:     "new FUNCTION_NAME --lang=FUNCTION_LANGUAGE",
+	Use:     "new [FUNCTION_NAME] --lang=FUNCTION_LANGUAGE",
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
 	Example: "safira function new project-name --lang=java",
-	PreRunE: PreRunFunctionNew,
+	PreRunE: preRunFunctionNew,
 	RunE:    runFunctionNew,
 	SuggestionsMinimumDistance: 1,
 }
@@ -41,7 +31,7 @@ func init() {
 	newCmd.Flags().String("lang", "", "Linguagem para criação do template")
 }
 
-func PreRunFunctionNew(cmd *cobra.Command, args []string) error {
+func preRunFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 
 	if len(flagLang) == 0 && len(args) < 1 {
@@ -89,10 +79,27 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 	functionName := args[0]
 
-	if err := downloadTemplate(faasCliPath, flagLang, verboseFlag); err != nil {
+	if err := downloadTemplate(verboseFlag); err != nil {
 		return err
 	}
-	
+
+	function := stack.Function{
+		Name:    functionName,
+		Lang:    flagLang,
+		Handler: "./" + functionName,
+		Image:   "registry.localdomain:5000/" + functionName + ":latest",
+	}
+
+	if _, err = os.Stat("stack.yml"); err != nil {
+		if err := stack.CreateTemplate(function); err != nil {
+			return err
+		}
+	} else {
+		if err := stack.AppendFunction(function); err != nil {
+			return err
+		}
+	}
+
 	if err := createFunction(faasCliPath, functionName, flagLang, verboseFlag); err != nil {
 		return err
 	}
@@ -102,24 +109,9 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func downloadTemplate(faasCliPath, lang string, verboseFlag bool) error {
-	taskDownloadTemplate := execute.Task{
-		Command:     faasCliPath,
-		Args:        []string{
-			"template", "store", "pull", lang, "--url", faasTemplateStoreURL,
-		},
-		StreamStdio:  verboseFlag,
-		PrintCommand: verboseFlag,
-	}
-
-	fmt.Println("Baixando template...")
-	res, err := taskDownloadTemplate.Execute()
-	if err != nil {
+func downloadTemplate(verboseFlag bool) error {
+	if err := git.PullTemplate(faasTemplateRepo, verboseFlag); err != nil {
 		return err
-	}
-
-	if res.ExitCode > 1 {
-		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil
@@ -152,21 +144,35 @@ func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) er
 		return err
 	}
 
-	if err := addFileEnv(functionName); err != nil {
-		return err
+	if err := deleteYamlFunction(functionName); err != nil {
+		return fmt.Errorf("error ao remover yaml da função gerada %s.yml: %s", functionName, err.Error())
 	}
 
 	return nil
 }
 
 func writeGitignore() error {
-	f, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_WRONLY, 0600)
+	gitIgnoreFile := ".gitignore"
+	fileRead, err := os.Open(gitIgnoreFile)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer fileRead.Close()
 
-	_, err = f.Write([]byte("deploy\n"))
+	scanner := bufio.NewScanner(fileRead)
+	for scanner.Scan() {
+		if scanner.Text() == "deploy" {
+			return nil
+		}
+	}
+
+	fileWrite, err := os.OpenFile(gitIgnoreFile, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer fileWrite.Close()
+
+	_, err = fileWrite.Write([]byte("deploy\n"))
 	if err != nil {
 		return err
 	}
@@ -174,22 +180,6 @@ func writeGitignore() error {
 	return nil
 }
 
-func addFileEnv(projectName string) error {
-	envProjectName := "PROJECT_NAME=" + projectName + "\n"
-	envImage := "IMAGE=registry.localdomain:5000/" + projectName + ":latest\n"
-	envPort := "PORT=8080\n"
-	envDomain := "DOMAIN=ipaas.localdomain\n"
-
-	f, err := os.OpenFile(".env", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.Write([]byte(envProjectName + envImage + envPort + envDomain))
-	if err != nil {
-		return err
-	}
-
-	return nil
+func deleteYamlFunction(functionName string) error {
+	return os.Remove(functionName + ".yml")
 }

@@ -1,6 +1,16 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package deploy
 
-import y "gopkg.in/yaml.v2"
+import (
+	"fmt"
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/execute"
+	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
+	y "gopkg.in/yaml.v2"
+	"strings"
+)
 
 type function struct {
 	ApiVersion string           `yaml:"apiVersion"`
@@ -27,30 +37,23 @@ type cpuMemory struct {
 	Memory string `yaml:"memory"`
 }
 
-func CreateYamlFunction(fileName string) error {
-	if err := readFileEnv(); err != nil {
-		return err
-	}
-
-	projectName, imageName, err := getFunctionEnvs()
-	if err != nil {
-		return nil
-	}
+func CreateYamlFunction(fileName, functionName, namespace string) error {
+	stack, err := s.LoadStackFile()
 	
 	function := function{
-		ApiVersion: "openfaas.com/v1alpha2",
+		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",
 		Metadata: functionMetadata{
-			Name:      projectName,
-			Namespace: "openfaas-fn",
+			Name:      functionName,
+			Namespace: namespace,
 		},
 		Spec: functionSpec{
-			Name:  projectName,
-			Image: imageName,
+			Name:  functionName,
+			Image: stack.Functions[functionName].Image,
 			Labels: map[string]string{
 				"com.openfaas.scale.min": "3",
 				"com.openfaas.scale.max": "5",
-				"function": projectName,
+				"function": functionName,
 			},
 			Limits: cpuMemory{
 				Cpu:    "200m",
@@ -65,26 +68,43 @@ func CreateYamlFunction(fileName string) error {
 
 	yamlBytes, err := y.Marshal(&function)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
 	}
 
-	if err := createYamlFile(fileName, yamlBytes); err != nil {
+	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func getFunctionEnvs() (string, string, error) {
-	projectName, err := getProjectName()
+func CheckFunction(clusterName, functionName, namespace string) (bool, error) {
+	err := config.SetKubeconfig(clusterName)
 	if err != nil {
-		return "", "", err
+		return false, err
 	}
 
-	imageName, err := getImageName()
-	if err != nil {
-		return "", "", err
+	taskCheckFunction := execute.Task{
+		Command:     config.GetKubectlPath(),
+		Args:        []string{
+			"get", "deployments", "-n", namespace,
+		},
+		StreamStdio:  false,
+		PrintCommand: false,
 	}
 
-	return projectName, imageName, nil
+	res, err := taskCheckFunction.Execute()
+	if err != nil {
+		return false, err
+	}
+
+	if res.ExitCode != 0 {
+		return false, nil
+	}
+
+	if strings.Contains(res.Stdout, functionName) {
+		return true, nil
+	}
+
+	return false, nil
 }

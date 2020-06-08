@@ -1,22 +1,10 @@
-/*
-Copyright © Vertigo Tecnologia
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/stack"
 )
 
 var functionCmd = &cobra.Command{
@@ -29,4 +17,9 @@ var functionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(functionCmd)
+}
+
+func checkFunctionExists(functionName string, functions map[string]stack.Function) bool {
+	f := functions[functionName]
+	return len(f.Handler) > 1 && len(f.Image) > 1
 }

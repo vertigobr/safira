@@ -1,18 +1,5 @@
-/*
-Copyright © Vertigo Tecnologia
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package cmd
 
 import (
@@ -27,23 +14,29 @@ import (
 	"gopkg.in/gookit/color.v1"
 )
 
-var cfgFile string
-var safiraInit = color.Bold.Sprintf("sudo -E safira init")
-var notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
+var (
+	cfgFile string
+	safiraInit = color.Bold.Sprintf("sudo -E safira init")
+	notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
+	kubeconfigPath = fmt.Sprintf("%s/.config/k3d/%s/kubeconfig.yaml", os.Getenv("HOME"), clusterName)
+)
 
 const (
 	faasTemplateStoreURL = "https://raw.githubusercontent.com/vertigobr/openfaas-templates/master/templates.json"
-	kubectlBinaryName = "kubectl"
-	k3dBinaryName = "k3d"
-	helmBinaryName = "helm"
-	faasBinaryName = "faas-cli"
+	faasTemplateRepo     = "https://github.com/vertigobr/openfaas-templates.git"
+	kubectlBinaryName    = "kubectl"
+	k3dBinaryName        = "k3d"
+	helmBinaryName       = "helm"
+	faasBinaryName       = "faas-cli"
+	clusterName          = "vertigo-ipaas"
+	functionsNamespace   = "ipaas-fn"
 )
 
 var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "O Safira é uma ferramenta de auxílio ao Vertigo iPaaS",
 	Long:          "O Safira é uma ferramenta para auxiliar os desenvolvedores no Vertigo iPaaS",
-	Version:       "v0.0.1-beta.2",
+	Version:       "v0.0.2",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
@@ -91,6 +84,6 @@ func initConfig() {
 }
 
 func setPath() {
-	path := config.GetUserDir() + "bin:" + os.Getenv("PATH")
+	path := config.GetSafiraDir() + "bin:" + os.Getenv("PATH")
 	_ = os.Setenv("PATH", path)
 }

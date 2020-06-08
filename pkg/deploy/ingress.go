@@ -1,6 +1,15 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package deploy
 
-import y "gopkg.in/yaml.v2"
+import (
+	"fmt"
+	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
+	y "gopkg.in/yaml.v2"
+	"strconv"
+	"strings"
+)
 
 type ingress struct {
 	ApiVersion string          `yaml:"apiVersion"`
@@ -36,32 +45,33 @@ type backend struct {
 	ServicePort int    `yaml:"servicePort"`
 }
 
-func CreateYamlIngress(fileName string) error {
-	if err := readFileEnv(); err != nil {
+func CreateYamlIngress(fileName, functionName string) error {
+	stack, err := s.LoadStackFile()
+	if err != nil {
 		return err
 	}
 
-	projectName, domain, port, err := getIngressEnvs()
+	gateway, port, err := getGatewayPort(stack.Hostname)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	ingress := ingress{
 		ApiVersion: "extensions/v1beta1",
 		Kind:       "Ingress",
 		Metadata: ingressMetadata{
-			Name: projectName,
+			Name: functionName,
 		},
 		Spec: ingressSpec{
 			Rules: []rule{
 				{
-					Host: domain,
+					Host: gateway,
 					Http: http{
 						Paths: []path{
 							{
-								Path: "/function/" + projectName,
+								Path: "/function/" + functionName,
 								Backend: backend{
-									ServiceName: projectName,
+									ServiceName: functionName,
 									ServicePort: port,
 								},
 							},
@@ -74,31 +84,31 @@ func CreateYamlIngress(fileName string) error {
 
 	yamlBytes, err := y.Marshal(&ingress)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
 	}
 
-	if err := createYamlFile(fileName, yamlBytes); err != nil {
+	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func getIngressEnvs() (string, string, int, error) {
-	projectName, err := getProjectName()
-	if err != nil {
-		return "", "", 0, err
+func getGatewayPort(url string) (gateway string, port int, err error) {
+	if strings.Index(url, "http://") != -1 {
+		gateway = strings.Trim(url, "http://")
+	} else if strings.Index(url, "https://") != -1 {
+		gateway = strings.Trim(url, "https://")
+	} else {
+		gateway = url
 	}
 
-	domain, err := getDomain()
+	s := strings.Split(gateway, ":")
+	gateway = s[0]
+	port, err = strconv.Atoi(s[1])
 	if err != nil {
-		return "", "", 0, err
+		return "", 0, fmt.Errorf("error ao pegar a porta do gateway: %s", err.Error())
 	}
 
-	port, err := getPort()
-	if err != nil {
-		return "", "", 0, err
-	}
-
-	return projectName, domain, port, nil
+	return
 }

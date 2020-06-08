@@ -1,31 +1,13 @@
 #!/usr/bin/env bash
 
-# Copyright © Vertigo Tecnologia
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+# Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 
 # shellcheck disable=SC2223
 : ${BINARY_NAME:="safira"}
 : ${REPO_URL:="https://github.com/vertigobr/safira"}
 : ${USE_SUDO:="true"}
 : ${SAFIRA_INSTALL_DIR:="/usr/local/bin"}
-
-#checkRoot () {
-#  if [[ $EUID -ne 0 ]]; then
-#    echo "This script must be run as root"
-#    exit 2
-#  fi
-#}
 
 # initArch discovers the architecture for this system.
 initArch() {
@@ -65,7 +47,7 @@ runAsRoot() {
 
 # verifySupported checks that the os/arch combination is supported for binary builds.
 verifySupported() {
-  local supported="darwin-amd64\nlinux-386\nlinux-amd64\nlinux-arm\nlinux-arm64"
+  local supported="linux-386\nlinux-amd64\nlinux-arm\nlinux-arm64" # darwin-amd64\n
   if ! echo "${supported}" | grep -q "${OS}-${ARCH}"; then
     echo "No prebuilt binary for ${OS}-${ARCH}."
     echo "To build from source, go to $REPO_URL"
@@ -78,8 +60,7 @@ verifySupported() {
   fi
 }
 
-# checkSafiraInstalledVersion checks which version of safira is installed and
-# if it needs to be changed.
+# checkSafiraInstalledVersion checks which version of safira is installed and if it needs to be changed.
 checkSafiraInstalledVersion() {
   if [[ -f "${SAFIRA_INSTALL_DIR}/${BINARY_NAME}" ]]; then
     local version=$(safira --version | cut -d " " -f3)
@@ -110,8 +91,7 @@ checkLatestVersion() {
   fi
 }
 
-# downloadFile downloads the latest binary package and also the checksum
-# for that binary.
+# downloadFile downloads the latest binary package and also the checksum for that binary.
 downloadFile() {
   SAFIRA_DIST="safira-$TAG-$OS-$ARCH.tar.gz"
   DOWNLOAD_URL="$REPO_URL/releases/download/$TAG/$SAFIRA_DIST"
@@ -132,8 +112,7 @@ downloadFile() {
   fi
 }
 
-# installFile verifies the MD5 for the file, then unpacks and
-# installs it.
+# installFile verifies the MD5 for the file, then unpacks and installs it.
 installFile() {
   SAFIRA_TMP="$SAFIRA_TMP_ROOT/$BINARY_NAME"
   local sum=$(openssl md5 ${SAFIRA_TMP_FILE} | awk '{print $2}')
@@ -184,8 +163,6 @@ cleanup() {
   fi
 }
 
-# Execution
-
 #Stop execution on any error
 trap "fail_trap" EXIT
 set -e
@@ -217,7 +194,6 @@ while [[ $# -gt 0 ]]; do
 done
 set +u
 
-#checkRoot
 initArch
 initOS
 verifySupported

@@ -1,6 +1,13 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package deploy
 
-import y "gopkg.in/yaml.v2"
+import (
+	"fmt"
+	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
+	y "gopkg.in/yaml.v2"
+)
 
 type service struct {
 	ApiVersion string   `yaml:"apiVersion"`
@@ -25,24 +32,24 @@ type port struct {
 	Port int `yaml:"port"`
 }
 
-
-func CreateYamlService(fileName string) error {
-	if err := readFileEnv(); err != nil {
+func CreateYamlService(fileName, functionName string) error {
+	stack, err := s.LoadStackFile()
+	if err != nil {
 		return err
 	}
 
-	projectName, p, err := getServiceEnvs()
+	_, p, err := getGatewayPort(stack.Hostname)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	service := service{
 		ApiVersion: "v1",
 		Kind:       "Service",
 		Metadata: serviceMetadata{
-			Name:   projectName,
+			Name:   functionName,
 			Labels: map[string]string{
-				"app": projectName,
+				"app": functionName,
 			},
 			Annotations: map[string]string{
 				"konghq.com/plugins": "prometheus",
@@ -61,26 +68,12 @@ func CreateYamlService(fileName string) error {
 
 	yamlBytes, err := y.Marshal(&service)
 	if err != nil {
-		return err
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
 	}
 
-	if err := createYamlFile(fileName, yamlBytes); err != nil {
+	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func getServiceEnvs() (string, int, error) {
-	projectName, err := getProjectName()
-	if err != nil {
-		return "", 0, err
-	}
-
-	port, err := getPort()
-	if err != nil {
-		return "", 0, err
-	}
-
-	return projectName, port, nil
 }

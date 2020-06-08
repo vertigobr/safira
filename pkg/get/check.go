@@ -1,3 +1,5 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package get
 
 import (
@@ -54,7 +56,7 @@ func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, err
 }
 
 func existsBinary(binary string) (exists bool, err error) {
-	path, err := exec.LookPath(fmt.Sprintf("%sbin/%s", config.GetUserDir(), binary))
+	path, err := exec.LookPath(fmt.Sprintf("%sbin/%s", config.GetSafiraDir(), binary))
 	exists = path != ""
 	return
 }
