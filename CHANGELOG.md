@@ -7,6 +7,10 @@ Features:
 - Added new flag `hostname` in `safira function deploy`
 - Added config scale in a stack.yaml
 
+Improvements:
+
+- Added info UP-TO-DATE/AVAILABLE in `safira infra status`
+
 ## Version v0.0.2 - 2020-06-08
 
 Features:

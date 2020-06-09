@@ -58,7 +58,7 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 
 	fmt.Fprintln(lineWriter)
 	fmt.Fprintf(lineWriter, color.Bold.Sprintf("SERVICES\n"))
-	fmt.Fprintf(lineWriter, "NAME\t\t STATUS\n")
+	fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t\t AVAILABILITY\n")
 	for _, d := range list.Items {
 		checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
 		var status string
@@ -68,8 +68,9 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 			status = color.Red.Sprintf("Not Ready")
 		}
 
-		fmt.Fprintf(lineWriter, "%s\t%s\n",
+		fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\n",
 			d.Name,
+			fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 			status,
 		)
 	}
@@ -77,7 +78,7 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 	if len(listFunction.Items) > 0 {
 		fmt.Fprintln(lineWriter)
 		fmt.Fprintf(lineWriter, color.Bold.Sprintf("FUNCTIONS\n"))
-		fmt.Fprintf(lineWriter, "NAME\t\t STATUS\n")
+		fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t\t AVAILABILITY\n")
 		for _, d := range listFunction.Items {
 			checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
 			var status string
@@ -87,8 +88,9 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 				status = color.Red.Sprintf("Not Ready")
 			}
 
-			fmt.Fprintf(lineWriter, "%s\t%s\n",
+			fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\n",
 				d.Name,
+				fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 				status,
 			)
 		}
