@@ -39,6 +39,7 @@ type cpuMemory struct {
 
 func CreateYamlFunction(fileName, functionName, namespace string) error {
 	stack, err := s.LoadStackFile()
+	scaleMin, scaleMax := getScaleConfig(stack, functionName)
 	
 	function := function{
 		ApiVersion: "openfaas.com/v1",
@@ -51,8 +52,8 @@ func CreateYamlFunction(fileName, functionName, namespace string) error {
 			Name:  functionName,
 			Image: stack.Functions[functionName].Image,
 			Labels: map[string]string{
-				"com.openfaas.scale.min": "3",
-				"com.openfaas.scale.max": "5",
+				"com.openfaas.scale.min": scaleMin,
+				"com.openfaas.scale.max": scaleMax,
 				"function": functionName,
 			},
 			Limits: cpuMemory{
@@ -107,4 +108,29 @@ func CheckFunction(clusterName, functionName, namespace string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func getScaleConfig(stack *s.Stack, functionName string) (min, max string) {
+	minFunction := stack.Functions[functionName].FunctionConfig.Scale.Min
+	maxFunction := stack.Functions[functionName].FunctionConfig.Scale.Max
+	minStack := stack.StackConfig.Scale.Min
+	maxStack := stack.StackConfig.Scale.Max
+
+	if len(minFunction) > 0 {
+		min = minFunction
+	} else if len(minStack) > 0 {
+		min = minStack
+	} else {
+		min = "0"
+	}
+
+	if len(maxFunction) > 0 {
+		max = maxFunction
+	} else if len(maxStack) > 0 {
+		max = maxStack
+	} else {
+		max = "5"
+	}
+
+	return
 }
