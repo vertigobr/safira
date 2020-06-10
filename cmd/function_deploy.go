@@ -5,11 +5,11 @@ package cmd
 import (
 	"fmt"
 	"github.com/vertigobr/safira/pkg/get"
-	"github.com/vertigobr/safira/pkg/stack"
+	s "github.com/vertigobr/safira/pkg/stack"
 	"os"
 
 	"github.com/vertigobr/safira/pkg/config"
-	"github.com/vertigobr/safira/pkg/deploy"
+	d "github.com/vertigobr/safira/pkg/deploy"
 	"github.com/vertigobr/safira/pkg/execute"
 
 	"github.com/spf13/cobra"
@@ -28,6 +28,7 @@ func init() {
 	functionCmd.AddCommand(deployCmd)
 	deployCmd.Flags().Bool("update", false, "Force the deploy to pull a new image (Default: false)")
 	deployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
+	deployCmd.Flags().String("hostname", "", "Set hostname to deploy")
 	deployCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
 }
 
@@ -45,6 +46,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
+	hostnameFlag, _ := cmd.Flags().GetString("hostname")
 	all, _ := cmd.Flags().GetBool("all-functions")
 
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
@@ -57,33 +59,44 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	kubectlPath := config.GetKubectlPath()
-	functions, err := stack.GetAllFunctions()
+	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
 	}
 
+	functions := stack.Functions
 	if all {
 		for index, _ := range functions {
-			if err := checkDeployFiles(index); err!= nil {
+			if err := checkDeployFiles(index, hostnameFlag); err!= nil {
 				return err
 			}
 
-			if err := functionDeploy(kubectlPath, kubeconfigFlag, index, verboseFlag, updateFlag); err != nil {
+			deployFolder := fmt.Sprintf("deploy/%s/", index)
+			if err := deploy(kubectlPath, kubeconfigFlag, deployFolder, index, verboseFlag, updateFlag); err != nil {
 				return err
 			}
 		}
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				if err := checkDeployFiles(functionArg); err!= nil {
+				if err := checkDeployFiles(functionArg, hostnameFlag); err!= nil {
 					return err
 				}
 
-				if err := functionDeploy(kubectlPath, kubeconfigFlag, functionArg, verboseFlag, updateFlag); err != nil {
+				deployFolder := fmt.Sprintf("deploy/%s/", functionArg)
+				if err := deploy(kubectlPath, kubeconfigFlag, deployFolder, functionArg, verboseFlag, updateFlag); err != nil {
 					return err
 				}
 			} else {
 				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+			}
+		}
+	}
+
+	if len(stack.Custom) > 0 {
+		for _, path := range stack.Custom {
+			if err := deploy(kubectlPath, kubeconfigFlag, path, "", verboseFlag, updateFlag); err != nil {
+				return err
 			}
 		}
 	}
@@ -93,7 +106,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFlag, updateFlag bool) error {
+func deploy(kubectlPath, kubeconfigFlag, deployFolder, functionName string, verboseFlag, updateFlag bool) error {
 	var kubeconfig string
 	if len(kubeconfigFlag) > 0 {
 		kubeconfig = kubeconfigFlag
@@ -106,39 +119,20 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 		kubeconfig = config.GetKubeconfig()
 	}
 
-	hasFunction, err := deploy.CheckFunction(clusterName, functionName, functionsNamespace)
-	if err != nil {
-		return err
-	}
-
-	if hasFunction && updateFlag {
-		taskRemoveFunction := execute.Task{
-			Command:     kubectlPath,
-			Args:        []string{
-				"rollout", "restart", "deployments", functionName,
-				"-n", functionsNamespace,
-				"--kubeconfig", kubeconfig,
-			},
-			StreamStdio:  verboseFlag,
-			PrintCommand: verboseFlag,
-		}
-
-		if verboseFlag {
-			fmt.Printf("[+] Reiniciando a função " + functionName)
-		}
-
-		res, err := taskRemoveFunction.Execute()
+	if len(functionName) > 0 {
+		hasFunction, err := d.CheckFunction(clusterName, functionName, functionsNamespace)
 		if err != nil {
 			return err
 		}
 
-		if res.ExitCode != 0 {
-			return fmt.Errorf(res.Stderr)
+		if hasFunction && updateFlag {
+			if err := rolloutFunction(kubectlPath, kubeconfig, functionName, verboseFlag); err != nil {
+				return err
+			}
 		}
 	}
 
-	deployFolder := fmt.Sprintf("deploy/%s/", functionName)
-	taskFunctionDeploy := execute.Task{
+	taskDeploy := execute.Task{
 		Command:     kubectlPath,
 		Args:        []string{
 			"apply", "--wait",
@@ -149,8 +143,13 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 		PrintCommand: verboseFlag,
 	}
 
-	fmt.Println("Executando deploy da função " + functionName + "...")
-	res, err := taskFunctionDeploy.Execute()
+	if len(functionName) > 0 {
+		fmt.Println("Executando deploy da função " + functionName + "...")
+	} else {
+		fmt.Println("Executando deploy de arquivos customizados, " + deployFolder)
+	}
+
+	res, err := taskDeploy.Execute()
 	if err != nil {
 		return err
 	}
@@ -162,7 +161,7 @@ func functionDeploy(kubectlPath, kubeconfigFlag, functionName string, verboseFla
 	return nil
 }
 
-func checkDeployFiles(functionName string) error {
+func checkDeployFiles(functionName, hostnameFlag string) error {
 	deployFolder := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYaml := deployFolder + "function.yml"
 	ingressYaml  := deployFolder + "ingress.yml"
@@ -174,16 +173,44 @@ func checkDeployFiles(functionName string) error {
 		}
 	}
 
-	if err := deploy.CreateYamlFunction(functionYaml, functionName, functionsNamespace); err != nil {
+	if err := d.CreateYamlFunction(functionYaml, functionName, functionsNamespace); err != nil {
 		return err
 	}
 
-	if err := deploy.CreateYamlIngress(ingressYaml, functionName); err != nil {
+	if err := d.CreateYamlIngress(ingressYaml, functionName, hostnameFlag); err != nil {
 		return err
 	}
 
-	if err := deploy.CreateYamlService(serviceYaml, functionName); err != nil {
+	if err := d.CreateYamlService(serviceYaml, functionName, hostnameFlag); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func rolloutFunction(kubectlPath, kubeconfig, functionName string, verboseFlag bool) error {
+	taskRemoveFunction := execute.Task{
+		Command:     kubectlPath,
+		Args:        []string{
+			"rollout", "restart", "deployments", functionName,
+			"-n", functionsNamespace,
+			"--kubeconfig", kubeconfig,
+		},
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
+	}
+
+	if verboseFlag {
+		fmt.Println("[+] Reiniciando a função " + functionName)
+	}
+
+	res, err := taskRemoveFunction.Execute()
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf(res.Stderr)
 	}
 
 	return nil

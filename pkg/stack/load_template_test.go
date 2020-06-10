@@ -7,7 +7,7 @@ import (
 )
 
 func TestLoadStackFile(t *testing.T) {
-	stack, err := LoadStackFile("stack.yml")
+	stack, err := LoadStackFile()
 	if err != nil {
 		t.Fatal(err)
 	}

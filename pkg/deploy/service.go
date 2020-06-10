@@ -32,13 +32,19 @@ type port struct {
 	Port int `yaml:"port"`
 }
 
-func CreateYamlService(fileName, functionName string) error {
+func CreateYamlService(fileName, functionName, hostnameFlag string) error {
 	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
 	}
 
-	_, p, err := getGatewayPort(stack.Hostname)
+	var p int
+	if len(hostnameFlag) > 1 {
+		_, p, err = getGatewayPort(hostnameFlag)
+	} else {
+		_, p, err = getGatewayPort(stack.Hostname)
+	}
+
 	if err != nil {
 		return err
 	}
