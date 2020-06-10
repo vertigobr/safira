@@ -6,6 +6,7 @@ Features:
 
 - Added new flag `hostname` in `safira function deploy`
 - Added config scale in a stack.yaml
+- Added possibility to declare custom yamls in stack.yaml
 
 Improvements:
 

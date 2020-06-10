@@ -49,4 +49,5 @@ type Stack struct {
 	Hostname    string              `yaml:"hostname,omitempty"`
 	Functions   map[string]Function `yaml:"functions,omitempty"`
 	StackConfig Config              `yaml:"config,omitempty"`
+	Custom      []string            `yaml:"custom,omitempty"`
 }
