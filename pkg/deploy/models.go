@@ -16,6 +16,7 @@ type K8sYaml struct {
 
 type metadata struct {
 	Name        string            `yaml:"name,omitempty"`
+	Namespace   string            `yaml:"namespace,omitempty"`
 	Labels      map[string]string `yaml:"labels,omitempty"`
 	Annotations map[string]string `yaml:"annotations,omitempty"`
 }

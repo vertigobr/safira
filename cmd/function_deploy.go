@@ -178,7 +178,12 @@ func checkDeployFiles(functionName, functionHandler, hostnameFlag string, swagge
 		}
 	}
 
-	if err := d.CreateYamlFunction(functionYamlName, functionName, functionsNamespace); err != nil {
+	var functionYaml d.K8sYaml
+	if err := functionYaml.MountFunction(functionName, functionsNamespace); err != nil {
+		return err
+	}
+
+	if err := functionYaml.CreateYamlFile(functionYamlName); err != nil {
 		return err
 	}
 
