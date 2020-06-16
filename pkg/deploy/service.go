@@ -3,36 +3,20 @@
 package deploy
 
 import (
-	"fmt"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"github.com/vertigobr/safira/pkg/utils"
-	y "gopkg.in/yaml.v2"
 )
 
-type service struct {
-	ApiVersion string   `yaml:"apiVersion"`
-	Kind       string   `yaml:"kind"`
-	Metadata   serviceMetadata `yaml:"metadata"`
-	Spec       serviceSpec     `yaml:"spec"`
-}
-
-type serviceMetadata struct {
-	Name        string            `yaml:"name"`
-	Labels      map[string]string `yaml:"labels"`
-	Annotations map[string]string `yaml:"annotations"`
-}
-
 type serviceSpec struct {
-	Type         string            `yaml:"type"`
-	ExternalName string            `yaml:"externalName"`
-	Ports        []port            `yaml:"ports"`
+	Type         string        `yaml:"type"`
+	ExternalName string        `yaml:"externalName"`
+	Ports        []servicePort `yaml:"ports"`
 }
 
-type port struct {
+type servicePort struct {
 	Port int `yaml:"port"`
 }
 
-func CreateYamlService(fileName, functionName, hostnameFlag string) error {
+func (k *K8sYaml) MountService(serviceName, hostnameFlag string) error {
 	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
@@ -49,13 +33,13 @@ func CreateYamlService(fileName, functionName, hostnameFlag string) error {
 		return err
 	}
 
-	service := service{
+	*k = K8sYaml{
 		ApiVersion: "v1",
 		Kind:       "Service",
-		Metadata: serviceMetadata{
-			Name:   functionName,
+		Metadata: metadata{
+			Name:   serviceName,
 			Labels: map[string]string{
-				"app": functionName,
+				"app": serviceName,
 			},
 			Annotations: map[string]string{
 				"konghq.com/plugins": "prometheus",
@@ -64,21 +48,12 @@ func CreateYamlService(fileName, functionName, hostnameFlag string) error {
 		Spec: serviceSpec{
 			Type: "ExternalName",
 			ExternalName: "gateway",
-			Ports: []port{
+			Ports: []servicePort{
 				{
 					Port: p,
 				},
 			},
 		},
-	}
-
-	yamlBytes, err := y.Marshal(&service)
-	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
-	}
-
-	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
-		return err
 	}
 
 	return nil

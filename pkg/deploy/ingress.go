@@ -88,9 +88,9 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 		gateway = url
 	}
 
-	s := strings.Split(gateway, ":")
-	gateway = s[0]
-	port, err = strconv.Atoi(s[1])
+	split := strings.Split(gateway, ":")
+	gateway = split[0]
+	port, err = strconv.Atoi(split[1])
 	if err != nil {
 		return "", 0, fmt.Errorf("error ao pegar a porta do hostname: %s", err.Error())
 	}

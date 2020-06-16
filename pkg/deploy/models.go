@@ -15,12 +15,9 @@ type K8sYaml struct {
 }
 
 type metadata struct {
-	Name   string         `yaml:"name,omitempty"`
-	Labels metadataLabels `yaml:"labels,omitempty"`
-}
-
-type metadataLabels struct {
-	App string `yaml:"app,omitempty"`
+	Name        string            `yaml:"name,omitempty"`
+	Labels      map[string]string `yaml:"labels,omitempty"`
+	Annotations map[string]string `yaml:"annotations,omitempty"`
 }
 
 func (k *K8sYaml) CreateYamlFile(fileName string) error {
