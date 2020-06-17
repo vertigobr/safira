@@ -54,14 +54,20 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 
 	if all {
 		for index, _ := range functions {
-			if err := removeFunction(k8sClient, index, verboseFlag); err != nil {
+			if err := removeDeployment(k8sClient, index, functionsNamespace, "Function", verboseFlag); err != nil {
 				return err
+			}
+
+			if swaggerFile := checkSwaggerFileExist(functions[index].Handler); len(swaggerFile) > 1 {
+				if err := removeDeployment(k8sClient, index + "-swagger-ui", "default", "Swagger", verboseFlag); err != nil {
+					return err
+				}
 			}
 		}
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				if err := removeFunction(k8sClient, functionArg, verboseFlag); err != nil {
+				if err := removeDeployment(k8sClient, functionArg, functionsNamespace, "Function", verboseFlag); err != nil {
 					return err
 				}
 			} else {
@@ -73,8 +79,8 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func removeFunction(client *kubernetes.Clientset, functionName string, verboseFlag bool) error {
-	deploymentsFunctions := client.AppsV1().Deployments(functionsNamespace)
+func removeDeployment(client *kubernetes.Clientset, deployName, namespace, title string, verboseFlag bool) error {
+	deploymentsFunctions := client.AppsV1().Deployments(namespace)
 	listFunction, _ := deploymentsFunctions.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
@@ -82,16 +88,16 @@ func removeFunction(client *kubernetes.Clientset, functionName string, verboseFl
 	}
 
 	for _, deploy := range listFunction.Items{
-		if deploy.Name == functionName {
-			err := deploymentsFunctions.Delete(context.TODO(), functionName, v1.DeleteOptions{})
+		if deploy.Name == deployName {
+			err := deploymentsFunctions.Delete(context.TODO(), deployName, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
 
-			fmt.Println(fmt.Sprintf("Function %s removida!", functionName))
+			fmt.Println(fmt.Sprintf("%s %s removida!", title, deployName))
 			return nil
 		}
 	}
 
-	return fmt.Errorf("function %s não encontrada!\n", functionName)
+	return nil // fmt.Errorf("%s %s não encontrada!\n", title, deployName)
 }

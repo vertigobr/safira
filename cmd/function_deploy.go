@@ -67,8 +67,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	functions := stack.Functions
 	if all {
 		for index, _ := range functions {
-			swaggerFileExist := checkSwaggerFileExist(functions[index].Handler)
-			if err := checkDeployFiles(index, functions[index].Handler, hostnameFlag, swaggerFileExist); err!= nil {
+			swaggerFile := checkSwaggerFileExist(functions[index].Handler)
+			if err := checkDeployFiles(index, functions[index].Handler, hostnameFlag, swaggerFile); err!= nil {
 				return err
 			}
 
@@ -80,8 +80,9 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				swaggerFileExist := checkSwaggerFileExist(functions[functionArg].Handler)
-				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, hostnameFlag, swaggerFileExist); err!= nil {
+				swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler)
+
+				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, hostnameFlag, swaggerFile); err!= nil {
 					return err
 				}
 
@@ -163,7 +164,7 @@ func deploy(kubectlPath, kubeconfigFlag, deployFolder, functionName string, verb
 	return nil
 }
 
-func checkDeployFiles(functionName, functionHandler, hostnameFlag string, swagger bool) error {
+func checkDeployFiles(functionName, functionHandler, hostnameFlag , swaggerFile string) error {
 	deployFolder     := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYamlName := deployFolder + "function.yml"
 	ingressYamlName  := deployFolder + "ingress.yml"
@@ -203,7 +204,7 @@ func checkDeployFiles(functionName, functionHandler, hostnameFlag string, swagge
 		return err
 	}
 
-	if swagger {
+	if len(swaggerFile) > 1 {
 		deploymentSwaggerUIYaml := deployFolder + "swagger-ui-deployment.yml"
 		ingressSwaggerUIYaml    := deployFolder + "swagger-ui-ingress.yml"
 		serviceSwaggerUIYaml    := deployFolder + "swagger-ui-service.yml"
@@ -239,7 +240,7 @@ func checkDeployFiles(functionName, functionHandler, hostnameFlag string, swagge
 		}
 
 		var swaggerConfigMapYaml d.K8sYaml
-		if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, functionHandler + "/swagger.yml"); err != nil {
+		if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, functionHandler + "/" + swaggerFile); err != nil {
 			return err
 		}
 
@@ -279,16 +280,16 @@ func rolloutFunction(kubectlPath, kubeconfig, functionName string, verboseFlag b
 	return nil
 }
 
-func checkSwaggerFileExist(handler string) bool {
+func checkSwaggerFileExist(handler string) string {
 	swaggerPath := filepath.Join(handler, "swagger.yml")
 	if _, err := os.Stat(swaggerPath); err == nil {
-		return true
+		return "swagger.yml"
 	}
 
 	swaggerPath = filepath.Join(handler, "swagger.yaml")
 	if _, err := os.Stat(swaggerPath); err == nil {
-		return true
+		return "swagger.yaml"
 	}
 
-	return false
+	return ""
 }
