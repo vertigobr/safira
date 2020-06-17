@@ -1,3 +1,5 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package deploy
 
 import (
@@ -8,10 +10,11 @@ import (
 
 // Yaml file structure
 type K8sYaml struct {
-	ApiVersion string      `yaml:"apiVersion,omitempty"`
-	Kind       string      `yaml:"kind,omitempty"`
-	Metadata   metadata    `yaml:"metadata,omitempty"`
-	Spec       interface{} `yaml:"spec,omitempty"`
+	ApiVersion string            `yaml:"apiVersion,omitempty"`
+	Kind       string            `yaml:"kind,omitempty"`
+	Metadata   metadata          `yaml:"metadata,omitempty"`
+	Spec       interface{}       `yaml:"spec,omitempty"`
+	Data       map[string]string `yaml:"data,omitempty"`
 }
 
 type metadata struct {

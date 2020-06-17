@@ -10,7 +10,7 @@ import (
 )
 
 type ingressSpec struct {
-	Rules []ingressRule `yaml:"rules,omitempty"`
+	Rules []ingressRule  `yaml:"rules,omitempty"`
 }
 
 type ingressRule struct {
@@ -63,7 +63,7 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostnameFlag stri
 					Http: ingressHttp{
 						Paths: []ingressPath{
 							{
-								Path: "/function/" + path,
+								Path: path,
 								Backend: ingressBackend{
 									ServiceName: serviceName,
 									ServicePort: port,

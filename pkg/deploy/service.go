@@ -7,16 +7,19 @@ import (
 )
 
 type serviceSpec struct {
-	Type         string        `yaml:"type"`
-	ExternalName string        `yaml:"externalName"`
-	Ports        []servicePort `yaml:"ports"`
+	Type         string            `yaml:"type,omitempty"`
+	Selector     map[string]string `yaml:"selector,omitempty"`
+	ExternalName string            `yaml:"externalName,omitempty"`
+	Ports        []servicePort     `yaml:"ports,omitempty"`
 }
 
 type servicePort struct {
-	Port int `yaml:"port"`
+	Protocol   string `yaml:"protocol,omitempty"`
+	Port       int    `yaml:"port,omitempty"`
+	TargetPort int    `yaml:"targetPort,omitempty"`
 }
 
-func (k *K8sYaml) MountService(serviceName, hostnameFlag string) error {
+func (k *K8sYaml) MountService(serviceName, hostnameFlag string, function bool) error {
 	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
@@ -33,6 +36,33 @@ func (k *K8sYaml) MountService(serviceName, hostnameFlag string) error {
 		return err
 	}
 
+	var spec serviceSpec
+	if function {
+		spec = serviceSpec{
+			Type: "ExternalName",
+			ExternalName: "gateway",
+			Ports: []servicePort{
+				{
+					Port: p,
+				},
+			},
+		}
+	} else {
+		spec = serviceSpec{
+			Type: "NodePort",
+			Selector: map[string]string{
+				"app": serviceName,
+			},
+			Ports: []servicePort{
+				{
+					Protocol: "TCP",
+					Port: 80,
+					TargetPort: 8080,
+				},
+			},
+		}
+	}
+
 	*k = K8sYaml{
 		ApiVersion: "v1",
 		Kind:       "Service",
@@ -45,15 +75,7 @@ func (k *K8sYaml) MountService(serviceName, hostnameFlag string) error {
 				"konghq.com/plugins": "prometheus",
 			},
 		},
-		Spec: serviceSpec{
-			Type: "ExternalName",
-			ExternalName: "gateway",
-			Ports: []servicePort{
-				{
-					Port: p,
-				},
-			},
-		},
+		Spec: spec,
 	}
 
 	return nil
