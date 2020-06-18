@@ -71,9 +71,6 @@ func (k *K8sYaml) MountService(serviceName, hostnameFlag string, function bool) 
 			Labels: map[string]string{
 				"app": serviceName,
 			},
-			Annotations: map[string]string{
-				"konghq.com/plugins": "prometheus",
-			},
 		},
 		Spec: spec,
 	}
