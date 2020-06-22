@@ -34,6 +34,13 @@ type Config struct {
 		Min string `yaml:"min"`
 		Max string `yaml:"max"`
 	} `yaml:"scale,omitempty"`
+	Limits    CpuMemory `yaml:"limits,omitempty"`
+	Requests  CpuMemory `yaml:"requests,omitempty"`
+}
+
+type CpuMemory struct {
+	Cpu    string `yaml:"cpu,omitempty"`
+	Memory string `yaml:"memory,omitempty"`
 }
 
 // FunctionResources Memory and CPU

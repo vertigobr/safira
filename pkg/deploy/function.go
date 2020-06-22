@@ -29,6 +29,8 @@ func (k *K8sYaml) MountFunction(functionName, namespace string) error {
 	}
 
 	scaleMin, scaleMax := getScaleConfig(stack, functionName)
+	cpuLimits, memoryLimits := getLimitsConfig(stack, functionName)
+	cpuRequests, memoryRequests := getRequestsConfig(stack, functionName)
 	*k = K8sYaml{
 		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",
@@ -45,12 +47,12 @@ func (k *K8sYaml) MountFunction(functionName, namespace string) error {
 				"function": functionName,
 			},
 			Limits: cpuMemory{
-				Cpu:    "200m",
-				Memory: "256Mi",
+				Cpu:    cpuLimits,
+				Memory: memoryLimits,
 			},
 			Requests: cpuMemory{
-				Cpu:    "10m",
-				Memory: "128Mi",
+				Cpu:    cpuRequests,
+				Memory: memoryRequests,
 			},
 		},
 	}
@@ -95,20 +97,43 @@ func getScaleConfig(stack *s.Stack, functionName string) (min, max string) {
 	minStack := stack.StackConfig.Scale.Min
 	maxStack := stack.StackConfig.Scale.Max
 
-	if len(minFunction) > 0 {
-		min = minFunction
-	} else if len(minStack) > 0 {
-		min = minStack
-	} else {
-		min = "0"
-	}
+	min = compareFuncStackValue(minFunction, minStack, "0")
+	max = compareFuncStackValue(maxFunction, maxStack, "5")
 
-	if len(maxFunction) > 0 {
-		max = maxFunction
-	} else if len(maxStack) > 0 {
-		max = maxStack
+	return
+}
+
+func getLimitsConfig(stack *s.Stack, functionName string) (cpu, memory string) {
+	cpuFunction := stack.Functions[functionName].FunctionConfig.Limits.Cpu
+	memoryFunction := stack.Functions[functionName].FunctionConfig.Limits.Memory
+	cpuStack := stack.StackConfig.Limits.Cpu
+	memoryStack := stack.StackConfig.Limits.Memory
+
+	cpu = compareFuncStackValue(cpuFunction, cpuStack, "")
+	memory = compareFuncStackValue(memoryFunction, memoryStack, "")
+
+	return
+}
+
+func getRequestsConfig(stack *s.Stack, functionName string) (cpu, memory string) {
+	cpuFunction := stack.Functions[functionName].FunctionConfig.Requests.Cpu
+	memoryFunction := stack.Functions[functionName].FunctionConfig.Requests.Memory
+	cpuStack := stack.StackConfig.Requests.Cpu
+	memoryStack := stack.StackConfig.Requests.Memory
+
+	cpu = compareFuncStackValue(cpuFunction, cpuStack, "")
+	memory = compareFuncStackValue(memoryFunction, memoryStack, "")
+
+	return
+}
+
+func compareFuncStackValue(functionValue, stackValue, defaultValue string) (value string) {
+	if len(functionValue) > 0 {
+		value = functionValue
+	} else if len(stackValue) > 0 {
+		value = stackValue
 	} else {
-		max = "5"
+		value = defaultValue
 	}
 
 	return

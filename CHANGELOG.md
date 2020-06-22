@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.5 - 2020-06-29
+
+Features:
+
+- Added declaration of CPU and memory usage limit in stack.yaml
+
 ## Version v0.0.4 - 2020-06-22
 
 Features:
