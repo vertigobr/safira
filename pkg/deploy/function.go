@@ -3,48 +3,36 @@
 package deploy
 
 import (
-	"fmt"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"github.com/vertigobr/safira/pkg/utils"
-	y "gopkg.in/yaml.v2"
 	"strings"
 )
 
-type function struct {
-	ApiVersion string           `yaml:"apiVersion"`
-	Kind       string           `yaml:"kind"`
-	Metadata   functionMetadata `yaml:"metadata"`
-	Spec       functionSpec     `yaml:"spec"`
-}
-
-type functionMetadata struct {
-	Name        string `yaml:"name"`
-	Namespace   string `yaml:"namespace"`
-}
-
 type functionSpec struct {
-	Name         string            `yaml:"name"`
-	Image        string            `yaml:"image"`
-	Labels       map[string]string `yaml:"labels"`
-	Limits       cpuMemory         `yaml:"limits"`
-	Requests     cpuMemory         `yaml:"requests"`
+	Name     string            `yaml:"name,omitempty"`
+	Image    string            `yaml:"image,omitempty"`
+	Labels   map[string]string `yaml:"labels,omitempty"`
+	Limits   cpuMemory         `yaml:"limits,omitempty"`
+	Requests cpuMemory         `yaml:"requests,omitempty"`
 }
 
 type cpuMemory struct {
-	Cpu    string `yaml:"cpu"`
-	Memory string `yaml:"memory"`
+	Cpu    string `yaml:"cpu,omitempty"`
+	Memory string `yaml:"memory,omitempty"`
 }
 
-func CreateYamlFunction(fileName, functionName, namespace string) error {
+func (k *K8sYaml) MountFunction(functionName, namespace string) error {
 	stack, err := s.LoadStackFile()
+	if err != nil {
+		return err
+	}
+
 	scaleMin, scaleMax := getScaleConfig(stack, functionName)
-	
-	function := function{
+	*k = K8sYaml{
 		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",
-		Metadata: functionMetadata{
+		Metadata: metadata{
 			Name:      functionName,
 			Namespace: namespace,
 		},
@@ -65,15 +53,6 @@ func CreateYamlFunction(fileName, functionName, namespace string) error {
 				Memory: "128Mi",
 			},
 		},
-	}
-
-	yamlBytes, err := y.Marshal(&function)
-	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
-	}
-
-	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
-		return err
 	}
 
 	return nil

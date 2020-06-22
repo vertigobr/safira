@@ -25,9 +25,7 @@ func init() {
 }
 
 func PreRunInit(cmd *cobra.Command, args []string) error {
-	home := os.Getenv("HOME")
-
-	if home == "/root" || os.Getuid() != 0 {
+	if os.Getuid() != 0 {
 		return fmt.Errorf("comando init executado de forma inválida, execute: \n\n\t" + safiraInit)
 	}
 

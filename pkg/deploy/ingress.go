@@ -5,47 +5,34 @@ package deploy
 import (
 	"fmt"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"github.com/vertigobr/safira/pkg/utils"
-	y "gopkg.in/yaml.v2"
 	"strconv"
 	"strings"
 )
 
-type ingress struct {
-	ApiVersion string          `yaml:"apiVersion"`
-	Kind       string          `yaml:"kind"`
-	Metadata   ingressMetadata `yaml:"metadata"`
-	Spec       ingressSpec     `yaml:"spec"`
-}
-
-type ingressMetadata struct {
-	Name string `yaml:"name"`
-}
-
 type ingressSpec struct {
-	Rules []rule `yaml:"rules"`
+	Rules []ingressRule  `yaml:"rules,omitempty"`
 }
 
-type rule struct {
-	Host string `yaml:"host"`
-	Http http   `yaml:"http"`
+type ingressRule struct {
+	Host string      `yaml:"host,omitempty"`
+	Http ingressHttp `yaml:"http,omitempty"`
 }
 
-type http struct {
-	Paths []path `yaml:"paths"`
+type ingressHttp struct {
+	Paths []ingressPath `yaml:"paths,omitempty"`
 }
 
-type path struct {
-	Path    string  `yaml:"path"`
-	Backend backend `yaml:"backend"`
+type ingressPath struct {
+	Path    string         `yaml:"path,omitempty"`
+	Backend ingressBackend `yaml:"backend,omitempty"`
 }
 
-type backend struct {
-	ServiceName string `yaml:"serviceName"`
-	ServicePort int    `yaml:"servicePort"`
+type ingressBackend struct {
+	ServiceName string `yaml:"serviceName,omitempty"`
+	ServicePort int    `yaml:"servicePort,omitempty"`
 }
 
-func CreateYamlIngress(fileName, functionName, hostnameFlag string) error {
+func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostnameFlag string) error {
 	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
@@ -63,22 +50,22 @@ func CreateYamlIngress(fileName, functionName, hostnameFlag string) error {
 		return err
 	}
 
-	ingress := ingress{
+	*k = K8sYaml{
 		ApiVersion: "extensions/v1beta1",
 		Kind:       "Ingress",
-		Metadata: ingressMetadata{
-			Name: functionName,
+		Metadata: metadata{
+			Name: ingressName,
 		},
 		Spec: ingressSpec{
-			Rules: []rule{
+			Rules: []ingressRule{
 				{
 					Host: gateway,
-					Http: http{
-						Paths: []path{
+					Http: ingressHttp{
+						Paths: []ingressPath{
 							{
-								Path: "/function/" + functionName,
-								Backend: backend{
-									ServiceName: functionName,
+								Path: path,
+								Backend: ingressBackend{
+									ServiceName: serviceName,
 									ServicePort: port,
 								},
 							},
@@ -87,15 +74,6 @@ func CreateYamlIngress(fileName, functionName, hostnameFlag string) error {
 				},
 			},
 		},
-	}
-
-	yamlBytes, err := y.Marshal(&ingress)
-	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
-	}
-
-	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
-		return err
 	}
 
 	return nil
@@ -110,9 +88,9 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 		gateway = url
 	}
 
-	s := strings.Split(gateway, ":")
-	gateway = s[0]
-	port, err = strconv.Atoi(s[1])
+	split := strings.Split(gateway, ":")
+	gateway = split[0]
+	port, err = strconv.Atoi(split[1])
 	if err != nil {
 		return "", 0, fmt.Errorf("error ao pegar a porta do hostname: %s", err.Error())
 	}

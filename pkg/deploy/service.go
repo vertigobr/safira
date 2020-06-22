@@ -3,36 +3,23 @@
 package deploy
 
 import (
-	"fmt"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"github.com/vertigobr/safira/pkg/utils"
-	y "gopkg.in/yaml.v2"
 )
 
-type service struct {
-	ApiVersion string   `yaml:"apiVersion"`
-	Kind       string   `yaml:"kind"`
-	Metadata   serviceMetadata `yaml:"metadata"`
-	Spec       serviceSpec     `yaml:"spec"`
-}
-
-type serviceMetadata struct {
-	Name        string            `yaml:"name"`
-	Labels      map[string]string `yaml:"labels"`
-	Annotations map[string]string `yaml:"annotations"`
-}
-
 type serviceSpec struct {
-	Type         string            `yaml:"type"`
-	ExternalName string            `yaml:"externalName"`
-	Ports        []port            `yaml:"ports"`
+	Type         string            `yaml:"type,omitempty"`
+	Selector     map[string]string `yaml:"selector,omitempty"`
+	ExternalName string            `yaml:"externalName,omitempty"`
+	Ports        []servicePort     `yaml:"ports,omitempty"`
 }
 
-type port struct {
-	Port int `yaml:"port"`
+type servicePort struct {
+	Protocol   string `yaml:"protocol,omitempty"`
+	Port       int    `yaml:"port,omitempty"`
+	TargetPort int    `yaml:"targetPort,omitempty"`
 }
 
-func CreateYamlService(fileName, functionName, hostnameFlag string) error {
+func (k *K8sYaml) MountService(serviceName, hostnameFlag string, function bool) error {
 	stack, err := s.LoadStackFile()
 	if err != nil {
 		return err
@@ -49,36 +36,43 @@ func CreateYamlService(fileName, functionName, hostnameFlag string) error {
 		return err
 	}
 
-	service := service{
-		ApiVersion: "v1",
-		Kind:       "Service",
-		Metadata: serviceMetadata{
-			Name:   functionName,
-			Labels: map[string]string{
-				"app": functionName,
-			},
-			Annotations: map[string]string{
-				"konghq.com/plugins": "prometheus",
-			},
-		},
-		Spec: serviceSpec{
+	var spec serviceSpec
+	if function {
+		spec = serviceSpec{
 			Type: "ExternalName",
 			ExternalName: "gateway",
-			Ports: []port{
+			Ports: []servicePort{
 				{
 					Port: p,
 				},
 			},
+		}
+	} else {
+		spec = serviceSpec{
+			Type: "NodePort",
+			Selector: map[string]string{
+				"app": serviceName,
+			},
+			Ports: []servicePort{
+				{
+					Protocol: "TCP",
+					Port: 80,
+					TargetPort: 8080,
+				},
+			},
+		}
+	}
+
+	*k = K8sYaml{
+		ApiVersion: "v1",
+		Kind:       "Service",
+		Metadata: metadata{
+			Name:   serviceName,
+			Labels: map[string]string{
+				"app": serviceName,
+			},
 		},
-	}
-
-	yamlBytes, err := y.Marshal(&service)
-	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", fileName, err.Error())
-	}
-
-	if err := utils.CreateYamlFile(fileName, yamlBytes, true); err != nil {
-		return err
+		Spec: spec,
 	}
 
 	return nil

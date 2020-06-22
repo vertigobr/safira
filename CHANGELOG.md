@@ -1,5 +1,20 @@
 # Release Notes
 
+## Version v0.0.4 - 2020-06-22
+
+Features:
+
+- Added swagger-ui deploy
+- Added swagger-editor deploy
+
+Improvements:
+
+- Improvements function deploy
+
+Bug Fixes:
+
+- Fix run `safira init` in user root
+
 ## Version v0.0.3 - 2020-06-10
 
 Features:
