@@ -93,7 +93,7 @@ swaggereditor:
     annotations:
       kubernetes.io/ingress.class: kong
     hosts:
-      - host: editor.swagger.localdomain
+      - host: editor.localdomain
         paths: ["/"]
 
 jaeger-operator:
