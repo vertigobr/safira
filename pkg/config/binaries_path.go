@@ -19,3 +19,7 @@ func GetHelmPath() string {
 func GetFaasCliPath() string {
 	return fmt.Sprintf("%sbin/faas-cli", GetSafiraDir())
 }
+
+func GetOktetoPath() string {
+	return fmt.Sprintf("%sbin/okteto", GetSafiraDir())
+}

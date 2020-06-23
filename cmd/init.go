@@ -70,6 +70,11 @@ func checkAllBinaries(verboseFlag bool) (bool, error) {
 		return true, err
 	}
 
+	_, err = get.CheckBinary(oktetoBinaryName, true, verboseFlag)
+	if err != nil {
+		return true, err
+	}
+
 	return true, nil
 }
 

@@ -55,7 +55,7 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 
 func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool) error {
 	buildArgsStack := stack.StackConfig.BuildArgs
-	functions := stack.Functions
+	functions      := stack.Functions
 
 	if allFunctions {
 		for functionName, f := range functions {

@@ -47,6 +47,13 @@ func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, err
 				}
 				return false, fmt.Errorf(errorCheck + "faas-cli. Tente novamente")
 			}
+		case "okteto":
+			if err := DownloadOkteto(); err != nil {
+				if verboseFlag {
+					fmt.Println(err)
+				}
+				return false, fmt.Errorf(errorCheck + "okteto. Tente novamente")
+			}
 		default:
 			return false, fmt.Errorf("nome de binário inválido")
 		}

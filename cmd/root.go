@@ -28,6 +28,7 @@ const (
 	k3dBinaryName        = "k3d"
 	helmBinaryName       = "helm"
 	faasBinaryName       = "faas-cli"
+	oktetoBinaryName     = "okteto"
 	clusterName          = "vertigo-ipaas"
 	functionsNamespace   = "ipaas-fn"
 )
@@ -36,7 +37,7 @@ var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "O Safira é uma ferramenta de auxílio ao Vertigo iPaaS",
 	Long:          "O Safira é uma ferramenta para auxiliar os desenvolvedores no Vertigo iPaaS",
-	Version:       "v0.0.4",
+	Version:       "v0.0.5",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
