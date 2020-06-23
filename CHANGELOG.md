@@ -5,6 +5,8 @@
 Features:
 
 - Added declaration of CPU and memory usage limit in stack.yaml
+- Added okteto binary installation
+- Added new commando `safira okteto login`
 
 ## Version v0.0.4 - 2020-06-22
 

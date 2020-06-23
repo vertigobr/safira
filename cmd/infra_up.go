@@ -26,13 +26,9 @@ func init() {
 
 func runInfraUp(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	exist, err := checkInfra(verboseFlag)
+	err := checkInfra(verboseFlag)
 	if err != nil {
 		return err
-	}
-
-	if !exist {
-		return fmt.Errorf(notExistBinary)
 	}
 
 	k3dPath := config.GetK3dPath()
