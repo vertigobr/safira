@@ -11,7 +11,7 @@ import (
 	s "github.com/vertigobr/safira/pkg/stack"
 )
 
-var pushCmd = &cobra.Command{
+var functionPushCmd = &cobra.Command{
 	Use:     "push [FUNCTION_NAME]",
 	Short:   "Executa o push das imagens",
 	Long:    "Executa o push das imagens",
@@ -21,8 +21,8 @@ var pushCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(pushCmd)
-	pushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
+	functionCmd.AddCommand(functionPushCmd)
+	functionPushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
 }
 
 func preRunFunctionPush(cmd *cobra.Command, args []string) error {

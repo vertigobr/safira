@@ -29,7 +29,7 @@ func getOktetoUrl() string {
 func DownloadOkteto() error {
 	oktetoUrl := getOktetoUrl()
 
-	if err := download(oktetoUrl, "okteto", true); err != nil {
+	if err := downloadBinary(oktetoUrl, "okteto", true); err != nil {
 		return err
 	}
 

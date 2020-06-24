@@ -16,7 +16,7 @@ func getHelmUrl() string {
 func DownloadHelm() error {
 	helmUrl := getHelmUrl()
 
-	if err := download(helmUrl, "helm", false); err != nil {
+	if err := downloadBinary(helmUrl, "helm", false); err != nil {
 		return err
 	}
 

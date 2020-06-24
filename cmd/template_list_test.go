@@ -3,8 +3,9 @@
 package cmd
 
 import (
-	"github.com/vertigobr/safira/pkg/execute"
 	"testing"
+
+	"github.com/vertigobr/safira/pkg/execute"
 )
 
 func TestTemplateList(t *testing.T) {

@@ -4,13 +4,14 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/docker"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"os"
 )
 
-var buildCmd = &cobra.Command{
+var functionBuildCmd = &cobra.Command{
 	Use:     "build [FUNCTION_NAME]",
 	Short:   "Executa o build de funções",
 	Long:    "Executa o build de funções",
@@ -20,9 +21,9 @@ var buildCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(buildCmd)
-	buildCmd.Flags().BoolP("all-functions", "A", false, "Build all functions")
-	buildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
+	functionCmd.AddCommand(functionBuildCmd)
+	functionBuildCmd.Flags().BoolP("all-functions", "A", false, "Build all functions")
+	functionBuildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
 }
 
 func preRunFunctionBuild(cmd *cobra.Command, args []string) error {

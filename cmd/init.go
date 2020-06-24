@@ -5,10 +5,11 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/get"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/get"
 )
 
 var initCmd = &cobra.Command{

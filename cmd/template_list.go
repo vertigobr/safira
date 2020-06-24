@@ -7,11 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
 	"text/tabwriter"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 type TemplateInfo struct {
@@ -24,7 +25,7 @@ type TemplateInfo struct {
 	Official     string `json:"official"`
 }
 
-var listCmd = &cobra.Command{
+var templateListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "Lista os templates oficiais do Vertigo iPaaS",
@@ -34,7 +35,7 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	templateCmd.AddCommand(listCmd)
+	templateCmd.AddCommand(templateListCmd)
 }
 
 func runTemplateList(cmd *cobra.Command, args []string) error {

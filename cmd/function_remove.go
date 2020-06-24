@@ -5,15 +5,16 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/k8s"
 	"github.com/vertigobr/safira/pkg/stack"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"os"
 )
 
-var removeCmd = &cobra.Command{
+var functionRemoveCmd = &cobra.Command{
 	Use:     "remove [FUNCTION_NAME]",
 	Aliases: []string{"rm"},
 	Short:   "Remove uma ou mais funções do cluster",
@@ -24,8 +25,8 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(removeCmd)
-	removeCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
+	functionCmd.AddCommand(functionRemoveCmd)
+	functionRemoveCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
 }
 
 func preRunFunctionRemove(cmd *cobra.Command, args []string) error {

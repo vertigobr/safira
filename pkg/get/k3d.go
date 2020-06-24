@@ -16,7 +16,7 @@ func getK3dUrl() string {
 func DownloadK3d() error {
 	k3dUrl := getK3dUrl()
 
-	if err := download(k3dUrl, "k3d", true); err != nil {
+	if err := downloadBinary(k3dUrl, "k3d", true); err != nil {
 		return err
 	}
 

@@ -5,17 +5,17 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"regexp"
+
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
-	"github.com/vertigobr/safira/pkg/git"
 	"github.com/vertigobr/safira/pkg/stack"
-	"os"
-	"regexp"
 )
 
-var newCmd = &cobra.Command{
+var functionNewCmd = &cobra.Command{
 	Use:     "new [FUNCTION_NAME] --lang=FUNCTION_LANGUAGE",
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
@@ -26,9 +26,9 @@ var newCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(newCmd)
+	functionCmd.AddCommand(functionNewCmd)
 
-	newCmd.Flags().String("lang", "", "Linguagem para criação do template")
+	functionNewCmd.Flags().String("lang", "", "Linguagem para criação do template")
 }
 
 func preRunFunctionNew(cmd *cobra.Command, args []string) error {
@@ -79,7 +79,7 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 	functionName := args[0]
 
-	if err := downloadTemplate(verboseFlag); err != nil {
+	if err := get.DownloadTemplate(faasTemplateRepo, verboseFlag); err != nil {
 		return err
 	}
 
@@ -105,14 +105,6 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("\nFunction " + functionName + " criada com sucesso!")
-
-	return nil
-}
-
-func downloadTemplate(verboseFlag bool) error {
-	if err := git.PullTemplate(faasTemplateRepo, verboseFlag); err != nil {
-		return err
-	}
 
 	return nil
 }

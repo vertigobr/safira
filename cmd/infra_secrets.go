@@ -5,14 +5,15 @@ package cmd
 import (
 	"encoding/base64"
 	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
-	"os"
 )
 
-var secretsCmd = &cobra.Command{
+var infraSecretsCmd = &cobra.Command{
 	Use:   "secrets",
 	Short: "Obtém informações de acesso as plataformas",
 	Long:  "Obtém informações de acesso as plataformas do Vertigo iPaaS",
@@ -21,7 +22,7 @@ var secretsCmd = &cobra.Command{
 }
 
 func init() {
-	infraCmd.AddCommand(secretsCmd)
+	infraCmd.AddCommand(infraSecretsCmd)
 }
 
 func runInfraSecrets(cmd *cobra.Command, args []string) error {

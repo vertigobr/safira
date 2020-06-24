@@ -4,10 +4,11 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-var kubeconfigCmd = &cobra.Command{
+var infraKubeconfigCmd = &cobra.Command{
 	Use:   "get-kubeconfig",
 	Short: "Imprime o caminho do kubeconfig",
 	Long:  "Imprime o caminho do kubeconfig",
@@ -16,7 +17,7 @@ var kubeconfigCmd = &cobra.Command{
 }
 
 func init() {
-	infraCmd.AddCommand(kubeconfigCmd)
+	infraCmd.AddCommand(infraKubeconfigCmd)
 }
 
 func runGetKubeconfig(cmd *cobra.Command, args []string) error {

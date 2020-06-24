@@ -4,18 +4,18 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	d "github.com/vertigobr/safira/pkg/deploy"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"os"
-	"path/filepath"
-
-	"github.com/spf13/cobra"
 )
 
-var deployCmd = &cobra.Command{
+var functionDeployCmd = &cobra.Command{
 	Use:     "deploy [FUNCTION_NAME]",
 	Short:   "Executa deploy das funções",
 	Long:    "Executa deploy das funções",
@@ -25,11 +25,11 @@ var deployCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(deployCmd)
-	deployCmd.Flags().Bool("update", false, "Force the deploy to pull a new image (Default: false)")
-	deployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
-	deployCmd.Flags().String("hostname", "", "Set hostname to deploy")
-	deployCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
+	functionCmd.AddCommand(functionDeployCmd)
+	functionDeployCmd.Flags().Bool("update", false, "Force the deploy to pull a new image (Default: false)")
+	functionDeployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
+	functionDeployCmd.Flags().String("hostname", "", "Set hostname to deploy")
+	functionDeployCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
 }
 
 func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {

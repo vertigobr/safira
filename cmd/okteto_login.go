@@ -4,13 +4,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/config"
-	"github.com/vertigobr/safira/pkg/execute"
 
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/execute"
 )
 
-var loginCmd = &cobra.Command{
+var oktetoLoginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login in Okteto",
 	Long:  "Login in Okteto",
@@ -19,8 +19,8 @@ var loginCmd = &cobra.Command{
 }
 
 func init() {
-	oktetoCmd.AddCommand(loginCmd)
-	loginCmd.Flags().StringP("token", "t", "", "API token for authentication")
+	oktetoCmd.AddCommand(oktetoLoginCmd)
+	oktetoLoginCmd.Flags().StringP("token", "t", "", "API token for authentication")
 }
 
 func runOktetoLogin(cmd *cobra.Command, args []string) error {

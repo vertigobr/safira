@@ -29,7 +29,7 @@ func getFaasCliUrl() string {
 func DownloadFaasCli() error {
 	faasCliUrl := getFaasCliUrl()
 
-	if err := download(faasCliUrl, "faas-cli", true); err != nil {
+	if err := downloadBinary(faasCliUrl, "faas-cli", true); err != nil {
 		return err
 	}
 

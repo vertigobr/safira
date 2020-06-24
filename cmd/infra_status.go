@@ -6,16 +6,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/k8s"
 	"text/tabwriter"
 
+	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/k8s"
 	"gopkg.in/gookit/color.v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
-var statusCmd = &cobra.Command{
+var infraStatusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Vizualiza o status dos serviços e funções do cluster local",
 	Long:  "Vizualiza o status dos serviços e funções do cluster local",
@@ -24,7 +24,7 @@ var statusCmd = &cobra.Command{
 }
 
 func init() {
-	infraCmd.AddCommand(statusCmd)
+	infraCmd.AddCommand(infraStatusCmd)
 }
 
 func runInfraStatus(cmd *cobra.Command, args []string) error {

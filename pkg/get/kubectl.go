@@ -16,7 +16,7 @@ func getKubectlUrl() string {
 func DownloadKubectl() error {
 	kubectlUrl := getKubectlUrl()
 
-	if err := download(kubectlUrl, "kubectl", true); err != nil {
+	if err := downloadBinary(kubectlUrl, "kubectl", true); err != nil {
 		return err
 	}
 

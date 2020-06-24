@@ -4,13 +4,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/config"
 	"os"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/vertigobr/safira/pkg/config"
 	"gopkg.in/gookit/color.v1"
 )
 
