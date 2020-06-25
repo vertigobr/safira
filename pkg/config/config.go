@@ -18,9 +18,9 @@ func GetSafiraDir() string {
 func initUserDir(folder string) (string, error) {
 	safiraDir := GetSafiraDir()
 
-	if len(safiraDir) <= 16 {
-		return "", fmt.Errorf("variável SUDO_USER não encontrada")
-	}
+	//if len(safiraDir) <= 16 {
+	//	return "", fmt.Errorf("variável SUDO_USER não encontrada")
+	//}
 
 	path := p.Join(safiraDir, folder)
 	if err := os.MkdirAll(path, 0755); err != nil {
@@ -37,17 +37,19 @@ func CreateInBinDir() (string, error) {
 	}
 
 	sudoUser := os.Getenv("SUDO_USER")
-	u, _ := user.Lookup(sudoUser)
-	Uid, _ := strconv.Atoi(u.Uid)
-	Gid, _ := strconv.Atoi(u.Gid)
+	if len(sudoUser) > 0 {
+		u, _ := user.Lookup(sudoUser)
+		Uid, _ := strconv.Atoi(u.Uid)
+		Gid, _ := strconv.Atoi(u.Gid)
 
-	if err := os.Chown(path, Uid, Gid); err != nil {
-		return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
-	}
+		if err := os.Chown(path, Uid, Gid); err != nil {
+			return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+		}
 
-	safiraFolder := GetSafiraDir()
-	if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
-		return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+		safiraFolder := GetSafiraDir()
+		if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
+			return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+		}
 	}
 
 	return path, err

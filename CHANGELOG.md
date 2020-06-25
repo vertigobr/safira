@@ -1,12 +1,14 @@
 # Release Notes
 
-## Version v0.0.5 - 2020-06-29
+## Version v0.0.5 - 2020-06-25
 
 Features:
 
 - Added declaration of CPU and memory usage limit in stack.yaml
 - Added okteto binary installation
 - Added new commando `safira okteto login`
+- Added new commando `safira template pull`
+- Added Dockerfile and workflow build and push image
 
 ## Version v0.0.4 - 2020-06-22
 

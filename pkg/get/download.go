@@ -54,6 +54,9 @@ func downloadBinary(url, name string, binary bool) error {
 	}
 
 	sudoUser := os.Getenv("SUDO_USER")
+	if len(sudoUser) == 0 {
+		return nil
+	}
 
 	u, err := user.Lookup(sudoUser)
 
