@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/vertigobr/safira/pkg/get"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -57,6 +58,10 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool) error {
 	buildArgsStack := stack.StackConfig.BuildArgs
 	functions      := stack.Functions
+
+	if err := get.DownloadTemplate(faasTemplateRepo, false, false); err != nil {
+		return err
+	}
 
 	if allFunctions {
 		for functionName, f := range functions {
