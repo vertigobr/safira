@@ -4,8 +4,9 @@ package get
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/config"
 	"os/exec"
+
+	"github.com/vertigobr/safira/pkg/config"
 )
 
 func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, error) {

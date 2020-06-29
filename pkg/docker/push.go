@@ -2,6 +2,7 @@ package docker
 
 import (
 	"fmt"
+
 	"github.com/vertigobr/safira/pkg/execute"
 )
 

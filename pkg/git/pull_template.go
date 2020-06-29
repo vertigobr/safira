@@ -4,12 +4,12 @@ package git
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/utils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/vertigobr/safira/pkg/utils"
 )
 
 func PullTemplate(repo string, verboseFlag bool) error {

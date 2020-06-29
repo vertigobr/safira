@@ -4,8 +4,6 @@ package get
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/config"
-	"github.com/vertigobr/safira/pkg/git"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -13,6 +11,9 @@ import (
 	"os"
 	"os/user"
 	"strconv"
+
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/git"
 )
 
 func downloadBinary(url, name string, binary bool) error {

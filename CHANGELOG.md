@@ -9,6 +9,7 @@ Features:
 - Added new commando `safira okteto login`
 - Added new commando `safira template pull`
 - Added Dockerfile and workflow build and push image
+- Added namespace flag in command `safira function deploy`
 
 ## Version v0.0.4 - 2020-06-22
 

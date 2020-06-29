@@ -1,6 +1,8 @@
 package stack
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetAllFunctions(t *testing.T) {
 	functions, err := GetAllFunctions()

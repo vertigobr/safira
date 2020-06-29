@@ -4,9 +4,10 @@ package deploy
 
 import (
 	"fmt"
-	s "github.com/vertigobr/safira/pkg/stack"
 	"strconv"
 	"strings"
+
+	s "github.com/vertigobr/safira/pkg/stack"
 )
 
 type ingressSpec struct {

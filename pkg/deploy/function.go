@@ -3,10 +3,11 @@
 package deploy
 
 import (
+	"strings"
+
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"strings"
 )
 
 type functionSpec struct {
