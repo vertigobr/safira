@@ -29,6 +29,7 @@ func init() {
 	functionCmd.AddCommand(functionNewCmd)
 
 	functionNewCmd.Flags().String("lang", "", "Linguagem para criação do template")
+	functionNewCmd.Flags().Bool("updateTemplate", false, "Update template folder")
 }
 
 func preRunFunctionNew(cmd *cobra.Command, args []string) error {
@@ -66,6 +67,7 @@ func validateFunctionName(functionName string) error {
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	updateTemplateFlag, _ := cmd.Flags().GetBool("updateTemplate")
 	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -79,7 +81,7 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 	functionName := args[0]
 
-	if err := get.DownloadTemplate(faasTemplateRepo, verboseFlag); err != nil {
+	if err := get.DownloadTemplate(faasTemplateRepo, updateTemplateFlag, verboseFlag); err != nil {
 		return err
 	}
 

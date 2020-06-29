@@ -71,8 +71,8 @@ func downloadBinary(url, name string, binary bool) error {
 	return nil
 }
 
-func DownloadTemplate(faasTemplateRepo string, verboseFlag bool) error {
-	if err := git.PullTemplate(faasTemplateRepo, verboseFlag); err != nil {
+func DownloadTemplate(faasTemplateRepo string, update, verboseFlag bool) error {
+	if err := git.PullTemplate(faasTemplateRepo, update, verboseFlag); err != nil {
 		return err
 	}
 

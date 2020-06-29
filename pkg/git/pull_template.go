@@ -12,15 +12,27 @@ import (
 	"github.com/vertigobr/safira/pkg/utils"
 )
 
-func PullTemplate(repo string, verboseFlag bool) error {
-	exists, err := os.Stat("./template")
-	if err != nil || exists == nil {
-		templateFolder := "template"
-		if verboseFlag {
-			fmt.Println("[+] Templates não encontrados")
+func PullTemplate(repo string, update, verboseFlag bool) error {
+	templateFolder := "template"
+	exists, err := os.Stat(templateFolder)
+
+	if err != nil || exists != nil && update {
+		if exists == nil {
+			fmt.Println("Baixando templates...")
+			if verboseFlag {
+				fmt.Println("[+] Templates não encontrados")
+			}
+		} else {
+			if update {
+				os.RemoveAll(templateFolder)
+			}
+
+			fmt.Println("Atualizando templates...")
+			if verboseFlag {
+				fmt.Println("[+] Templates encontrados")
+			}
 		}
 
-		fmt.Println("Baixando templates...")
 		dir, err := ioutil.TempDir("", "ipaasTemplates")
 		if err != nil {
 			return fmt.Errorf("error ao criar pasta temporária para download dos templates")

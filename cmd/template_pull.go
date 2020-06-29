@@ -20,7 +20,7 @@ func init() {
 
 func runTemplatePull(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	if err := get.DownloadTemplate(faasTemplateRepo, verboseFlag); err != nil {
+	if err := get.DownloadTemplate(faasTemplateRepo, true, verboseFlag); err != nil {
 		return err
 	}
 
