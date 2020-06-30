@@ -32,6 +32,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace string) error {
 	scaleMin, scaleMax := getScaleConfig(stack, functionName)
 	cpuLimits, memoryLimits := getLimitsConfig(stack, functionName)
 	cpuRequests, memoryRequests := getRequestsConfig(stack, functionName)
+
 	*k = K8sYaml{
 		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",

@@ -5,6 +5,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/vertigobr/safira/pkg/ci"
 	"os"
 	"regexp"
 
@@ -29,7 +30,7 @@ func init() {
 	functionCmd.AddCommand(functionNewCmd)
 
 	functionNewCmd.Flags().String("lang", "", "Linguagem para criação do template")
-	functionNewCmd.Flags().Bool("updateTemplate", false, "Update template folder")
+	functionNewCmd.Flags().Bool("update-template", false, "Update template folder")
 }
 
 func preRunFunctionNew(cmd *cobra.Command, args []string) error {
@@ -67,7 +68,7 @@ func validateFunctionName(functionName string) error {
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	updateTemplateFlag, _ := cmd.Flags().GetBool("updateTemplate")
+	updateTemplateFlag, _ := cmd.Flags().GetBool("update-template")
 	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -98,6 +99,12 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		if err := stack.AppendFunction(function); err != nil {
+			return err
+		}
+	}
+
+	if _, err = os.Stat(".gitlab-ci.yml"); err != nil {
+		if err := ci.CreateFile(); err != nil {
 			return err
 		}
 	}

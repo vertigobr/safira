@@ -4,11 +4,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/get"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/docker"
+	"github.com/vertigobr/safira/pkg/get"
 	s "github.com/vertigobr/safira/pkg/stack"
 )
 

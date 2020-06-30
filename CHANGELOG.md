@@ -6,10 +6,11 @@ Features:
 
 - Added declaration of CPU and memory usage limit in stack.yaml
 - Added okteto binary installation
-- Added new commando `safira okteto login`
-- Added new commando `safira template pull`
+- Added new command `safira okteto login`
+- Added new command `safira template pull`
 - Added Dockerfile and workflow build and push image
 - Added namespace flag in command `safira function deploy`
+- Added .gitlab-ci.yml file creation at execution `safira function new`
 
 ## Version v0.0.4 - 2020-06-22
 
