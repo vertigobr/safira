@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package get
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const helmVersion = "v3.1.2"
 
@@ -16,7 +18,7 @@ func getHelmUrl() string {
 func DownloadHelm() error {
 	helmUrl := getHelmUrl()
 
-	if err := download(helmUrl, "helm", false); err != nil {
+	if err := downloadBinary(helmUrl, "helm", false); err != nil {
 		return err
 	}
 

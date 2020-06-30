@@ -5,17 +5,18 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/vertigobr/safira/pkg/ci"
+	"os"
+	"regexp"
+
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
-	"github.com/vertigobr/safira/pkg/git"
 	"github.com/vertigobr/safira/pkg/stack"
-	"os"
-	"regexp"
 )
 
-var newCmd = &cobra.Command{
+var functionNewCmd = &cobra.Command{
 	Use:     "new [FUNCTION_NAME] --lang=FUNCTION_LANGUAGE",
 	Short:   "Cria uma nova função na pasta atual",
 	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
@@ -26,9 +27,10 @@ var newCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(newCmd)
+	functionCmd.AddCommand(functionNewCmd)
 
-	newCmd.Flags().String("lang", "", "Linguagem para criação do template")
+	functionNewCmd.Flags().String("lang", "", "Linguagem para criação do template")
+	functionNewCmd.Flags().Bool("update-template", false, "Update template folder")
 }
 
 func preRunFunctionNew(cmd *cobra.Command, args []string) error {
@@ -66,6 +68,7 @@ func validateFunctionName(functionName string) error {
 
 func runFunctionNew(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	updateTemplateFlag, _ := cmd.Flags().GetBool("update-template")
 	exist, err := get.CheckBinary(faasBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -79,7 +82,7 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 	functionName := args[0]
 
-	if err := downloadTemplate(verboseFlag); err != nil {
+	if err := get.DownloadTemplate(faasTemplateRepo, updateTemplateFlag, verboseFlag); err != nil {
 		return err
 	}
 
@@ -100,19 +103,17 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if _, err = os.Stat(".gitlab-ci.yml"); err != nil {
+		if err := ci.CreateFile(); err != nil {
+			return err
+		}
+	}
+
 	if err := createFunction(faasCliPath, functionName, flagLang, verboseFlag); err != nil {
 		return err
 	}
 
 	fmt.Println("\nFunction " + functionName + " criada com sucesso!")
-
-	return nil
-}
-
-func downloadTemplate(verboseFlag bool) error {
-	if err := git.PullTemplate(faasTemplateRepo, verboseFlag); err != nil {
-		return err
-	}
 
 	return nil
 }

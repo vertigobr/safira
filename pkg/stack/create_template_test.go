@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package stack
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateTemplate(t *testing.T) {
 	f := Function{

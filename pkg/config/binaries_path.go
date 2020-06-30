@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package config
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func GetKubectlPath() string {
 	return fmt.Sprintf("%sbin/kubectl", GetSafiraDir())
@@ -18,4 +20,8 @@ func GetHelmPath() string {
 
 func GetFaasCliPath() string {
 	return fmt.Sprintf("%sbin/faas-cli", GetSafiraDir())
+}
+
+func GetOktetoPath() string {
+	return fmt.Sprintf("%sbin/okteto", GetSafiraDir())
 }

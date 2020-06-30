@@ -4,9 +4,10 @@ package deploy
 
 import (
 	"fmt"
-	s "github.com/vertigobr/safira/pkg/stack"
 	"strconv"
 	"strings"
+
+	s "github.com/vertigobr/safira/pkg/stack"
 )
 
 type ingressSpec struct {
@@ -92,7 +93,7 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	gateway = split[0]
 	port, err = strconv.Atoi(split[1])
 	if err != nil {
-		return "", 0, fmt.Errorf("error ao pegar a porta do hostname: %s", err.Error())
+		return "", 0, fmt.Errorf("error ao identificar a porta do hostname: %s", err.Error())
 	}
 
 	return

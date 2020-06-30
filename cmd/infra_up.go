@@ -4,15 +4,16 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
-	"os"
-	"time"
 )
 
-var upCmd = &cobra.Command{
+var infraUpCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento",
 	Long:  "Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas",
@@ -21,18 +22,14 @@ var upCmd = &cobra.Command{
 }
 
 func init() {
-	infraCmd.AddCommand(upCmd)
+	infraCmd.AddCommand(infraUpCmd)
 }
 
 func runInfraUp(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	exist, err := checkInfra(verboseFlag)
+	err := checkInfra(verboseFlag)
 	if err != nil {
 		return err
-	}
-
-	if !exist {
-		return fmt.Errorf(notExistBinary)
 	}
 
 	k3dPath := config.GetK3dPath()

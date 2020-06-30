@@ -4,13 +4,14 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 )
 
-var downCmd = &cobra.Command{
+var infraDownCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
 	Long:  "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
@@ -19,18 +20,14 @@ var downCmd = &cobra.Command{
 }
 
 func init() {
-	infraCmd.AddCommand(downCmd)
+	infraCmd.AddCommand(infraDownCmd)
 }
 
 func runInfraDown(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	exist, err := checkInfra(verboseFlag)
+	err := checkInfra(verboseFlag)
 	if err != nil {
 		return err
-	}
-
-	if !exist {
-		return fmt.Errorf(notExistBinary)
 	}
 
 	k3dPath := config.GetK3dPath()

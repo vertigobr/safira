@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package config
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateInBinDirDir(t *testing.T) {
 	userDir, err := CreateInBinDir()

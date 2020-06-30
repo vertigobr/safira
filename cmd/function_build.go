@@ -4,13 +4,15 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/docker"
+	"github.com/vertigobr/safira/pkg/get"
 	s "github.com/vertigobr/safira/pkg/stack"
-	"os"
 )
 
-var buildCmd = &cobra.Command{
+var functionBuildCmd = &cobra.Command{
 	Use:     "build [FUNCTION_NAME]",
 	Short:   "Executa o build de funções",
 	Long:    "Executa o build de funções",
@@ -20,9 +22,9 @@ var buildCmd = &cobra.Command{
 }
 
 func init() {
-	functionCmd.AddCommand(buildCmd)
-	buildCmd.Flags().BoolP("all-functions", "A", false, "Build all functions")
-	buildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
+	functionCmd.AddCommand(functionBuildCmd)
+	functionBuildCmd.Flags().BoolP("all-functions", "A", false, "Build all functions")
+	functionBuildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
 }
 
 func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
@@ -55,7 +57,11 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 
 func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool) error {
 	buildArgsStack := stack.StackConfig.BuildArgs
-	functions := stack.Functions
+	functions      := stack.Functions
+
+	if err := get.DownloadTemplate(faasTemplateRepo, false, false); err != nil {
+		return err
+	}
 
 	if allFunctions {
 		for functionName, f := range functions {

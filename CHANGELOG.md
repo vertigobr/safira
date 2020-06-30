@@ -1,5 +1,21 @@
 # Release Notes
 
+## Version v0.0.5 - 2020-06-30
+
+Features:
+
+- Added declaration of CPU and memory usage limit in stack.yaml
+- Added okteto binary installation
+- Added new command `safira okteto login`
+- Added new command `safira template pull`
+- Added Dockerfile
+- Added namespace flag in command `safira function deploy`
+- Added .gitlab-ci.yml file creation at execution `safira function new`
+
+Bug Fixes:
+
+- Fix `safira remove function` for remove service and ingress
+
 ## Version v0.0.4 - 2020-06-22
 
 Features:

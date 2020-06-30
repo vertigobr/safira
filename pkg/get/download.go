@@ -4,7 +4,6 @@ package get
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/config"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,9 +11,12 @@ import (
 	"os"
 	"os/user"
 	"strconv"
+
+	"github.com/vertigobr/safira/pkg/config"
+	"github.com/vertigobr/safira/pkg/git"
 )
 
-func download(url, name string, binary bool) error {
+func downloadBinary(url, name string, binary bool) error {
 	parsedURL, _ := u.Parse(url)
 
 	res, err := http.DefaultClient.Get(parsedURL.String())
@@ -53,6 +55,9 @@ func download(url, name string, binary bool) error {
 	}
 
 	sudoUser := os.Getenv("SUDO_USER")
+	if len(sudoUser) == 0 {
+		return nil
+	}
 
 	u, err := user.Lookup(sudoUser)
 
@@ -61,6 +66,14 @@ func download(url, name string, binary bool) error {
 
 	if err := os.Chown(fmt.Sprintf("%s/%s", dest, name), Uid, Gid); err != nil {
 		return fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+	}
+
+	return nil
+}
+
+func DownloadTemplate(faasTemplateRepo string, update, verboseFlag bool) error {
+	if err := git.PullTemplate(faasTemplateRepo, update, verboseFlag); err != nil {
+		return err
 	}
 
 	return nil

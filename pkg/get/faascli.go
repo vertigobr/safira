@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package get
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const faasVersion = "0.12.2"
 
@@ -29,7 +31,7 @@ func getFaasCliUrl() string {
 func DownloadFaasCli() error {
 	faasCliUrl := getFaasCliUrl()
 
-	if err := download(faasCliUrl, "faas-cli", true); err != nil {
+	if err := downloadBinary(faasCliUrl, "faas-cli", true); err != nil {
 		return err
 	}
 

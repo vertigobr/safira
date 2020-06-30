@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package get
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const kubectlVersion = "v1.18.0"
 
@@ -16,7 +18,7 @@ func getKubectlUrl() string {
 func DownloadKubectl() error {
 	kubectlUrl := getKubectlUrl()
 
-	if err := download(kubectlUrl, "kubectl", true); err != nil {
+	if err := downloadBinary(kubectlUrl, "kubectl", true); err != nil {
 		return err
 	}
 

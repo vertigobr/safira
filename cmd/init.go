@@ -5,10 +5,11 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/get"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/get"
 )
 
 var initCmd = &cobra.Command{
@@ -66,6 +67,11 @@ func checkAllBinaries(verboseFlag bool) (bool, error) {
 	}
 
 	_, err = get.CheckBinary(faasBinaryName, true, verboseFlag)
+	if err != nil {
+		return true, err
+	}
+
+	_, err = get.CheckBinary(oktetoBinaryName, true, verboseFlag)
 	if err != nil {
 		return true, err
 	}

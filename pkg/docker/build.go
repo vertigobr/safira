@@ -2,11 +2,12 @@ package docker
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/execute"
-	"github.com/vertigobr/safira/pkg/utils"
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/utils"
 )
 
 type dockerBuild struct {

@@ -9,24 +9,18 @@ import (
 	"github.com/vertigobr/safira/pkg/get"
 )
 
-var infraCmd = &cobra.Command{
-	Use:   "infra",
-	Short: "Responsável por gerenciar a infraestrutura",
-	Long:  "Responsável por gerenciar a infraestrutura em ambiente local",
+var oktetoCmd = &cobra.Command{
+	Use:   "okteto",
+	Short: "Manage development containers in okteto",
+	Long:  "Manage development containers in okteto",
 	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
-	rootCmd.AddCommand(infraCmd)
-
-	infraCmd.PersistentFlags().String(
-		"env",
-		"local",
-		"Recebe o ambiente aonde será provisionado o cluster Kubernetes.",
-	)
+	rootCmd.AddCommand(oktetoCmd)
 }
 
-func checkInfra(verboseFlag bool) error {
+func checkOktetoDependencies(verboseFlag bool) error {
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
@@ -41,7 +35,7 @@ func checkInfra(verboseFlag bool) error {
 		return fmt.Errorf(notExistBinary)
 	}
 
-	exist, err = get.CheckBinary(k3dBinaryName, false, verboseFlag)
+	exist, err = get.CheckBinary(oktetoBinaryName, false, verboseFlag)
 	if err != nil {
 		return err
 	} else if !exist {
