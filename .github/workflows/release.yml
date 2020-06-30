@@ -5,6 +5,18 @@ on:
     types: [created]
 
 jobs:
+  build-push:
+    name: Build and push Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: kyfelipe/safira
+          tag_with_ref: true
+          tags: latest
   release-linux:
     name: release linux
     runs-on: ubuntu-latest
@@ -20,14 +32,3 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goversion: "https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz"
-#  release-darwin:
-#    name: release darwin (darwin, amd64)
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: wangyoucao577/go-release-action@v1.4
-#        with:
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          goos: darwin
-#          goarch: amd64
-#          goversion: "https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz"
