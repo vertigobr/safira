@@ -5,18 +5,6 @@ on:
     types: [created]
 
 jobs:
-  build-push:
-    name: Build and push Docker images
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: docker/build-push-action@v1.1.0
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: kyfelipe/safira
-          tag_with_ref: true
-          tags: latest
   release-linux:
     name: release linux
     runs-on: ubuntu-latest
