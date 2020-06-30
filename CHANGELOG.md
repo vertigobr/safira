@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.6 - 2020-07-00
+
+Features:
+
+- Added new flag `kubeconfig` in `safira function remove`
+
 ## Version v0.0.5 - 2020-06-30
 
 Features:
