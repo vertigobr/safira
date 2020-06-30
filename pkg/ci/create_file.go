@@ -10,7 +10,7 @@ import (
 
 func CreateFile() error {
 	gitlabCi := GitlabCi{
-		Image:   "vertigobr/safira:latest",
+		Image:   "vertigo/safira:latest",
 		Services: []string{
 			"docker:19.03.8-dind",
 		},
