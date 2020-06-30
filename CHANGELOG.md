@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version v0.0.5 - 2020-06-25
+## Version v0.0.5 - 2020-06-30
 
 Features:
 
@@ -8,9 +8,13 @@ Features:
 - Added okteto binary installation
 - Added new command `safira okteto login`
 - Added new command `safira template pull`
-- Added Dockerfile and workflow build and push image
+- Added Dockerfile
 - Added namespace flag in command `safira function deploy`
 - Added .gitlab-ci.yml file creation at execution `safira function new`
+
+Bug Fixes:
+
+- Fix `safira remove function` for remove service and ingress
 
 ## Version v0.0.4 - 2020-06-22
 

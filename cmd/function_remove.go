@@ -3,15 +3,12 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/k8s"
 	"github.com/vertigobr/safira/pkg/stack"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 var functionRemoveCmd = &cobra.Command{
@@ -43,11 +40,6 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	all, _ := cmd.Flags().GetBool("all-functions")
 
-	k8sClient, err := k8s.GetClient(kubeconfigPath)
-	if err != nil {
-		return fmt.Errorf("cluster local não encontrado!\n")
-	}
-
 	functions, err := stack.GetAllFunctions()
 	if err != nil {
 		return err
@@ -55,12 +47,12 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 
 	if all {
 		for index, _ := range functions {
-			if err := removeDeployment(k8sClient, index, functionsNamespace, "Function", verboseFlag); err != nil {
+			if err := removeDeploy(index, functionsNamespace, "Function", verboseFlag); err != nil {
 				return err
 			}
 
 			if swaggerFile := checkSwaggerFileExist(functions[index].Handler); len(swaggerFile) > 1 {
-				if err := removeDeployment(k8sClient, index + "-swagger-ui", "default", "Swagger", verboseFlag); err != nil {
+				if err := removeDeploy(index + "-swagger-ui", "default", "Swagger", verboseFlag); err != nil {
 					return err
 				}
 			}
@@ -68,8 +60,14 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				if err := removeDeployment(k8sClient, functionArg, functionsNamespace, "Function", verboseFlag); err != nil {
+				if err := removeDeploy(functionArg, functionsNamespace, "Function", verboseFlag); err != nil {
 					return err
+				}
+
+				if swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler); len(swaggerFile) > 1 {
+					if err := removeDeploy(functionArg + "-swagger-ui", "default", "Swagger", verboseFlag); err != nil {
+						return err
+					}
 				}
 			} else {
 				return fmt.Errorf("nome dá função %s é inválido", functionArg)
@@ -80,25 +78,23 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func removeDeployment(client *kubernetes.Clientset, deployName, namespace, title string, verboseFlag bool) error {
-	deploymentsFunctions := client.AppsV1().Deployments(namespace)
-	listFunction, _ := deploymentsFunctions.List(context.TODO(), v1.ListOptions{})
-
-	if verboseFlag {
-		fmt.Println("[+] Obtendo informações das funções no cluster")
+func removeDeploy(name, namespace, title string, verboseFlag bool) error {
+	k8sClient, err := k8s.GetClient(kubeconfigPath)
+	if err != nil {
+		return fmt.Errorf("cluster local não encontrado!\n")
 	}
 
-	for _, deploy := range listFunction.Items{
-		if deploy.Name == deployName {
-			err := deploymentsFunctions.Delete(context.TODO(), deployName, v1.DeleteOptions{})
-			if err != nil {
-				return err
-			}
-
-			fmt.Println(fmt.Sprintf("%s %s removida!", title, deployName))
-			return nil
-		}
+	if err := k8s.RemoveDeployment(k8sClient, name, namespace, title, verboseFlag); err != nil {
+		return err
 	}
 
-	return nil // fmt.Errorf("%s %s não encontrada!\n", title, deployName)
+	if err := k8s.RemoveService(k8sClient, name, namespace, title, verboseFlag); err != nil {
+		return err
+	}
+
+	if err := k8s.RemoveIngress(k8sClient, name, namespace, title, verboseFlag); err != nil {
+		return err
+	}
+
+	return nil
 }
