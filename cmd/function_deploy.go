@@ -4,7 +4,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/kongplugin"
 	"os"
 	"path/filepath"
 
@@ -13,6 +12,7 @@ import (
 	d "github.com/vertigobr/safira/pkg/deploy"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
+	"github.com/vertigobr/safira/pkg/kong"
 	s "github.com/vertigobr/safira/pkg/stack"
 )
 
@@ -69,7 +69,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 
 	functions := stack.Functions
 	if all {
-		for index, _ := range functions {
+		for index := range functions {
 			swaggerFile := checkSwaggerFileExist(functions[index].Handler)
 			if err := checkDeployFiles(index, functions[index].Handler, swaggerFile, hostnameFlag, namespaceFlag); err!= nil {
 				return err
@@ -107,8 +107,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if stack.KongPluginsEnabled {
-		if err := deploy(kubectlPath, kubeconfigFlag, kongplugin.GetKongPluginFolderName(), "", namespaceFlag, verboseFlag, updateFlag); err != nil {
+	if stack.KongAssetsEnabled {
+		if err := deploy(kubectlPath, kubeconfigFlag, kong.GetKongFolderName(), "", namespaceFlag, verboseFlag, updateFlag); err != nil {
 			return err
 		}
 	}

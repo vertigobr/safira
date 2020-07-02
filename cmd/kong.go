@@ -6,14 +6,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var kongpluginCmd = &cobra.Command{
-	Use:   "kongplugin",
-	Aliases: []string{"kp"},
-	Short: "Realiza ações voltadas para os Plugins do Kong",
-	Long:  "Realiza ações voltadas para os Plugins do Kong",
+var kongCmd = &cobra.Command{
+	Use:   "kong",
+	Short: "Realiza ações voltadas para o Kong",
+	Long:  "Realiza ações voltadas para o Kong",
 	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
-	rootCmd.AddCommand(kongpluginCmd)
+	rootCmd.AddCommand(kongCmd)
 }

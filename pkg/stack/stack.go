@@ -43,12 +43,6 @@ type CpuMemory struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
-// FunctionResources Memory and CPU
-//type FunctionResources struct {
-//	Memory string `yaml:"memory"`
-//	CPU    string `yaml:"cpu"`
-//}
-
 // Stack root level YAML file to define FaaS function-set
 type Stack struct {
 	Version            string              `yaml:"version,omitempty"`
@@ -57,7 +51,7 @@ type Stack struct {
 	Functions          map[string]Function `yaml:"functions,omitempty"`
 	StackConfig        Config              `yaml:"config,omitempty"`
 	Custom             []string            `yaml:"custom,omitempty"`
-	KongPluginsEnabled bool                `yaml:"kongPluginsEnabled,omitempty"`
+	KongAssetsEnabled  bool                `yaml:"kongAssetsEnabled,omitempty"`
 }
 
 func GetYamlFileName() string {

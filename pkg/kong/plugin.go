@@ -1,6 +1,6 @@
 // Copyright © 2020 Vertigo Tecnologia. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
-package kongplugin
+package kong
 
 import (
 	"fmt"
@@ -9,32 +9,25 @@ import (
 	y "gopkg.in/yaml.v2"
 )
 
-type kongIngressPlugin struct {
+type kongPlugin struct {
 	ApiVersion string            `yaml:"apiVersion,omitempty"`
 	Kind       string            `yaml:"kind,omitempty"`
 	Metadata   map[string]string `yaml:"metadata,omitempty"`
-	Upstream   map[string]string `yaml:"upstream,omitempty"`
-	Proxy      map[string]string `yaml:"proxy,omitempty"`
-	Route      map[string]string `yaml:"route,omitempty"`
+	Config     map[string]string `yaml:"config,omitempty"`
+	Plugin     string            `yaml:"plugin,omitempty"`
 }
 
-
-func createYamlIngressPlugin(pluginName, kongpluginFolder string) error {
-	kp := kongIngressPlugin{
+func createPlugin(pluginName, kongpluginFolder string) error {
+	kp := kongPlugin{
 		ApiVersion: "configuration.konghq.com/v1",
-		Kind: "KongIngress",
+		Kind: "KongPlugin",
 		Metadata: map[string]string{
 			"name": pluginName,
 		},
-		Upstream: map[string]string{
+		Config: map[string]string{
 			"<key>": "<value>",
 		},
-		Proxy: map[string]string{
-			"<key>": "<value>",
-		},
-		Route: map[string]string{
-			"<key>": "<value>",
-		},
+		Plugin: "<plugin name>",
 	}
 
 	folder := fmt.Sprintf("%s/%s.yml", kongpluginFolder, pluginName)

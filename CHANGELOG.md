@@ -10,8 +10,8 @@ Features:
 
 Improvements:
 
-- The link to the swagger editor has been added to the output of `sapphire infra up`
-- The removed suffix from deploys at output of `sapphire infra status`
+- The link to the swagger editor has been added to the output of `safira infra up`
+- The removed suffix from deploys at output of `safira infra status`
 
 ## Version v0.0.5 - 2020-06-30
 

@@ -1,6 +1,6 @@
 // Copyright © 2020 Vertigo Tecnologia. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
-package kongplugin
+package kong
 
 import (
 	"fmt"
@@ -9,17 +9,22 @@ import (
 	y "gopkg.in/yaml.v2"
 )
 
-func createYamlClusterPlugin(pluginName, kongpluginFolder string) error {
-	kp := kongPlugin{
+type kongConsumer struct {
+	ApiVersion string            `yaml:"apiVersion,omitempty"`
+	Kind       string            `yaml:"kind,omitempty"`
+	Metadata   map[string]string `yaml:"metadata,omitempty"`
+	Username   string            `yaml:"username,omitempty"`
+}
+
+
+func createConsumer(pluginName, kongpluginFolder string) error {
+	kp := kongConsumer{
 		ApiVersion: "configuration.konghq.com/v1",
-		Kind: "KongClusterPlugin",
+		Kind: "KongConsumer",
 		Metadata: map[string]string{
 			"name": pluginName,
 		},
-		Config: map[string]string{
-			"<key>": "<value>",
-		},
-		Plugin: "<plugin name>",
+		Username: "<username>",
 	}
 
 	folder := fmt.Sprintf("%s/%s.yml", kongpluginFolder, pluginName)
@@ -35,3 +40,4 @@ func createYamlClusterPlugin(pluginName, kongpluginFolder string) error {
 
 	return nil
 }
+
