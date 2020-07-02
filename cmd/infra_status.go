@@ -59,7 +59,7 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 
 	fmt.Fprintln(lineWriter)
 	fmt.Fprintf(lineWriter, color.Bold.Sprintf("SERVICES\n"))
-	fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t\t AVAILABILITY\n")
+	fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
 	for _, d := range list.Items {
 		checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
 		var status string
@@ -74,17 +74,18 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 			deployName = strings.Split(deployName, "vtg-ipaas-")[1]
 		}
 
-		fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\n",
+		fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
 			deployName,
 			fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 			status,
+			getUrl(deployName, false),
 		)
 	}
 
 	if len(listFunction.Items) > 0 {
 		fmt.Fprintln(lineWriter)
 		fmt.Fprintf(lineWriter, color.Bold.Sprintf("FUNCTIONS\n"))
-		fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t\t AVAILABILITY\n")
+		fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
 		for _, d := range listFunction.Items {
 			checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
 			var status string
@@ -94,19 +95,41 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 				status = color.Red.Sprintf("Not Ready")
 			}
 
-			fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\n",
+			fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
 				d.Name,
 				fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 				status,
+				getUrl(d.Name, true),
 			)
 		}
 	}
-
-	//fmt.Fprintln(lineWriter)
 
 	lineWriter.Flush()
 
 	fmt.Println(buff.String())
 
 	return nil
+}
+
+func getUrl(deployName string, function bool) string {
+	switch deployName {
+	case "swaggereditor":
+		return "editor.localdomain:8080"
+	case "gateway":
+		return "gateway.ipaas.localdomain:8080"
+	case "kong":
+		return "ipaas.localdomain:8080"
+	case "konga":
+		return "konga.localdomain:8080"
+	default:
+		break
+	}
+
+	if function {
+		return "ipaas.localdomain:8080/function/" + deployName
+	} else if strings.HasSuffix(deployName, "swagger-ui") {
+		return "ipaas.localdomain:8080/swagger-ui/" + deployName
+	}
+
+	return ""
 }

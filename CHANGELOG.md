@@ -12,6 +12,7 @@ Improvements:
 
 - The link to the swagger editor has been added to the output of `safira infra up`
 - The removed suffix from deploys at output of `safira infra status`
+- Added output of URLs of the `safira infra status` command
 
 ## Version v0.0.5 - 2020-06-30
 
