@@ -5,9 +5,8 @@ package stack
 import (
 	"fmt"
 
-	y "gopkg.in/yaml.v2"
-
 	"github.com/vertigobr/safira/pkg/utils"
+	y "gopkg.in/yaml.v2"
 )
 
 func CreateTemplate(function Function) error {

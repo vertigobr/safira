@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/vertigobr/safira/pkg/kongplugin"
 	"os"
 	"path/filepath"
 
@@ -103,6 +104,12 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 			if err := deploy(kubectlPath, kubeconfigFlag, path, "", namespaceFlag, verboseFlag, updateFlag); err != nil {
 				return err
 			}
+		}
+	}
+
+	if stack.KongPluginsEnabled {
+		if err := deploy(kubectlPath, kubeconfigFlag, kongplugin.GetKongPluginFolderName(), "", namespaceFlag, verboseFlag, updateFlag); err != nil {
+			return err
 		}
 	}
 

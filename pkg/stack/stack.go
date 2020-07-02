@@ -51,10 +51,15 @@ type CpuMemory struct {
 
 // Stack root level YAML file to define FaaS function-set
 type Stack struct {
-	Version     string              `yaml:"version,omitempty"`
-	Provider    Provider            `yaml:"provider,omitempty"`
-	Hostname    string              `yaml:"hostname,omitempty"`
-	Functions   map[string]Function `yaml:"functions,omitempty"`
-	StackConfig Config              `yaml:"config,omitempty"`
-	Custom      []string            `yaml:"custom,omitempty"`
+	Version            string              `yaml:"version,omitempty"`
+	Provider           Provider            `yaml:"provider,omitempty"`
+	Hostname           string              `yaml:"hostname,omitempty"`
+	Functions          map[string]Function `yaml:"functions,omitempty"`
+	StackConfig        Config              `yaml:"config,omitempty"`
+	Custom             []string            `yaml:"custom,omitempty"`
+	KongPluginsEnabled bool                `yaml:"kongPluginsEnabled,omitempty"`
+}
+
+func GetYamlFileName() string {
+	return stackFileName
 }

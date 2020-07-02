@@ -6,6 +6,7 @@ Features:
 
 - Added new flag `kubeconfig` in `safira function remove`
 - Added new command `safira kongplugin`
+- Added new subcommand `safira kongplugin new`
 
 ## Version v0.0.5 - 2020-06-30
 

@@ -8,6 +8,7 @@ import (
 
 var kongpluginCmd = &cobra.Command{
 	Use:   "kongplugin",
+	Aliases: []string{"kp"},
 	Short: "Realiza ações voltadas para os Plugins do Kong",
 	Long:  "Realiza ações voltadas para os Plugins do Kong",
 	SuggestionsMinimumDistance: 1,
