@@ -53,6 +53,7 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 Konga    - konga.localdomain:8080
 Gateway  - ipaas.localdomain:8080
 OpenFaaS - gateway.ipaas.localdomain:8080
+Editor   - editor.localdomain:8080
 
 Para acesso ao cluster:
 export KUBECONFIG=$(safira infra get-kubeconfig)

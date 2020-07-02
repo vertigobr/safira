@@ -24,6 +24,7 @@ var functionRemoveCmd = &cobra.Command{
 func init() {
 	functionCmd.AddCommand(functionRemoveCmd)
 	functionRemoveCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
+	functionRemoveCmd.Flags().String("kubeconfig", "", "Set kubeconfig to remove function")
 }
 
 func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
@@ -39,6 +40,7 @@ func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
 func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	all, _ := cmd.Flags().GetBool("all-functions")
+	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
 
 	functions, err := stack.GetAllFunctions()
 	if err != nil {
@@ -47,12 +49,12 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 
 	if all {
 		for index, _ := range functions {
-			if err := removeDeploy(index, functionsNamespace, "Function", verboseFlag); err != nil {
+			if err := removeDeploy(index, functionsNamespace, kubeconfigFlag, "Function", verboseFlag); err != nil {
 				return err
 			}
 
 			if swaggerFile := checkSwaggerFileExist(functions[index].Handler); len(swaggerFile) > 1 {
-				if err := removeDeploy(index + "-swagger-ui", "default", "Swagger", verboseFlag); err != nil {
+				if err := removeDeploy(index + "-swagger-ui", kubeconfigFlag, "default", "Swagger", verboseFlag); err != nil {
 					return err
 				}
 			}
@@ -60,12 +62,12 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				if err := removeDeploy(functionArg, functionsNamespace, "Function", verboseFlag); err != nil {
+				if err := removeDeploy(functionArg, functionsNamespace, kubeconfigFlag, "Function", verboseFlag); err != nil {
 					return err
 				}
 
 				if swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler); len(swaggerFile) > 1 {
-					if err := removeDeploy(functionArg + "-swagger-ui", "default", "Swagger", verboseFlag); err != nil {
+					if err := removeDeploy(functionArg + "-swagger-ui", kubeconfigFlag, "default", "Swagger", verboseFlag); err != nil {
 						return err
 					}
 				}
@@ -78,10 +80,17 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func removeDeploy(name, namespace, title string, verboseFlag bool) error {
-	k8sClient, err := k8s.GetClient(kubeconfigPath)
+func removeDeploy(name, namespace, kubeconfigFlag, title string, verboseFlag bool) error {
+	var kubeconfig string
+	if len(kubeconfigFlag) > 0 {
+		kubeconfig = kubeconfigFlag
+	} else {
+		kubeconfig = kubeconfigPath
+	}
+
+	k8sClient, err := k8s.GetClient(kubeconfig)
 	if err != nil {
-		return fmt.Errorf("cluster local não encontrado!\n")
+		return fmt.Errorf("cluster não encontrado!\n")
 	}
 
 	if err := k8s.RemoveDeployment(k8sClient, name, namespace, title, verboseFlag); err != nil {
