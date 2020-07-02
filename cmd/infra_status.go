@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
@@ -68,8 +69,13 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 			status = color.Red.Sprintf("Not Ready")
 		}
 
+		deployName := d.Name
+		if strings.HasPrefix(deployName, "vtg-ipaas-") {
+			deployName = strings.Split(deployName, "vtg-ipaas-")[1]
+		}
+
 		fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\n",
-			d.Name,
+			deployName,
 			fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 			status,
 		)
