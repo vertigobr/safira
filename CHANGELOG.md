@@ -1,12 +1,22 @@
 # Release Notes
 
-## Version v0.0.6 - 2020-07-00
+## Version v0.0.7 - 2020-07-03
+
+Features:
+
+- Added new subcommand `safira function log`
+
+Bug Fixes:
+
+- Fixed URL of swagger ui in `safira infra status`
+
+## Version v0.0.6 - 2020-07-02
 
 Features:
 
 - Added new flag `kubeconfig` in `safira function remove`
-- Added new command `safira kongplugin`
-- Added new subcommand `safira kongplugin new`
+- Added new command `safira kong`
+- Added new subcommand `safira kong new`
 
 Improvements:
 
