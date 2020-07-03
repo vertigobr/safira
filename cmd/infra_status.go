@@ -128,7 +128,7 @@ func getUrl(deployName string, function bool) string {
 	if function {
 		return "ipaas.localdomain:8080/function/" + deployName
 	} else if strings.HasSuffix(deployName, "swagger-ui") {
-		return "ipaas.localdomain:8080/swagger-ui/" + deployName
+		return "ipaas.localdomain:8080/swagger-ui/" + strings.Split(deployName, "-swagger-ui")[0]
 	}
 
 	return ""
