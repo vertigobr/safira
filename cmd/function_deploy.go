@@ -18,8 +18,8 @@ import (
 
 var functionDeployCmd = &cobra.Command{
 	Use:     "deploy [FUNCTION_NAME]",
-	Short:   "Executa deploy das funções",
-	Long:    "Executa deploy das funções",
+	Short:   "Deploy functions",
+	Long:    "Deploy functions",
 	PreRunE: preRunFunctionDeploy,
 	RunE:    runFunctionDeploy,
 	SuggestionsMinimumDistance: 1,
@@ -27,11 +27,11 @@ var functionDeployCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionDeployCmd)
-	functionDeployCmd.Flags().Bool("update", false, "Force the deploy to pull a new image (Default: false)")
-	functionDeployCmd.Flags().String("kubeconfig", "", "Set kubeconfig to deploy")
-	functionDeployCmd.Flags().String("hostname", "", "Set hostname to deploy")
-	functionDeployCmd.Flags().StringP("namespace", "n", "", fmt.Sprintf("Set namespace to deploy (Default: %s)", functionsNamespace))
-	functionDeployCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
+	functionDeployCmd.Flags().Bool("update", false, "force the deploy to pull a new image (Default: false)")
+	functionDeployCmd.Flags().String("kubeconfig", "", "set kubeconfig to deploy")
+	functionDeployCmd.Flags().String("hostname", "", "set hostname to deploy")
+	functionDeployCmd.Flags().StringP("namespace", "n", "", fmt.Sprintf("set namespace to deploy (Default: %s)", functionsNamespace))
+	functionDeployCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
 }
 
 func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {

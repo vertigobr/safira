@@ -28,8 +28,8 @@ type TemplateInfo struct {
 var templateListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
-	Short:   "Lista os templates oficiais do Vertigo iPaaS",
-	Long:    "Lista os templates oficiais do Vertigo iPaaS",
+	Short:   "Lists the official Vertigo iPaaS templates",
+	Long:    "Lists the official Vertigo iPaaS templates",
 	RunE:    runTemplateList,
 	SuggestionsMinimumDistance: 1,
 }

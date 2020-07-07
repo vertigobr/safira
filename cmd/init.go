@@ -14,8 +14,8 @@ import (
 
 var initCmd = &cobra.Command{
 	Use:     "init",
-	Short:   "Sincroniza todas as dependências",
-	Long:    "Sincroniza todas as dependências para uso do Safira",
+	Short:   "Synchronizes all the dependencies necessary for the sapphire to function",
+	Long:    "Synchronizes all the dependencies necessary for the sapphire to function",
 	PreRunE: PreRunInit,
 	RunE:    runInit,
 	SuggestionsMinimumDistance: 1,

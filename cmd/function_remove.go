@@ -14,8 +14,8 @@ import (
 var functionRemoveCmd = &cobra.Command{
 	Use:     "remove [FUNCTION_NAME]",
 	Aliases: []string{"rm"},
-	Short:   "Remove uma ou mais funções do cluster",
-	Long:    "Remove uma ou mais funções do cluster",
+	Short:   "Remove a function from the cluster",
+	Long:    "Remove a function from the cluster",
 	PreRunE: preRunFunctionRemove,
 	RunE:    runFunctionRemove,
 	SuggestionsMinimumDistance: 1,
@@ -23,8 +23,8 @@ var functionRemoveCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionRemoveCmd)
-	functionRemoveCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
-	functionRemoveCmd.Flags().String("kubeconfig", "", "Set kubeconfig to remove function")
+	functionRemoveCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
+	functionRemoveCmd.Flags().String("kubeconfig", "", "set kubeconfig to remove function")
 }
 
 func preRunFunctionRemove(cmd *cobra.Command, args []string) error {

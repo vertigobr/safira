@@ -13,8 +13,8 @@ import (
 
 var infraDownCmd = &cobra.Command{
 	Use:   "down",
-	Short: "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
-	Long:  "Derruba uma infraestrutura de desenvolvimento provisionada anteriormente",
+	Short: "Take down the provisioned development infrastructure",
+	Long:  "Take down the provisioned development infrastructure",
 	RunE:  runInfraDown,
 	SuggestionsMinimumDistance: 1,
 }

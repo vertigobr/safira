@@ -12,8 +12,8 @@ import (
 
 var kongNewCmd = &cobra.Command{
 	Use:     "new [TYPE] [NAME]",
-	Short:   "Cria a estrutura de um yaml para o CRD do Kong",
-	Long:    "Cria a estrutura de um yaml para o CRD do Kong",
+	Short:   "Create a yaml structure for the Kong CRD",
+	Long:    "Create a yaml structure for the Kong CRD",
 	PreRunE: preRunKongpluginNew,
 	RunE:    runKongpluginNew,
 }

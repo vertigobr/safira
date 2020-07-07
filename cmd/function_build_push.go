@@ -20,8 +20,8 @@ var functionBuildPushCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionBuildPushCmd)
-	functionBuildPushCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
-	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
+	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "pushes all Docker images from functions to the registry")
+	functionBuildPushCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
 }
 
 func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {

@@ -11,17 +11,17 @@ import (
 
 var functionLogCmd = &cobra.Command{
 	Use:     "log [FUNCTION_NAME]",
-	Short:   "Imprime o log de uma função",
-	Long:    "Imprime o log de uma função",
+	Short:   "Output a function log",
+	Long:    "Output a function log",
 	PreRunE: preRunFunctionLog,
 	RunE:    runFunctionLog,
 }
 
 func init() {
 	functionCmd.AddCommand(functionLogCmd)
-	functionLogCmd.Flags().String("kubeconfig", kubeconfigPath, "Set kubeconfig to deploy")
-	functionLogCmd.Flags().StringP("namespace", "n", functionsNamespace, "Set namespace to deploy")
-	functionLogCmd.Flags().StringP("output", "o", "", "Set output file")
+	functionLogCmd.Flags().String("kubeconfig", kubeconfigPath, "set kubeconfig to deploy")
+	functionLogCmd.Flags().StringP("namespace", "n", functionsNamespace, "set namespace to deploy")
+	functionLogCmd.Flags().StringP("output", "o", "", "set output file")
 }
 
 func preRunFunctionLog(cmd *cobra.Command, args []string) error {

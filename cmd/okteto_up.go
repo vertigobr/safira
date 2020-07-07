@@ -8,7 +8,7 @@ import (
 
 var oktetoUpCmd = &cobra.Command{
 	Use:   "up",
-	Short: "A brief description of your command",
+	Short: "",
 	Long:  "",
 	RunE:  runOktetoUp,
 }

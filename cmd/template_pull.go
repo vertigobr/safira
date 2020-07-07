@@ -9,8 +9,8 @@ import (
 
 var templatePullCmd = &cobra.Command{
 	Use:   "pull",
-	Short: "Baixa os templates oficiais do Vertigo iPaaS",
-	Long:  "Baixa os templates oficiais do Vertigo iPaaS",
+	Short: "Pull out the official Vertigo iPaaS templates",
+	Long:  "Pull out the official Vertigo iPaaS templates",
 	RunE:  runTemplatePull,
 }
 

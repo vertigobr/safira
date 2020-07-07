@@ -15,8 +15,8 @@ import (
 
 var infraUpCmd = &cobra.Command{
 	Use:   "up",
-	Short: "Levanta uma infraestrutura para ambiente de desenvolvimento",
-	Long:  "Levanta uma infraestrutura para ambiente de desenvolvimento com todas as dependências já configuradas",
+	Short: "Provides a local cluster for the development environment",
+	Long:  "Provides a local cluster for the development environment",
 	RunE:  runInfraUp,
 	SuggestionsMinimumDistance: 1,
 }

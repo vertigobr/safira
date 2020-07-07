@@ -15,8 +15,8 @@ import (
 
 var infraSecretsCmd = &cobra.Command{
 	Use:   "secrets",
-	Short: "Obtém informações de acesso as plataformas",
-	Long:  "Obtém informações de acesso as plataformas do Vertigo iPaaS",
+	Short: "Get service credentials",
+	Long:  "Get service credentials",
 	RunE:  runInfraSecrets,
 	SuggestionsMinimumDistance: 1,
 }

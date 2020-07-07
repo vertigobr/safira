@@ -14,8 +14,8 @@ import (
 
 var functionBuildCmd = &cobra.Command{
 	Use:     "build [FUNCTION_NAME]",
-	Short:   "Executa o build de funções",
-	Long:    "Executa o build de funções",
+	Short:   "Build Docker images from functions",
+	Long:    "Build Docker images from functions",
 	PreRunE: preRunFunctionBuild,
 	RunE:    runFunctionBuild,
 	SuggestionsMinimumDistance: 1,
@@ -23,8 +23,8 @@ var functionBuildCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionBuildCmd)
-	functionBuildCmd.Flags().BoolP("all-functions", "A", false, "Build all functions")
-	functionBuildCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
+	functionBuildCmd.Flags().BoolP("all-functions", "A", false, "build all functions")
+	functionBuildCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
 }
 
 func preRunFunctionBuild(cmd *cobra.Command, args []string) error {

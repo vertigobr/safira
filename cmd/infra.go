@@ -11,19 +11,13 @@ import (
 
 var infraCmd = &cobra.Command{
 	Use:   "infra",
-	Short: "Responsável por gerenciar a infraestrutura",
-	Long:  "Responsável por gerenciar a infraestrutura em ambiente local",
+	Short: "Manage the local infrastructure",
+	Long:  "Manage the local infrastructure",
 	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	rootCmd.AddCommand(infraCmd)
-
-	infraCmd.PersistentFlags().String(
-		"env",
-		"local",
-		"Recebe o ambiente aonde será provisionado o cluster Kubernetes.",
-	)
 }
 
 func checkInfra(verboseFlag bool) error {

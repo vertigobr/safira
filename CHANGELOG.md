@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.8 - 2020-07-00
+
+Improvements:
+
+- Improved command description
+
 ## Version v0.0.7 - 2020-07-03
 
 Features:

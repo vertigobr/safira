@@ -8,8 +8,8 @@ import (
 
 var templateCmd = &cobra.Command{
 	Use:   "template",
-	Short: "Permite navegar e puxar templates",
-	Long:  "Permite navegar e puxar templates",
+	Short: "Manage the use of templates",
+	Long:  "Manage the use of templates",
 	SuggestionsMinimumDistance: 1,
 }
 

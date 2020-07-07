@@ -10,8 +10,8 @@ import (
 var functionCmd = &cobra.Command{
 	Use:     "function",
 	Aliases: []string{"func"},
-	Short:   "Permite gerenciamento das functions",
-	Long:    "Permite gerenciamento das functions",
+	Short:   "Allows management of functions",
+	Long:    "Allows you to manage actions in the project functions",
 	SuggestionsMinimumDistance: 1,
 }
 
