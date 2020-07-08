@@ -15,6 +15,13 @@ var functionPushCmd = &cobra.Command{
 	Use:     "push [FUNCTION_NAME]",
 	Short:   "Pushes Docker images from the function",
 	Long:    "Pushes Docker images from the function",
+	Example: `If you want to push a function's Docker image, run:
+
+    $ safira function push function-name
+
+or if you want to push the Docker image of all the functions, execute:
+
+    $ safira function push -A`,
 	PreRunE: preRunFunctionPush,
 	RunE:    runFunctionPush,
 	SuggestionsMinimumDistance: 1,

@@ -20,6 +20,13 @@ var functionDeployCmd = &cobra.Command{
 	Use:     "deploy [FUNCTION_NAME]",
 	Short:   "Deploy functions",
 	Long:    "Deploy functions",
+	Example: `If you want to deploy a function's Docker image, run:
+
+    $ safira function deploy function-name
+
+or if you want to deploy the Docker image of all the functions, execute:
+
+    $ safira function deploy -A`,
 	PreRunE: preRunFunctionDeploy,
 	RunE:    runFunctionDeploy,
 	SuggestionsMinimumDistance: 1,

@@ -15,6 +15,9 @@ var infraDownCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Take down the provisioned development infrastructure",
 	Long:  "Take down the provisioned development infrastructure",
+	Example: `To destroy the locally provisioned cluster, run:
+
+    $ safira infra down`,
 	RunE:  runInfraDown,
 	SuggestionsMinimumDistance: 1,
 }

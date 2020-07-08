@@ -17,6 +17,9 @@ var infraSecretsCmd = &cobra.Command{
 	Use:   "secrets",
 	Short: "Get service credentials",
 	Long:  "Get service credentials",
+	Example: `To obtain access credentials for some services, run:
+
+    $ safira infra secrets`,
 	RunE:  runInfraSecrets,
 	SuggestionsMinimumDistance: 1,
 }

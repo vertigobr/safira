@@ -5,6 +5,7 @@
 Improvements:
 
 - Improved command description
+- Added execute examples in help flag
 
 ## Version v0.0.7 - 2020-07-03
 

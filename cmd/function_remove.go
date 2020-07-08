@@ -16,6 +16,13 @@ var functionRemoveCmd = &cobra.Command{
 	Aliases: []string{"rm"},
 	Short:   "Remove a function from the cluster",
 	Long:    "Remove a function from the cluster",
+	Example: `To remove the function from a project, run:
+
+    $ safira function remove function-name
+
+or if you want to remove all functions from a project, execute:
+
+    $ safira function remove -A`,
 	PreRunE: preRunFunctionRemove,
 	RunE:    runFunctionRemove,
 	SuggestionsMinimumDistance: 1,

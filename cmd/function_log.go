@@ -13,6 +13,9 @@ var functionLogCmd = &cobra.Command{
 	Use:     "log [FUNCTION_NAME]",
 	Short:   "Output a function log",
 	Long:    "Output a function log",
+	Example: `To view a function log, run:
+
+    $ safira function log function-name`,
 	PreRunE: preRunFunctionLog,
 	RunE:    runFunctionLog,
 }

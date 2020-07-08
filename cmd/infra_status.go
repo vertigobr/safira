@@ -20,6 +20,9 @@ var infraStatusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "View the status of cluster services and functions",
 	Long:  "View the status of cluster services and functions",
+	Example: `To view the status of services and functions in the cluster, run:
+
+    $ safira infra status`,
 	RunE:  runInfraStatus,
 	SuggestionsMinimumDistance: 1,
 }

@@ -16,6 +16,13 @@ var functionBuildCmd = &cobra.Command{
 	Use:     "build [FUNCTION_NAME]",
 	Short:   "Build Docker images from functions",
 	Long:    "Build Docker images from functions",
+	Example: `If you want to build a function's Docker image, run:
+
+    $ safira function build function-name
+
+or if you want to build the Docker image of all the functions, execute:
+
+    $ safira function build -A`,
 	PreRunE: preRunFunctionBuild,
 	RunE:    runFunctionBuild,
 	SuggestionsMinimumDistance: 1,

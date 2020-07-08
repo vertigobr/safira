@@ -17,10 +17,12 @@ import (
 )
 
 var functionNewCmd = &cobra.Command{
-	Use:     "new [FUNCTION_NAME] --lang=FUNCTION_LANGUAGE",
+	Use:     "new [FUNCTION_NAME] --lang=[FUNCTION_LANGUAGE or TEMPLATE_NAME]",
 	Short:   "Creates a new function",
 	Long:    "Creates a new hello-world function based on the inserted language",
-	Example: "safira function new project-name --lang=java",
+	Example: `to create a new function, run:
+
+    $ safira function new project-name --lang=template-name`,
 	PreRunE: preRunFunctionNew,
 	RunE:    runFunctionNew,
 	SuggestionsMinimumDistance: 1,

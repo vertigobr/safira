@@ -14,6 +14,9 @@ var kongNewCmd = &cobra.Command{
 	Use:     "new [TYPE] [NAME]",
 	Short:   "Create a yaml structure for the Kong CRD",
 	Long:    "Create a yaml structure for the Kong CRD",
+	Example: `To create a yaml file for kong, run:
+
+    $ safira kong new plugin plugin-name`,
 	PreRunE: preRunKongpluginNew,
 	RunE:    runKongpluginNew,
 }

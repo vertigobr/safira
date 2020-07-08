@@ -17,6 +17,9 @@ var infraUpCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Provides a local cluster for the development environment",
 	Long:  "Provides a local cluster for the development environment",
+	Example: `To provision the local cluster for development, run:
+
+    $ safira infra up`,
 	RunE:  runInfraUp,
 	SuggestionsMinimumDistance: 1,
 }

@@ -13,6 +13,13 @@ var functionBuildPushCmd = &cobra.Command{
 	Use:     "build-push [FUNCTION_NAME]",
 	Short:   "Executa o build e push das imagens",
 	Long:    "Executa o build e push das imagens",
+	Example: `If you want to build and push a function's Docker image, run:
+
+    $ safira function build-push function-name
+
+or if you want to build and push the Docker image of all the functions, execute:
+
+    $ safira function build-push -A`,
 	PreRunE:  preRunFunctionBuildPush,
 	RunE:     runFunctionBuildPush,
 	SuggestionsMinimumDistance: 1,

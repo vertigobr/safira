@@ -30,6 +30,9 @@ var templateListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Short:   "Lists the official Vertigo iPaaS templates",
 	Long:    "Lists the official Vertigo iPaaS templates",
+	Example: `To list all the official templates, run:
+
+    $ safira template list`,
 	RunE:    runTemplateList,
 	SuggestionsMinimumDistance: 1,
 }
