@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package stack
 
-const stackFileName = "stack.yml"
-
 // Provider for the FaaS set of functions
 type Provider struct {
 	Name       string `yaml:"name"`
@@ -15,7 +13,7 @@ type Function struct {
 	// Name of deployed function
 	Name string `yaml:"-"`
 
-	// Lang name
+	// Lang/Template name
 	Lang string `yaml:"lang"`
 
 	// Handler Local folder to use for function
@@ -29,13 +27,20 @@ type Function struct {
 
 // Config apply one or all functions in stack.yaml
 type Config struct {
-	BuildArgs map[string]string `yaml:"buildArgs,omitempty"`
-	Scale     struct{
+	BuildArgs    map[string]string      `yaml:"buildArgs,omitempty"`
+	Scale        struct{
 		Min string `yaml:"min"`
 		Max string `yaml:"max"`
 	} `yaml:"scale,omitempty"`
-	Limits    CpuMemory `yaml:"limits,omitempty"`
-	Requests  CpuMemory `yaml:"requests,omitempty"`
+
+	// Resource limit that the function will use
+	Limits       CpuMemory              `yaml:"limits,omitempty"`
+
+	// Minimum resource required that the function will use
+	Requests     CpuMemory              `yaml:"requests,omitempty"`
+
+	// Environment variables
+	Environments map[string]interface{} `yaml:"environments,omitempty"`
 }
 
 type CpuMemory struct {
@@ -55,5 +60,5 @@ type Stack struct {
 }
 
 func GetYamlFileName() string {
-	return stackFileName
+	return "stack.yml"
 }

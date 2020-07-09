@@ -3,6 +3,7 @@
 package deploy
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/vertigobr/safira/pkg/config"
@@ -11,11 +12,12 @@ import (
 )
 
 type functionSpec struct {
-	Name     string            `yaml:"name,omitempty"`
-	Image    string            `yaml:"image,omitempty"`
-	Labels   map[string]string `yaml:"labels,omitempty"`
-	Limits   cpuMemory         `yaml:"limits,omitempty"`
-	Requests cpuMemory         `yaml:"requests,omitempty"`
+	Name         string                 `yaml:"name,omitempty"`
+	Image        string                 `yaml:"image,omitempty"`
+	Labels       map[string]string      `yaml:"labels,omitempty"`
+	Environments map[string]interface{} `yaml:"environment,omitempty"`
+	Limits       cpuMemory              `yaml:"limits,omitempty"`
+	Requests     cpuMemory              `yaml:"requests,omitempty"`
 }
 
 type cpuMemory struct {
@@ -32,6 +34,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace string) error {
 	scaleMin, scaleMax := getScaleConfig(stack, functionName)
 	cpuLimits, memoryLimits := getLimitsConfig(stack, functionName)
 	cpuRequests, memoryRequests := getRequestsConfig(stack, functionName)
+	environments := getFunctionEnvironment(stack, functionName)
 
 	*k = K8sYaml{
 		ApiVersion: "openfaas.com/v1",
@@ -48,6 +51,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace string) error {
 				"com.openfaas.scale.max": scaleMax,
 				"function": functionName,
 			},
+			Environments: environments,
 			Limits: cpuMemory{
 				Cpu:    cpuLimits,
 				Memory: memoryLimits,
@@ -127,6 +131,25 @@ func getRequestsConfig(stack *s.Stack, functionName string) (cpu, memory string)
 	memory = compareFuncStackValue(memoryFunction, memoryStack, "")
 
 	return
+}
+
+func getFunctionEnvironment(stack *s.Stack, functionName string) map[string]interface{} {
+	envFunction := stack.Functions[functionName].FunctionConfig.Environments
+	envStack    := stack.StackConfig.Environments
+
+	fmt.Println(envFunction)
+	fmt.Println(envStack)
+	fmt.Println(len(envFunction))
+	fmt.Println(len(envStack))
+
+	if len(envFunction) > 0 {
+		return envFunction
+	} else if len(envStack) > 0 {
+		return envStack
+	}
+
+	var m map[string]interface{}
+	return m
 }
 
 func compareFuncStackValue(functionValue, stackValue, defaultValue string) (value string) {

@@ -32,7 +32,7 @@ func CreateTemplate(function Function) error {
 		return fmt.Errorf("error ao executar o marshal para o arquivo stack.yml: %s", err.Error())
 	}
 
-	if err := utils.CreateYamlFile(stackFileName, yamlBytes, true); err != nil {
+	if err := utils.CreateYamlFile(GetYamlFileName(), yamlBytes, true); err != nil {
 		return err
 	}
 

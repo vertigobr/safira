@@ -2,6 +2,10 @@
 
 ## Version v0.0.8 - 2020-07-00
 
+Features:
+
+- Added configuration of environment variables in stack.yml
+
 Improvements:
 
 - Improved command description

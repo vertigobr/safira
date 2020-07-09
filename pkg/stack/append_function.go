@@ -22,8 +22,8 @@ func AppendFunction(function Function) error {
 
 	yamlBytes, err := y.Marshal(&stack)
 	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", stackFileName, err.Error())
+		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", GetYamlFileName(), err.Error())
 	}
 
-	return utils.CreateYamlFile(stackFileName, yamlBytes, true)
+	return utils.CreateYamlFile(GetYamlFileName(), yamlBytes, true)
 }
