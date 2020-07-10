@@ -11,6 +11,7 @@ import (
 
 var functionBuildPushCmd = &cobra.Command{
 	Use:     "build-push [FUNCTION_NAME]",
+	Aliases: []string{"bp"},
 	Short:   "Executa o build e push das imagens",
 	Long:    "Executa o build e push das imagens",
 	Example: `If you want to build and push a function's Docker image, run:
