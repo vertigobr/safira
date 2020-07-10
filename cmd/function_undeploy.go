@@ -17,13 +17,13 @@ var functionUndeployCmd = &cobra.Command{
 	Long:    "Remove a function from the cluster",
 	Example: `To remove the function from a project, run:
 
-    $ safira function remove function-name
+    $ safira function undeploy function-name
 
 or if you want to remove all functions from a project, execute:
 
-    $ safira function remove -A`,
-	PreRunE: preRunFunctionRemove,
-	RunE:    runFunctionRemove,
+    $ safira function undeploy -A`,
+	PreRunE: preRunFunctionUndeploy,
+	RunE:    runFunctionUndeploy,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -34,7 +34,7 @@ func init() {
 	functionUndeployCmd.Flags().StringP("namespace", "n", functionsNamespace, "set namespace to undeploy")
 }
 
-func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
+func preRunFunctionUndeploy(cmd *cobra.Command, args []string) error {
 	all, _ := cmd.Flags().GetBool("all-functions")
 	if len(args) < 1 && !all {
 		_ = cmd.Help()
@@ -44,7 +44,7 @@ func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func runFunctionRemove(cmd *cobra.Command, args []string) error {
+func runFunctionUndeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	all, _ := cmd.Flags().GetBool("all-functions")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")

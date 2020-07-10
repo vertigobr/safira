@@ -5,6 +5,7 @@
 Features:
 
 - Added configuration of environment variables in stack.yml
+- Added new command `sapphire function remove`
 
 Improvements:
 
