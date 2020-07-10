@@ -30,7 +30,8 @@ or if you want to remove all functions from a project, execute:
 func init() {
 	functionCmd.AddCommand(functionUndeployCmd)
 	functionUndeployCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
-	functionUndeployCmd.Flags().String("kubeconfig", "", "set kubeconfig to remove function")
+	functionUndeployCmd.Flags().String("kubeconfig", kubeconfigPath, "set kubeconfig to remove function")
+	functionUndeployCmd.Flags().StringP("namespace", "n", functionsNamespace, "set namespace to undeploy")
 }
 
 func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
@@ -47,6 +48,7 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	all, _ := cmd.Flags().GetBool("all-functions")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
+	namespaceFlag, _ := cmd.Flags().GetString("namespace")
 
 	functions, err := stack.GetAllFunctions()
 	if err != nil {
@@ -55,7 +57,7 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 
 	if all {
 		for index, _ := range functions {
-			if err := removeDeploy(index, functionsNamespace, kubeconfigFlag, "Function", verboseFlag); err != nil {
+			if err := removeDeploy(index, namespaceFlag, kubeconfigFlag, "Function", verboseFlag); err != nil {
 				return err
 			}
 
@@ -68,7 +70,7 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				if err := removeDeploy(functionArg, functionsNamespace, kubeconfigFlag, "Function", verboseFlag); err != nil {
+				if err := removeDeploy(functionArg, namespaceFlag, kubeconfigFlag, "Function", verboseFlag); err != nil {
 					return err
 				}
 
@@ -87,14 +89,7 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 }
 
 func removeDeploy(name, namespace, kubeconfigFlag, title string, verboseFlag bool) error {
-	var kubeconfig string
-	if len(kubeconfigFlag) > 0 {
-		kubeconfig = kubeconfigFlag
-	} else {
-		kubeconfig = kubeconfigPath
-	}
-
-	k8sClient, err := k8s.GetClient(kubeconfig)
+	k8sClient, err := k8s.GetClient(kubeconfigFlag)
 	if err != nil {
 		return fmt.Errorf("cluster não encontrado!\n")
 	}
