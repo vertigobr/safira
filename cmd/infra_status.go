@@ -18,8 +18,11 @@ import (
 
 var infraStatusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Vizualiza o status dos serviços e funções do cluster local",
-	Long:  "Vizualiza o status dos serviços e funções do cluster local",
+	Short: "View the status of cluster services and functions",
+	Long:  "View the status of cluster services and functions",
+	Example: `To view the status of services and functions in the cluster, run:
+
+    $ safira infra status`,
 	RunE:  runInfraStatus,
 	SuggestionsMinimumDistance: 1,
 }

@@ -13,8 +13,15 @@ import (
 
 var functionPushCmd = &cobra.Command{
 	Use:     "push [FUNCTION_NAME]",
-	Short:   "Executa o push das imagens",
-	Long:    "Executa o push das imagens",
+	Short:   "Pushes Docker images from the function",
+	Long:    "Pushes Docker images from the function",
+	Example: `If you want to push a function's Docker image, run:
+
+    $ safira function push function-name
+
+or if you want to push the Docker image of all the functions, execute:
+
+    $ safira function push -A`,
 	PreRunE: preRunFunctionPush,
 	RunE:    runFunctionPush,
 	SuggestionsMinimumDistance: 1,
@@ -22,7 +29,7 @@ var functionPushCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionPushCmd)
-	functionPushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
+	functionPushCmd.Flags().BoolP("all-functions", "A", false, "push all function Docker images")
 }
 
 func preRunFunctionPush(cmd *cobra.Command, args []string) error {

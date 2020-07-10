@@ -8,8 +8,8 @@ import (
 
 var kongCmd = &cobra.Command{
 	Use:   "kong",
-	Short: "Realiza ações voltadas para o Kong",
-	Long:  "Realiza ações voltadas para o Kong",
+	Short: "Performs actions focused on Kong",
+	Long:  "Performs actions focused on Kong",
 	SuggestionsMinimumDistance: 1,
 }
 

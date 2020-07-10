@@ -1,5 +1,20 @@
 # Release Notes
 
+## Version v0.0.8 - 2020-07-00
+
+Features:
+
+- Added configuration of environment variables in stack.yml
+- Added new command `sapphire function remove`
+
+Improvements:
+
+- Improved command description
+- Added execute examples in help flag
+- Added `bp` alias in the `build-push` subcommand
+- Renamed the `function remove` command to` function undeploy`
+- Added flag namespace in the `function undeploy` subcommand
+
 ## Version v0.0.7 - 2020-07-03
 
 Features:

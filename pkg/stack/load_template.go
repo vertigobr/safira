@@ -11,14 +11,14 @@ import (
 
 func LoadStackFile() (*Stack, error) {
 	var stack Stack
-	yamlBytes, err := ParseYAMLForLanguageTemplate(stackFileName)
+	yamlBytes, err := ParseYAMLForLanguageTemplate(GetYamlFileName())
 	if err != nil {
 		return nil, err
 	}
 
 	err = y.Unmarshal(yamlBytes, &stack)
 	if err != nil {
-		return nil, fmt.Errorf("error ao executar o unmarshalling para o arquivo %s: %s", stackFileName, err.Error())
+		return nil, fmt.Errorf("error ao executar o unmarshalling para o arquivo %s: %s", GetYamlFileName(), err.Error())
 	}
 
 	return &stack, nil

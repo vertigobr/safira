@@ -11,8 +11,16 @@ import (
 
 var functionBuildPushCmd = &cobra.Command{
 	Use:     "build-push [FUNCTION_NAME]",
+	Aliases: []string{"bp"},
 	Short:   "Executa o build e push das imagens",
 	Long:    "Executa o build e push das imagens",
+	Example: `If you want to build and push a function's Docker image, run:
+
+    $ safira function build-push function-name
+
+or if you want to build and push the Docker image of all the functions, execute:
+
+    $ safira function build-push -A`,
 	PreRunE:  preRunFunctionBuildPush,
 	RunE:     runFunctionBuildPush,
 	SuggestionsMinimumDistance: 1,
@@ -20,8 +28,8 @@ var functionBuildPushCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionBuildPushCmd)
-	functionBuildPushCmd.Flags().Bool("no-cache", false, "Do not use cache when building the image")
-	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "Push all functions")
+	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "pushes all Docker images from functions to the registry")
+	functionBuildPushCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
 }
 
 func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {

@@ -4,106 +4,32 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"github.com/vertigobr/safira/pkg/stack"
 
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/k8s"
-	"github.com/vertigobr/safira/pkg/stack"
 )
 
 var functionRemoveCmd = &cobra.Command{
-	Use:     "remove [FUNCTION_NAME]",
-	Aliases: []string{"rm"},
-	Short:   "Remove uma ou mais funções do cluster",
-	Long:    "Remove uma ou mais funções do cluster",
-	PreRunE: preRunFunctionRemove,
+	Use:     "remove",
+	Short:   "Removes the function from the project",
+	Long:    "Removes the function from the project",
+	Example: `To remove the function from the project, run:
+
+    $ safira function undeploy function-name`,
 	RunE:    runFunctionRemove,
-	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
 	functionCmd.AddCommand(functionRemoveCmd)
-	functionRemoveCmd.Flags().BoolP("all-functions", "A", false, "Deploy all functions")
-	functionRemoveCmd.Flags().String("kubeconfig", "", "Set kubeconfig to remove function")
-}
-
-func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
-	all, _ := cmd.Flags().GetBool("all-functions")
-	if len(args) < 1 && !all {
-		_ = cmd.Help()
-		os.Exit(0)
-	}
-
-	return nil
 }
 
 func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
-	all, _ := cmd.Flags().GetBool("all-functions")
-	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
 
-	functions, err := stack.GetAllFunctions()
-	if err != nil {
+	if err := stack.RemoveFunction(args[0], verboseFlag); err != nil {
 		return err
 	}
 
-	if all {
-		for index, _ := range functions {
-			if err := removeDeploy(index, functionsNamespace, kubeconfigFlag, "Function", verboseFlag); err != nil {
-				return err
-			}
-
-			if swaggerFile := checkSwaggerFileExist(functions[index].Handler); len(swaggerFile) > 1 {
-				if err := removeDeploy(index + "-swagger-ui", kubeconfigFlag, "default", "Swagger", verboseFlag); err != nil {
-					return err
-				}
-			}
-		}
-	} else {
-		for index, functionArg := range args {
-			if checkFunctionExists(args[index], functions) {
-				if err := removeDeploy(functionArg, functionsNamespace, kubeconfigFlag, "Function", verboseFlag); err != nil {
-					return err
-				}
-
-				if swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler); len(swaggerFile) > 1 {
-					if err := removeDeploy(functionArg + "-swagger-ui", kubeconfigFlag, "default", "Swagger", verboseFlag); err != nil {
-						return err
-					}
-				}
-			} else {
-				return fmt.Errorf("nome dá função %s é inválido", functionArg)
-			}
-		}
-	}
-
-	return nil
-}
-
-func removeDeploy(name, namespace, kubeconfigFlag, title string, verboseFlag bool) error {
-	var kubeconfig string
-	if len(kubeconfigFlag) > 0 {
-		kubeconfig = kubeconfigFlag
-	} else {
-		kubeconfig = kubeconfigPath
-	}
-
-	k8sClient, err := k8s.GetClient(kubeconfig)
-	if err != nil {
-		return fmt.Errorf("cluster não encontrado!\n")
-	}
-
-	if err := k8s.RemoveDeployment(k8sClient, name, namespace, title, verboseFlag); err != nil {
-		return err
-	}
-
-	if err := k8s.RemoveService(k8sClient, name, namespace, title, verboseFlag); err != nil {
-		return err
-	}
-
-	if err := k8s.RemoveIngress(k8sClient, name, namespace, title, verboseFlag); err != nil {
-		return err
-	}
-
+	fmt.Println(fmt.Sprintf("Function %s successfully removed!", args[0]))
 	return nil
 }

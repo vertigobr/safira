@@ -5,11 +5,11 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/vertigobr/safira/pkg/ci"
 	"os"
 	"regexp"
 
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/ci"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
@@ -17,10 +17,12 @@ import (
 )
 
 var functionNewCmd = &cobra.Command{
-	Use:     "new [FUNCTION_NAME] --lang=FUNCTION_LANGUAGE",
-	Short:   "Cria uma nova função na pasta atual",
-	Long:    "Cria uma nova função hello-world baseada na linguagem inserida",
-	Example: "safira function new project-name --lang=java",
+	Use:     "new [FUNCTION_NAME] --lang=[FUNCTION_LANGUAGE or TEMPLATE_NAME]",
+	Short:   "Creates a new function",
+	Long:    "Creates a new hello-world function based on the inserted language",
+	Example: `to create a new function, run:
+
+    $ safira function new project-name --lang=template-name`,
 	PreRunE: preRunFunctionNew,
 	RunE:    runFunctionNew,
 	SuggestionsMinimumDistance: 1,
@@ -29,8 +31,8 @@ var functionNewCmd = &cobra.Command{
 func init() {
 	functionCmd.AddCommand(functionNewCmd)
 
-	functionNewCmd.Flags().String("lang", "", "Linguagem para criação do template")
-	functionNewCmd.Flags().Bool("update-template", false, "Update template folder")
+	functionNewCmd.Flags().String("lang", "", "template name")
+	functionNewCmd.Flags().Bool("update-template", false, "update template folder")
 }
 
 func preRunFunctionNew(cmd *cobra.Command, args []string) error {

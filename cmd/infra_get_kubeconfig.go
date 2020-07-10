@@ -10,8 +10,11 @@ import (
 
 var infraKubeconfigCmd = &cobra.Command{
 	Use:   "get-kubeconfig",
-	Short: "Imprime o caminho do kubeconfig",
-	Long:  "Imprime o caminho do kubeconfig",
+	Short: "Output kubeconfig path",
+	Long:  "Output kubeconfig path",
+	Example: `To output kubeconfig path, run:
+
+    $ safira infra get-kubeconfig`,
 	RunE:  runGetKubeconfig,
 	SuggestionsMinimumDistance: 1,
 }
