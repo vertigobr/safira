@@ -11,6 +11,7 @@ Improvements:
 - Improved command description
 - Added execute examples in help flag
 - Added `bp` alias in the `build-push` subcommand
+- Renamed the `function remove` command to` function undeploy`
 
 ## Version v0.0.7 - 2020-07-03
 

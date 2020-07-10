@@ -11,9 +11,8 @@ import (
 	"github.com/vertigobr/safira/pkg/stack"
 )
 
-var functionRemoveCmd = &cobra.Command{
-	Use:     "remove [FUNCTION_NAME]",
-	Aliases: []string{"rm"},
+var functionUndeployCmd = &cobra.Command{
+	Use:     "undeploy [FUNCTION_NAME]",
 	Short:   "Remove a function from the cluster",
 	Long:    "Remove a function from the cluster",
 	Example: `To remove the function from a project, run:
@@ -29,9 +28,9 @@ or if you want to remove all functions from a project, execute:
 }
 
 func init() {
-	functionCmd.AddCommand(functionRemoveCmd)
-	functionRemoveCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
-	functionRemoveCmd.Flags().String("kubeconfig", "", "set kubeconfig to remove function")
+	functionCmd.AddCommand(functionUndeployCmd)
+	functionUndeployCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
+	functionUndeployCmd.Flags().String("kubeconfig", "", "set kubeconfig to remove function")
 }
 
 func preRunFunctionRemove(cmd *cobra.Command, args []string) error {
