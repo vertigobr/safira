@@ -1,11 +1,11 @@
 # Release Notes
 
-## Version v0.0.8 - 2020-07-00
+## Version v0.0.8 - 2020-07-10
 
 Features:
 
 - Added configuration of environment variables in stack.yml
-- Added new command `sapphire function remove`
+- Added new command `safira function remove`
 
 Improvements:
 
