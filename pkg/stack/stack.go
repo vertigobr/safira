@@ -23,6 +23,9 @@ type Function struct {
 	Image string `yaml:"image"`
 
 	FunctionConfig Config `yaml:"config,omitempty"`
+
+	// Kong Plugins
+	Plugins map[string]Plugin `yaml:"plugins,omitempty"`
 }
 
 // Config apply one or all functions in stack.yaml
@@ -48,6 +51,29 @@ type CpuMemory struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
+type Plugin struct {
+	// Plugin name
+	Name string `yaml:"-"`
+
+	// Plugin type
+	Type string `yaml:"type,omitempty"`
+
+	Global string `yaml:"global,omitempty"`
+
+	Config map[string]interface{} `yaml:"config,omitempty"`
+
+	ConfigFrom ConfigFromPlugin `yaml:"configFrom,omitempty"`
+}
+
+type ConfigFromPlugin struct {
+	SecretKeyRef SecretKeyRef `yaml:"secretKeyRef,omitempty"`
+}
+
+type SecretKeyRef struct {
+	Name string `yaml:"name,omitempty"`
+	Key  string `yaml:"key,omitempty"`
+}
+
 // Stack root level YAML file to define FaaS function-set
 type Stack struct {
 	Version            string              `yaml:"version,omitempty"`
@@ -56,7 +82,6 @@ type Stack struct {
 	Functions          map[string]Function `yaml:"functions,omitempty"`
 	StackConfig        Config              `yaml:"config,omitempty"`
 	Custom             []string            `yaml:"custom,omitempty"`
-	KongAssetsEnabled  bool                `yaml:"kongAssetsEnabled,omitempty"`
 }
 
 func GetYamlFileName() string {

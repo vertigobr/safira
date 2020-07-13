@@ -12,7 +12,6 @@ import (
 	d "github.com/vertigobr/safira/pkg/deploy"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
-	"github.com/vertigobr/safira/pkg/kong"
 	s "github.com/vertigobr/safira/pkg/stack"
 )
 
@@ -78,7 +77,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	if all {
 		for index := range functions {
 			swaggerFile := checkSwaggerFileExist(functions[index].Handler)
-			if err := checkDeployFiles(index, functions[index].Handler, swaggerFile, hostnameFlag, namespaceFlag); err!= nil {
+			if err := checkDeployFiles(index, functions[index].Handler, swaggerFile, hostnameFlag, namespaceFlag, functions[index].Plugins); err!= nil {
 				return err
 			}
 
@@ -92,7 +91,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 			if checkFunctionExists(args[index], functions) {
 				swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler)
 
-				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, swaggerFile, hostnameFlag, namespaceFlag); err!= nil {
+				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, swaggerFile, hostnameFlag, namespaceFlag, functions[functionArg].Plugins); err!= nil {
 					return err
 				}
 
@@ -111,12 +110,6 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 			if err := deploy(kubectlPath, kubeconfigFlag, path, "", namespaceFlag, verboseFlag, updateFlag); err != nil {
 				return err
 			}
-		}
-	}
-
-	if stack.KongAssetsEnabled {
-		if err := deploy(kubectlPath, kubeconfigFlag, kong.GetKongFolderName(), "", namespaceFlag, verboseFlag, updateFlag); err != nil {
-			return err
 		}
 	}
 
@@ -180,7 +173,7 @@ func deploy(kubectlPath, kubeconfigFlag, deployFolder, functionName, namespaceFl
 	return nil
 }
 
-func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, namespaceFlag string) error {
+func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, namespaceFlag string, plugins map[string]s.Plugin) error {
 	deployFolder     := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYamlName := deployFolder + "function.yml"
 	ingressYamlName  := deployFolder + "ingress.yml"
@@ -218,6 +211,18 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 
 	if err := serviceYaml.CreateYamlFile(serviceYamlName); err != nil {
 		return err
+	}
+
+	for pluginName := range plugins {
+		pluginYamlName := deployFolder + pluginName + ".yml"
+		var pluginYaml d.K8sYaml
+		if err := pluginYaml.MountKongPlugin(functionName, pluginName); err != nil {
+			return err
+		}
+
+		if err := pluginYaml.CreateYamlFile(pluginYamlName); err != nil {
+			return err
+		}
 	}
 
 	if len(swaggerFile) > 1 {

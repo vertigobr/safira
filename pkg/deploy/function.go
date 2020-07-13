@@ -3,7 +3,6 @@
 package deploy
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/vertigobr/safira/pkg/config"
@@ -136,11 +135,6 @@ func getRequestsConfig(stack *s.Stack, functionName string) (cpu, memory string)
 func getFunctionEnvironment(stack *s.Stack, functionName string) map[string]interface{} {
 	envFunction := stack.Functions[functionName].FunctionConfig.Environments
 	envStack    := stack.StackConfig.Environments
-
-	fmt.Println(envFunction)
-	fmt.Println(envStack)
-	fmt.Println(len(envFunction))
-	fmt.Println(len(envStack))
 
 	if len(envFunction) > 0 {
 		return envFunction
