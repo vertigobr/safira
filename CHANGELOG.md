@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version v0.0.8 - 2020-07-17
+
+Features:
+
+- Added kong plugin declaration on stack.yml
+
+Improvements:
+
+- Removed the kong command
+
 ## Version v0.0.8 - 2020-07-10
 
 Features:
