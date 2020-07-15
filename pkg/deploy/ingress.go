@@ -33,16 +33,16 @@ type ingressBackend struct {
 	ServicePort int    `yaml:"servicePort,omitempty"`
 }
 
-func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostnameFlag string) error {
-	stack, err := s.LoadStackFile()
+func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostname, env string) error {
+	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}
 
 	var port int
 	var gateway string
-	if len(hostnameFlag) > 1 {
-		gateway, port, err = getGatewayPort(hostnameFlag)
+	if len(hostname) > 1 {
+		gateway, port, err = getGatewayPort(hostname)
 	} else {
 		gateway, port, err = getGatewayPort(stack.Hostname)
 	}

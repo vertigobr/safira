@@ -34,10 +34,11 @@ or if you want to deploy the Docker image of all the functions, execute:
 func init() {
 	functionCmd.AddCommand(functionDeployCmd)
 	functionDeployCmd.Flags().Bool("update", false, "force the deploy to pull a new image (Default: false)")
+	functionDeployCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
 	functionDeployCmd.Flags().String("kubeconfig", "", "set kubeconfig to deploy")
 	functionDeployCmd.Flags().String("hostname", "", "set hostname to deploy")
 	functionDeployCmd.Flags().StringP("namespace", "n", "", fmt.Sprintf("set namespace to deploy (Default: %s)", functionsNamespace))
-	functionDeployCmd.Flags().BoolP("all-functions", "A", false, "deploy all functions")
+	functionDeployCmd.Flags().StringP("env", "e", "", "Set stack env file")
 }
 
 func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {
@@ -53,10 +54,11 @@ func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
+	all, _ := cmd.Flags().GetBool("all-functions")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
 	hostnameFlag, _ := cmd.Flags().GetString("hostname")
 	namespaceFlag, _ := cmd.Flags().GetString("namespace")
-	all, _ := cmd.Flags().GetBool("all-functions")
+	envFlag, _ := cmd.Flags().GetString("env")
 
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
@@ -68,7 +70,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	kubectlPath := config.GetKubectlPath()
-	stack, err := s.LoadStackFile()
+	stack, err := s.LoadStackFile(envFlag)
 	if err != nil {
 		return err
 	}
@@ -77,7 +79,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	if all {
 		for index := range functions {
 			swaggerFile := checkSwaggerFileExist(functions[index].Handler)
-			if err := checkDeployFiles(index, functions[index].Handler, swaggerFile, hostnameFlag, namespaceFlag, functions[index].Plugins); err!= nil {
+			if err := checkDeployFiles(index, functions[index].Handler, swaggerFile, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins); err!= nil {
 				return err
 			}
 
@@ -91,7 +93,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 			if checkFunctionExists(args[index], functions) {
 				swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler)
 
-				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, swaggerFile, hostnameFlag, namespaceFlag, functions[functionArg].Plugins); err!= nil {
+				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, swaggerFile, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins); err!= nil {
 					return err
 				}
 
@@ -173,7 +175,7 @@ func deploy(kubectlPath, kubeconfigFlag, deployFolder, functionName, namespaceFl
 	return nil
 }
 
-func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, namespaceFlag string, plugins map[string]s.Plugin) error {
+func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin) error {
 	deployFolder     := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYamlName := deployFolder + "function.yml"
 	ingressYamlName  := deployFolder + "ingress.yml"
@@ -187,7 +189,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 	}
 
 	var functionYaml d.K8sYaml
-	if err := functionYaml.MountFunction(functionName, getNamespaceDeploy(namespaceFlag)); err != nil {
+	if err := functionYaml.MountFunction(functionName, getNamespaceDeploy(namespaceFlag), envFlag); err != nil {
 		return err
 	}
 
@@ -196,7 +198,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 	}
 
 	var ingressYaml d.K8sYaml
-	if err := ingressYaml.MountIngress(functionName, functionName, functionPath, hostnameFlag); err != nil {
+	if err := ingressYaml.MountIngress(functionName, functionName, functionPath, hostnameFlag, envFlag); err != nil {
 		return err
 	}
 
@@ -205,7 +207,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 	}
 
 	var serviceYaml d.K8sYaml
-	if err := serviceYaml.MountService(functionName, hostnameFlag, true); err != nil {
+	if err := serviceYaml.MountService(functionName, hostnameFlag, envFlag, true); err != nil {
 		return err
 	}
 
@@ -216,7 +218,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 	for pluginName := range plugins {
 		pluginYamlName := deployFolder + pluginName + ".yml"
 		var pluginYaml d.K8sYaml
-		if err := pluginYaml.MountKongPlugin(functionName, pluginName); err != nil {
+		if err := pluginYaml.MountKongPlugin(functionName, pluginName, envFlag); err != nil {
 			return err
 		}
 
@@ -243,7 +245,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 		}
 
 		var swaggerIngressYaml d.K8sYaml
-		if err := swaggerIngressYaml.MountIngress(swaggerUIName, swaggerUIName, swaggerPath, hostnameFlag); err != nil {
+		if err := swaggerIngressYaml.MountIngress(swaggerUIName, swaggerUIName, swaggerPath, hostnameFlag, envFlag); err != nil {
 			return err
 		}
 
@@ -252,7 +254,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 		}
 
 		var swaggerServiceYaml d.K8sYaml
-		if err := swaggerServiceYaml.MountService(swaggerUIName, hostnameFlag, false); err != nil {
+		if err := swaggerServiceYaml.MountService(swaggerUIName, hostnameFlag, envFlag, false); err != nil {
 			return err
 		}
 

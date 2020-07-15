@@ -9,7 +9,7 @@ import (
 )
 
 func RemoveFunction(functionName string, verboseFlag bool) error {
-	stack, err := LoadStackFile()
+	stack, err := LoadStackFile("")
 	if err != nil {
 		return err
 	}

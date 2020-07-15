@@ -1,7 +1,7 @@
 package stack
 
 func GetAllFunctions() (map[string]Function, error) {
-	stack, err := LoadStackFile()
+	stack, err := LoadStackFile("")
 	if err != nil {
 		return nil, err
 	}

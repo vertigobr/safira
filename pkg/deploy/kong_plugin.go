@@ -6,8 +6,8 @@ import (
 	s "github.com/vertigobr/safira/pkg/stack"
 )
 
-func (k *K8sYaml) MountKongPlugin(functionName, pluginName string) error {
-	stack, err := s.LoadStackFile()
+func (k *K8sYaml) MountKongPlugin(functionName, pluginName, env string) error {
+	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}

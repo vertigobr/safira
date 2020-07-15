@@ -5,6 +5,7 @@
 Features:
 
 - Added kong plugin declaration on stack.yml
+- Enabled creation of files from different environments
 
 Improvements:
 

@@ -19,15 +19,15 @@ type servicePort struct {
 	TargetPort int    `yaml:"targetPort,omitempty"`
 }
 
-func (k *K8sYaml) MountService(serviceName, hostnameFlag string, function bool) error {
-	stack, err := s.LoadStackFile()
+func (k *K8sYaml) MountService(serviceName, hostname, env string, function bool) error {
+	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}
 
 	var p int
-	if len(hostnameFlag) > 1 {
-		_, p, err = getGatewayPort(hostnameFlag)
+	if len(hostname) > 1 {
+		_, p, err = getGatewayPort(hostname)
 	} else {
 		_, p, err = getGatewayPort(stack.Hostname)
 	}

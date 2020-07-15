@@ -24,8 +24,8 @@ type cpuMemory struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
-func (k *K8sYaml) MountFunction(functionName, namespace string) error {
-	stack, err := s.LoadStackFile()
+func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
+	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}

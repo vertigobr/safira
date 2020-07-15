@@ -9,7 +9,7 @@ import (
 	y "gopkg.in/yaml.v2"
 )
 
-func LoadStackFile() (*Stack, error) {
+func LoadStackFile(envFile string) (*Stack, error) {
 	var stack Stack
 	yamlBytes, err := ParseYAMLForLanguageTemplate(GetYamlFileName())
 	if err != nil {
@@ -19,6 +19,23 @@ func LoadStackFile() (*Stack, error) {
 	err = y.Unmarshal(yamlBytes, &stack)
 	if err != nil {
 		return nil, fmt.Errorf("error ao executar o unmarshalling para o arquivo %s: %s", GetYamlFileName(), err.Error())
+	}
+
+	if len(envFile) > 0 {
+		var envStack Stack
+		yamlBytes, err = ParseYAMLForLanguageTemplate(envFile)
+		if err != nil {
+			return nil, err
+		}
+
+		err = y.Unmarshal(yamlBytes, &envStack)
+		if err != nil {
+			return nil, fmt.Errorf("error ao executar o unmarshalling para o arquivo %s: %s", GetYamlFileName(), err.Error())
+		}
+
+		if err := prepareStack(&stack, &envStack); err != nil {
+			return nil, err
+		}
 	}
 
 	return &stack, nil
