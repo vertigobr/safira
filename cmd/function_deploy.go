@@ -218,7 +218,7 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 	for pluginName := range plugins {
 		pluginYamlName := deployFolder + pluginName + ".yml"
 		var pluginYaml d.K8sYaml
-		if err := pluginYaml.MountKongPlugin(functionName, pluginName, envFlag); err != nil {
+		if err := pluginYaml.MountKongPlugin(functionName, pluginName, functionsNamespace, envFlag); err != nil {
 			return err
 		}
 

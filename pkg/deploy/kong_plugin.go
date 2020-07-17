@@ -3,23 +3,25 @@
 package deploy
 
 import (
+	"fmt"
+
 	s "github.com/vertigobr/safira/pkg/stack"
 )
 
-func (k *K8sYaml) MountKongPlugin(functionName, pluginName, env string) error {
+func (k *K8sYaml) MountKongPlugin(functionName, pluginName, namespace, env string) error {
 	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}
 
-	kind := getKingKongPlugin(stack.Functions[functionName].Plugins[pluginName].Type)
-	metadataName := functionName + "-" + pluginName
+	metadataName := fmt.Sprintf("%s-%s", functionName, pluginName)
 
 	*k = K8sYaml{
 		ApiVersion: "configuration.konghq.com/v1",
-		Kind:       kind,
+		Kind:       "KongPlugin",
 		Metadata: metadata{
 			Name: metadataName,
+			Namespace: namespace,
 			Labels: map[string]string{
 				"global": stack.Functions[functionName].Plugins[pluginName].Global,
 			},
@@ -30,14 +32,4 @@ func (k *K8sYaml) MountKongPlugin(functionName, pluginName, env string) error {
 	}
 
 	return nil
-}
-
-func getKingKongPlugin(pluginType string) (kind string) {
-	if pluginType == "cluster" || pluginType == "cluster-plugin" {
-		kind = "KongClusterPlugin"
-	} else {
-		kind = "KongPlugin"
-	}
-
-	return
 }
