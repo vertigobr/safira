@@ -1,6 +1,12 @@
 # Release Notes
 
-## Version v0.0.8 - 2020-07-17
+## Version v0.0.10 - 2020-07-24
+
+Improvements:
+
+- Flag added to remove the function folder from the `safira function remove` command
+
+## Version v0.0.9 - 2020-07-17
 
 Features:
 

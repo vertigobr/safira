@@ -8,7 +8,7 @@ import (
 	y "gopkg.in/yaml.v2"
 )
 
-func RemoveFunction(functionName string, verboseFlag bool) error {
+func RemoveFunction(functionName string, removeFolder, verboseFlag bool) error {
 	stack, err := LoadStackFile("")
 	if err != nil {
 		return err
@@ -26,7 +26,13 @@ func RemoveFunction(functionName string, verboseFlag bool) error {
 		fmt.Println("[+] Removing function from project")
 	}
 
-	functionPath := stack.Functions[functionName].Handler
+	if removeFolder {
+		functionPath := stack.Functions[functionName].Handler
+		if err := os.RemoveAll(functionPath); err != nil {
+			return fmt.Errorf("error removing folder from function %s", functionName)
+		}
+	}
+
 	delete(stack.Functions, functionName)
 
 	yamlBytes, err := y.Marshal(&stack)
@@ -36,10 +42,6 @@ func RemoveFunction(functionName string, verboseFlag bool) error {
 
 	if err := utils.CreateYamlFile(GetYamlFileName(), yamlBytes, true); err != nil {
 		return err
-	}
-
-	if err := os.RemoveAll(functionPath); err != nil {
-		return fmt.Errorf("error removing folder from function %s", functionName)
 	}
 
 	return nil

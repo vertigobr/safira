@@ -21,12 +21,14 @@ var functionRemoveCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(functionRemoveCmd)
+	functionRemoveCmd.Flags().BoolP("remove-folder", "R", false, "remove folder from function")
 }
 
 func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	removeFolderFlag, _ := cmd.Flags().GetBool("remove-folder")
 
-	if err := stack.RemoveFunction(args[0], verboseFlag); err != nil {
+	if err := stack.RemoveFunction(args[0], removeFolderFlag, verboseFlag); err != nil {
 		return err
 	}
 
