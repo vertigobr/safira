@@ -5,18 +5,23 @@ package deploy
 import (
 	"fmt"
 
-	y "gopkg.in/yaml.v2"
-
+	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
+	y "gopkg.in/yaml.v2"
 )
 
 // Yaml file structure
 type K8sYaml struct {
-	ApiVersion string            `yaml:"apiVersion,omitempty"`
-	Kind       string            `yaml:"kind,omitempty"`
-	Metadata   metadata          `yaml:"metadata,omitempty"`
-	Spec       interface{}       `yaml:"spec,omitempty"`
-	Data       map[string]string `yaml:"data,omitempty"`
+	ApiVersion string             `yaml:"apiVersion,omitempty"`
+	Kind       string             `yaml:"kind,omitempty"`
+	Metadata   metadata           `yaml:"metadata,omitempty"`
+	Spec       interface{}        `yaml:"spec,omitempty"`
+	Data       map[string]string  `yaml:"data,omitempty"`
+
+	// Kong Plugin
+	Config     map[string]interface{}  `yaml:"config,omitempty"`
+	ConfigFrom s.ConfigFromPlugin `yaml:"configFrom,omitempty"`
+	Plugin     string             `yaml:"plugin,omitempty"`
 }
 
 type metadata struct {

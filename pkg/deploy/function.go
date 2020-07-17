@@ -3,7 +3,6 @@
 package deploy
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/vertigobr/safira/pkg/config"
@@ -25,8 +24,8 @@ type cpuMemory struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
-func (k *K8sYaml) MountFunction(functionName, namespace string) error {
-	stack, err := s.LoadStackFile()
+func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
+	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}
@@ -136,11 +135,6 @@ func getRequestsConfig(stack *s.Stack, functionName string) (cpu, memory string)
 func getFunctionEnvironment(stack *s.Stack, functionName string) map[string]interface{} {
 	envFunction := stack.Functions[functionName].FunctionConfig.Environments
 	envStack    := stack.StackConfig.Environments
-
-	fmt.Println(envFunction)
-	fmt.Println(envStack)
-	fmt.Println(len(envFunction))
-	fmt.Println(len(envStack))
 
 	if len(envFunction) > 0 {
 		return envFunction

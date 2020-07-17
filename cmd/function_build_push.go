@@ -28,8 +28,9 @@ or if you want to build and push the Docker image of all the functions, execute:
 
 func init() {
 	functionCmd.AddCommand(functionBuildPushCmd)
-	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "pushes all Docker images from functions to the registry")
 	functionBuildPushCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
+	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "pushes all Docker images from functions to the registry")
+	functionBuildPushCmd.Flags().StringP("env", "e", "", "Set stack env file")
 }
 
 func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {
@@ -45,8 +46,9 @@ func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {
 func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
 	all, _ := cmd.Flags().GetBool("all-functions")
+	envFlag, _ := cmd.Flags().GetString("env")
 
-	stack, err := s.LoadStackFile()
+	stack, err := s.LoadStackFile(envFlag)
 	if err != nil {
 		return err
 	}

@@ -33,16 +33,16 @@ type ingressBackend struct {
 	ServicePort int    `yaml:"servicePort,omitempty"`
 }
 
-func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostnameFlag string) error {
-	stack, err := s.LoadStackFile()
+func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostname, env string) error {
+	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
 	}
 
 	var port int
 	var gateway string
-	if len(hostnameFlag) > 1 {
-		gateway, port, err = getGatewayPort(hostnameFlag)
+	if len(hostname) > 1 {
+		gateway, port, err = getGatewayPort(hostname)
 	} else {
 		gateway, port, err = getGatewayPort(stack.Hostname)
 	}
@@ -51,11 +51,14 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostnameFlag stri
 		return err
 	}
 
+	annotations := GetIngressAnnotations(ingressName, stack.Functions)
+
 	*k = K8sYaml{
 		ApiVersion: "extensions/v1beta1",
 		Kind:       "Ingress",
 		Metadata: metadata{
 			Name: ingressName,
+			Annotations: annotations,
 		},
 		Spec: ingressSpec{
 			Rules: []ingressRule{
@@ -97,4 +100,20 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	}
 
 	return
+}
+
+func GetIngressAnnotations(ingressName string, functions map[string]s.Function) map[string]string {
+	annotations := make(map[string]string)
+
+	for functionName, function := range functions {
+		if functionName == ingressName {
+			for pluginName, plugin := range function.Plugins {
+				if plugin.Type == "ingress" {
+					annotations["plugins.konghq.com"] = fmt.Sprintf("%s-%s", functionName, pluginName)
+				}
+			}
+		}
+	}
+
+	return annotations
 }

@@ -30,6 +30,7 @@ or if you want to push the Docker image of all the functions, execute:
 func init() {
 	functionCmd.AddCommand(functionPushCmd)
 	functionPushCmd.Flags().BoolP("all-functions", "A", false, "push all function Docker images")
+	functionPushCmd.Flags().StringP("env", "e", "", "Set stack env file")
 }
 
 func preRunFunctionPush(cmd *cobra.Command, args []string) error {
@@ -44,8 +45,9 @@ func preRunFunctionPush(cmd *cobra.Command, args []string) error {
 
 func runFunctionPush(cmd *cobra.Command, args []string) error {
 	all, _ := cmd.Flags().GetBool("all-functions")
+	envFlag, _ := cmd.Flags().GetString("env")
 
-	stack, err := s.LoadStackFile()
+	stack, err := s.LoadStackFile(envFlag)
 	if err != nil {
 		return err
 	}

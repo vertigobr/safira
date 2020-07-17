@@ -9,7 +9,7 @@ import (
 )
 
 func AppendFunction(function Function) error {
-	stack, err := LoadStackFile()
+	stack, err := LoadStackFile("")
 	if err != nil {
 		return err
 	}
