@@ -11,7 +11,7 @@ import (
 )
 
 type ingressSpec struct {
-	Rules []ingressRule  `yaml:"rules,omitempty"`
+	Rules []ingressRule `yaml:"rules,omitempty"`
 }
 
 type ingressRule struct {
@@ -57,7 +57,7 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostname, env str
 		ApiVersion: "extensions/v1beta1",
 		Kind:       "Ingress",
 		Metadata: metadata{
-			Name: ingressName,
+			Name:        ingressName,
 			Annotations: annotations,
 		},
 		Spec: ingressSpec{
@@ -94,9 +94,14 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 
 	split := strings.Split(gateway, ":")
 	gateway = split[0]
-	port, err = strconv.Atoi(split[1])
-	if err != nil {
-		return "", 0, fmt.Errorf("error ao identificar a porta do hostname: %s", err.Error())
+
+	if len(split) > 1 {
+		port, err = strconv.Atoi(split[1])
+		if err != nil {
+			return "", 0, fmt.Errorf("error ao identificar a porta do hostname: %s", err.Error())
+		}
+	} else {
+		port = 8080
 	}
 
 	return
