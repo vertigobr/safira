@@ -8,6 +8,7 @@ import (
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
 )
 
 type functionSpec struct {
@@ -35,12 +36,21 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
 	cpuRequests, memoryRequests := getRequestsConfig(stack, functionName)
 	environments := getFunctionEnvironment(stack, functionName)
 
+	repoName, err := utils.GetCurrentFolder()
+	if err != nil {
+		return err
+	}
+
 	*k = K8sYaml{
 		ApiVersion: "openfaas.com/v1",
 		Kind:       "Function",
 		Metadata: metadata{
 			Name:      functionName,
 			Namespace: namespace,
+			Annotations: map[string]string{
+				"safira.io/repository": repoName,
+				"safira.io/function":   functionName,
+			},
 		},
 		Spec: functionSpec{
 			Name:  functionName,
@@ -48,7 +58,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
 			Labels: map[string]string{
 				"com.openfaas.scale.min": scaleMin,
 				"com.openfaas.scale.max": scaleMax,
-				"function": functionName,
+				"function":               functionName,
 			},
 			Environments: environments,
 			Limits: cpuMemory{
@@ -72,8 +82,8 @@ func CheckFunction(clusterName, functionName, namespace string) (bool, error) {
 	}
 
 	taskCheckFunction := execute.Task{
-		Command:     config.GetKubectlPath(),
-		Args:        []string{
+		Command: config.GetKubectlPath(),
+		Args: []string{
 			"get", "deployments", "-n", namespace,
 		},
 		StreamStdio:  false,
@@ -134,7 +144,7 @@ func getRequestsConfig(stack *s.Stack, functionName string) (cpu, memory string)
 
 func getFunctionEnvironment(stack *s.Stack, functionName string) map[string]interface{} {
 	envFunction := stack.Functions[functionName].FunctionConfig.Environments
-	envStack    := stack.StackConfig.Environments
+	envStack := stack.StackConfig.Environments
 
 	if len(envFunction) > 0 {
 		return envFunction

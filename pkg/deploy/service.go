@@ -4,6 +4,7 @@ package deploy
 
 import (
 	"fmt"
+	"github.com/vertigobr/safira/pkg/utils"
 
 	s "github.com/vertigobr/safira/pkg/stack"
 )
@@ -39,13 +40,16 @@ func (k *K8sYaml) MountService(serviceName, hostname, env string, isFunction boo
 	}
 
 	spec := getServiceSpec(serviceName, port, isFunction)
-	annotations := getServiceMetadata(serviceName, stack.Functions, isFunction)
+	annotations, err := getServiceAnnotations(serviceName, stack.Functions, isFunction)
+	if err != nil {
+		return err
+	}
 
 	*k = K8sYaml{
 		ApiVersion: "v1",
 		Kind:       "Service",
 		Metadata: metadata{
-			Name:   serviceName,
+			Name: serviceName,
 			Labels: map[string]string{
 				"app": serviceName,
 			},
@@ -60,7 +64,7 @@ func (k *K8sYaml) MountService(serviceName, hostname, env string, isFunction boo
 func getServiceSpec(serviceName string, port int, isFunction bool) (spec serviceSpec) {
 	if isFunction {
 		spec = serviceSpec{
-			Type: "ExternalName",
+			Type:         "ExternalName",
 			ExternalName: "gateway",
 			Ports: []servicePort{
 				{
@@ -76,8 +80,8 @@ func getServiceSpec(serviceName string, port int, isFunction bool) (spec service
 			},
 			Ports: []servicePort{
 				{
-					Protocol: "TCP",
-					Port: 80,
+					Protocol:   "TCP",
+					Port:       80,
 					TargetPort: 8080,
 				},
 			},
@@ -87,7 +91,7 @@ func getServiceSpec(serviceName string, port int, isFunction bool) (spec service
 	return
 }
 
-func getServiceMetadata(serviceName string, functions map[string]s.Function, isFunction bool) map[string]string {
+func getServiceAnnotations(serviceName string, functions map[string]s.Function, isFunction bool) (map[string]string, error) {
 	annotations := make(map[string]string)
 
 	if isFunction {
@@ -95,12 +99,20 @@ func getServiceMetadata(serviceName string, functions map[string]s.Function, isF
 			if functionName == serviceName {
 				for pluginName, plugin := range function.Plugins {
 					if len(plugin.Type) == 0 || plugin.Type == "service" {
-						annotations["plugins.konghq.com"] = fmt.Sprintf("%s-%s", functionName, pluginName)
+						annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", functionName, pluginName)
 					}
 				}
 			}
 		}
 	}
 
-	return annotations
+	repoName, err := utils.GetCurrentFolder()
+	if err != nil {
+		return nil, err
+	}
+
+	annotations["safira.io/repository"] = repoName
+	annotations["safira.io/function"] = serviceName
+
+	return annotations, nil
 }

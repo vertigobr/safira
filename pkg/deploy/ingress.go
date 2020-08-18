@@ -4,6 +4,7 @@ package deploy
 
 import (
 	"fmt"
+	"github.com/vertigobr/safira/pkg/utils"
 	"strconv"
 	"strings"
 
@@ -51,7 +52,10 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostname, env str
 		return err
 	}
 
-	annotations := GetIngressAnnotations(ingressName, stack.Functions)
+	annotations, err := GetIngressAnnotations(ingressName, stack.Functions)
+	if err != nil {
+		return err
+	}
 
 	*k = K8sYaml{
 		ApiVersion: "extensions/v1beta1",
@@ -107,18 +111,26 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	return
 }
 
-func GetIngressAnnotations(ingressName string, functions map[string]s.Function) map[string]string {
+func GetIngressAnnotations(ingressName string, functions map[string]s.Function) (map[string]string, error) {
 	annotations := make(map[string]string)
 
 	for functionName, function := range functions {
 		if functionName == ingressName {
 			for pluginName, plugin := range function.Plugins {
 				if plugin.Type == "ingress" {
-					annotations["plugins.konghq.com"] = fmt.Sprintf("%s-%s", functionName, pluginName)
+					annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", functionName, pluginName)
 				}
 			}
 		}
 	}
 
-	return annotations
+	repoName, err := utils.GetCurrentFolder()
+	if err != nil {
+		return nil, err
+	}
+
+	annotations["safira.io/repository"] = repoName
+	annotations["safira.io/function"] = ingressName
+
+	return annotations, err
 }
