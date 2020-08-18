@@ -2,6 +2,10 @@
 
 ## Version v0.0.10 - 2020-07-24
 
+Features:
+
+- Added a new command in CLI to itself upgrade: `safira upgrade`
+
 Improvements:
 
 - Flag added to remove the function folder from the `safira function remove` command

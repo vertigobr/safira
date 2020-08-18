@@ -4,19 +4,19 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/stack"
 
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/stack"
 )
 
 var functionRemoveCmd = &cobra.Command{
-	Use:     "remove",
-	Short:   "Removes the function from the project",
-	Long:    "Removes the function from the project",
+	Use:   "remove",
+	Short: "Removes the function from the project",
+	Long:  "Removes the function from the project",
 	Example: `To remove the function from the project, run:
 
-    $ safira function undeploy function-name`,
-	RunE:    runFunctionRemove,
+    $ safira function remove function-name`,
+	RunE: runFunctionRemove,
 }
 
 func init() {
