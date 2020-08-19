@@ -17,14 +17,14 @@ import (
 )
 
 var functionNewCmd = &cobra.Command{
-	Use:     "new [FUNCTION_NAME] --lang=[FUNCTION_LANGUAGE or TEMPLATE_NAME]",
-	Short:   "Creates a new function",
-	Long:    "Creates a new hello-world function based on the inserted language",
+	Use:   "new [FUNCTION_NAME] --lang=[FUNCTION_LANGUAGE or TEMPLATE_NAME]",
+	Short: "Creates a new function",
+	Long:  "Creates a new hello-world function based on the inserted language",
 	Example: `to create a new function, run:
 
     $ safira function new project-name --lang=template-name`,
-	PreRunE: preRunFunctionNew,
-	RunE:    runFunctionNew,
+	PreRunE:                    preRunFunctionNew,
+	RunE:                       runFunctionNew,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -105,8 +105,12 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if _, err = os.Stat(".gitlab-ci.yml"); err != nil {
-		if err := ci.CreateFile(); err != nil {
+	if _, err = os.Stat(ci.GitlabCiFileName); err != nil {
+		if err := ci.CreateFile(functionName); err != nil {
+			return err
+		}
+	} else {
+		if err := ci.AppendFunction(functionName); err != nil {
 			return err
 		}
 	}
@@ -122,8 +126,8 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 
 func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) error {
 	taskCreateFunction := execute.Task{
-		Command:     faasCliPath,
-		Args:        []string{
+		Command: faasCliPath,
+		Args: []string{
 			"new", functionName,
 			"--lang", lang,
 			"--gateway", "http://gateway.ipaas.localdomain:8080",
