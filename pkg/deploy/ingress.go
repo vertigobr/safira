@@ -129,6 +129,7 @@ func GetIngressAnnotations(ingressName string, functions map[string]s.Function) 
 		return nil, err
 	}
 
+	annotations["kubernetes.io/ingress.class"] = "kong"
 	annotations["safira.io/repository"] = repoName
 	annotations["safira.io/function"] = ingressName
 

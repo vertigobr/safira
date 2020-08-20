@@ -11,11 +11,12 @@ Improvements:
 - Flag added to remove the function folder from the `safira function remove` command
 - Added new annotations in function deploy
 - Added to the deployment and undeploy jobs pipeline when a new function is created
+- Added ingress class in function deploy
 
 Bug Fixes:
 
 - Fixed error when hostname port was not declared in stack.yaml
-- Fix deploy Kong Plugin
+- Fix namespace Kong Plugin deploy
 
 ## Version v0.0.9 - 2020-07-17
 
