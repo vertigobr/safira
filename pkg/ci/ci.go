@@ -17,9 +17,9 @@ type GitlabCi struct {
 	BeforeScript []string `yaml:"before_script,omitempty"`
 	Publish      Job      `yaml:"publish,omitempty"`
 	Deploy       Job      `yaml:"deploy,omitempty"`
-	Undeploy     Job      `yaml:"undeploy,omitempty"`
+	//Undeploy     Job      `yaml:"undeploy,omitempty"`
 }
 
-type FunctionsJobs struct {
-	Jobs map[string]Job `yaml:",inline"`
-}
+//type FunctionsJobs struct {
+//	Jobs map[string]Job `yaml:",inline"`
+//}

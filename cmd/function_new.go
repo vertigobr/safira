@@ -106,14 +106,14 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 	}
 
 	if _, err = os.Stat(ci.GitlabCiFileName); err != nil {
-		if err := ci.CreateFile(functionName); err != nil {
+		if err := ci.CreateFile(); err != nil {
 			return err
 		}
-	} else {
-		if err := ci.AppendFunction(functionName); err != nil {
-			return err
-		}
-	}
+	} // else {
+	//	if err := ci.AppendFunction(functionName); err != nil {
+	//		return err
+	//	}
+	//}
 
 	if err := createFunction(faasCliPath, functionName, flagLang, verboseFlag); err != nil {
 		return err
