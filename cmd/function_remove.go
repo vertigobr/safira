@@ -4,29 +4,31 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/stack"
 
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/stack"
 )
 
 var functionRemoveCmd = &cobra.Command{
-	Use:     "remove",
-	Short:   "Removes the function from the project",
-	Long:    "Removes the function from the project",
+	Use:   "remove",
+	Short: "Removes the function from the project",
+	Long:  "Removes the function from the project",
 	Example: `To remove the function from the project, run:
 
-    $ safira function undeploy function-name`,
-	RunE:    runFunctionRemove,
+    $ safira function remove function-name`,
+	RunE: runFunctionRemove,
 }
 
 func init() {
 	functionCmd.AddCommand(functionRemoveCmd)
+	functionRemoveCmd.Flags().BoolP("remove-folder", "R", false, "remove folder from function")
 }
 
 func runFunctionRemove(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+	removeFolderFlag, _ := cmd.Flags().GetBool("remove-folder")
 
-	if err := stack.RemoveFunction(args[0], verboseFlag); err != nil {
+	if err := stack.RemoveFunction(args[0], removeFolderFlag, verboseFlag); err != nil {
 		return err
 	}
 

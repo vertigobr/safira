@@ -1,6 +1,23 @@
 # Release Notes
 
-## Version v0.0.8 - 2020-07-17
+## Version v0.0.10 - 2020-08-21
+
+Features:
+
+- Added a new command in CLI to itself upgrade: `safira upgrade`
+
+Improvements:
+
+- Flag added to remove the function folder from the `safira function remove` command
+- Added new annotations in function deploy
+- Added ingress class in function deploy
+
+Bug Fixes:
+
+- Fixed error when hostname port was not declared in stack.yaml
+- Fix namespace Kong Plugin deploy
+
+## Version v0.0.9 - 2020-07-17
 
 Features:
 
