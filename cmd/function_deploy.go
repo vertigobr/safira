@@ -13,12 +13,13 @@ import (
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
 )
 
 var functionDeployCmd = &cobra.Command{
-	Use:     "deploy [FUNCTION_NAME]",
-	Short:   "Deploy functions",
-	Long:    "Deploy functions",
+	Use:   "deploy [FUNCTION_NAME]",
+	Short: "Deploy functions",
+	Long:  "Deploy functions",
 	Example: `If you want to deploy a function's Docker image, run:
 
     $ safira function deploy function-name
@@ -26,8 +27,8 @@ var functionDeployCmd = &cobra.Command{
 or if you want to deploy the Docker image of all the functions, execute:
 
     $ safira function deploy -A`,
-	PreRunE: preRunFunctionDeploy,
-	RunE:    runFunctionDeploy,
+	PreRunE:                    preRunFunctionDeploy,
+	RunE:                       runFunctionDeploy,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -78,8 +79,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	functions := stack.Functions
 	if all {
 		for index := range functions {
-			swaggerFile := checkSwaggerFileExist(functions[index].Handler)
-			if err := checkDeployFiles(index, functions[index].Handler, swaggerFile, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins); err!= nil {
+			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins); err != nil {
 				return err
 			}
 
@@ -91,9 +91,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-				swaggerFile := checkSwaggerFileExist(functions[functionArg].Handler)
 
-				if err := checkDeployFiles(functionArg, functions[functionArg].Handler, swaggerFile, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins); err!= nil {
+				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins); err != nil {
 					return err
 				}
 
@@ -112,6 +111,12 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 			if err := deploy(kubectlPath, kubeconfigFlag, path, "", namespaceFlag, verboseFlag, updateFlag); err != nil {
 				return err
 			}
+		}
+	}
+
+	if swaggerFile := checkSwaggerFileExist(); len(swaggerFile) > 1 {
+		if err := deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfigFlag, envFlag, verboseFlag); err != nil {
+			return err
 		}
 	}
 
@@ -147,8 +152,8 @@ func deploy(kubectlPath, kubeconfigFlag, deployFolder, functionName, namespaceFl
 	}
 
 	taskDeploy := execute.Task{
-		Command:     kubectlPath,
-		Args:        []string{
+		Command: kubectlPath,
+		Args: []string{
 			"apply", "--wait",
 			"--kubeconfig", kubeconfig,
 			"-f", deployFolder,
@@ -175,12 +180,12 @@ func deploy(kubectlPath, kubeconfigFlag, deployFolder, functionName, namespaceFl
 	return nil
 }
 
-func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin) error {
-	deployFolder     := fmt.Sprintf("./deploy/%s/", functionName)
+func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin) error {
+	deployFolder := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYamlName := deployFolder + "function.yml"
-	ingressYamlName  := deployFolder + "ingress.yml"
-	serviceYamlName  := deployFolder + "service.yml"
-	functionPath     := fmt.Sprintf("/function/%s", functionName)
+	ingressYamlName := deployFolder + "ingress.yml"
+	serviceYamlName := deployFolder + "service.yml"
+	functionPath := fmt.Sprintf("/function/%s", functionName)
 
 	if _, err := os.Stat(deployFolder); err != nil {
 		if err = os.MkdirAll(deployFolder, 0700); err != nil {
@@ -227,58 +232,13 @@ func checkDeployFiles(functionName, functionHandler, swaggerFile, hostnameFlag, 
 		}
 	}
 
-	if len(swaggerFile) > 1 {
-		deploymentSwaggerUIYaml := deployFolder + "swagger-ui-deployment.yml"
-		ingressSwaggerUIYaml    := deployFolder + "swagger-ui-ingress.yml"
-		serviceSwaggerUIYaml    := deployFolder + "swagger-ui-service.yml"
-		configMapSwaggerUIYaml  := deployFolder + "swagger-ui-config-map.yml"
-		swaggerUIName           := fmt.Sprintf("%s-swagger-ui", functionName)
-		swaggerPath             := fmt.Sprintf("/swagger-ui/%s", functionName)
-
-		var swaggerDeploymentYaml d.K8sYaml
-		if err := swaggerDeploymentYaml.MountDeployment(swaggerUIName, "swaggerapi/swagger-ui:v3.24.3", swaggerPath); err != nil {
-			return err
-		}
-
-		if err := swaggerDeploymentYaml.CreateYamlFile(deploymentSwaggerUIYaml); err != nil {
-			return err
-		}
-
-		var swaggerIngressYaml d.K8sYaml
-		if err := swaggerIngressYaml.MountIngress(swaggerUIName, swaggerUIName, swaggerPath, hostnameFlag, envFlag); err != nil {
-			return err
-		}
-
-		if err := swaggerIngressYaml.CreateYamlFile(ingressSwaggerUIYaml); err != nil {
-			return err
-		}
-
-		var swaggerServiceYaml d.K8sYaml
-		if err := swaggerServiceYaml.MountService(swaggerUIName, hostnameFlag, envFlag, false); err != nil {
-			return err
-		}
-
-		if err := swaggerServiceYaml.CreateYamlFile(serviceSwaggerUIYaml); err != nil {
-			return err
-		}
-
-		var swaggerConfigMapYaml d.K8sYaml
-		if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, functionHandler + "/" + swaggerFile); err != nil {
-			return err
-		}
-
-		if err := swaggerConfigMapYaml.CreateYamlFile(configMapSwaggerUIYaml); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 func rolloutFunction(kubectlPath, kubeconfig, functionName, namespaceFlag string, verboseFlag bool) error {
 	taskRemoveFunction := execute.Task{
-		Command:     kubectlPath,
-		Args:        []string{
+		Command: kubectlPath,
+		Args: []string{
 			"rollout", "restart", "deployments", functionName,
 			"-n", getNamespaceDeploy(namespaceFlag),
 			"--kubeconfig", kubeconfig,
@@ -303,13 +263,94 @@ func rolloutFunction(kubectlPath, kubeconfig, functionName, namespaceFlag string
 	return nil
 }
 
-func checkSwaggerFileExist(handler string) string {
-	swaggerPath := filepath.Join(handler, "swagger.yml")
+func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag string, verboseFlag bool) error {
+	deployFolder := "./deploy/swagger-ui/"
+	repoName, err := utils.GetCurrentFolder()
+	if err != nil {
+		return err
+	}
+
+	deploymentSwaggerUIYaml := deployFolder + "swagger-ui-deployment.yml"
+	ingressSwaggerUIYaml := deployFolder + "swagger-ui-ingress.yml"
+	serviceSwaggerUIYaml := deployFolder + "swagger-ui-service.yml"
+	configMapSwaggerUIYaml := deployFolder + "swagger-ui-config-map.yml"
+	swaggerUIName := fmt.Sprintf("%s-swagger-ui", repoName)
+	swaggerPath := fmt.Sprintf("/swagger-ui/%s", repoName)
+
+	if _, err := os.Stat(deployFolder); err != nil {
+		if err = os.MkdirAll(deployFolder, 0700); err != nil {
+			return err
+		}
+	}
+
+	var swaggerDeploymentYaml d.K8sYaml
+	if err := swaggerDeploymentYaml.MountDeployment(swaggerUIName, "swaggerapi/swagger-ui:v3.24.3", swaggerPath); err != nil {
+		return err
+	}
+
+	if err := swaggerDeploymentYaml.CreateYamlFile(deploymentSwaggerUIYaml); err != nil {
+		return err
+	}
+
+	var swaggerIngressYaml d.K8sYaml
+	if err := swaggerIngressYaml.MountIngress(swaggerUIName, swaggerUIName, swaggerPath, hostnameFlag, envFlag); err != nil {
+		return err
+	}
+
+	if err := swaggerIngressYaml.CreateYamlFile(ingressSwaggerUIYaml); err != nil {
+		return err
+	}
+
+	var swaggerServiceYaml d.K8sYaml
+	if err := swaggerServiceYaml.MountService(swaggerUIName, hostnameFlag, envFlag, false); err != nil {
+		return err
+	}
+
+	if err := swaggerServiceYaml.CreateYamlFile(serviceSwaggerUIYaml); err != nil {
+		return err
+	}
+
+	var swaggerConfigMapYaml d.K8sYaml
+	if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, swaggerFile); err != nil {
+		return err
+	}
+
+	if err := swaggerConfigMapYaml.CreateYamlFile(configMapSwaggerUIYaml); err != nil {
+		return err
+	}
+
+	taskDeploySwaggerUi := execute.Task{
+		Command: kubectlPath,
+		Args: []string{
+			"apply", "--wait",
+			"--kubeconfig", kubeconfig,
+			"-f", deployFolder,
+		},
+		StreamStdio:  verboseFlag,
+		PrintCommand: verboseFlag,
+	}
+
+	fmt.Println("Executando deploy do Swagger UI...")
+
+	res, err := taskDeploySwaggerUi.Execute()
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf(res.Stderr)
+	}
+
+	return nil
+}
+
+func checkSwaggerFileExist() string {
+	swaggerPath := filepath.Join("swagger.yml")
 	if _, err := os.Stat(swaggerPath); err == nil {
 		return "swagger.yml"
 	}
 
-	swaggerPath = filepath.Join(handler, "swagger.yaml")
+	swaggerPath = filepath.Join("swagger.yaml")
 	if _, err := os.Stat(swaggerPath); err == nil {
 		return "swagger.yaml"
 	}
