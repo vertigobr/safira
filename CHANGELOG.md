@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version v0.0.11 - 2020-08-21
+
+Improvements:
+
+- Swagger spec move to repository scope
+
+Bug Fixes:
+
+- Fixed functions and plugins undeploy
+
 ## Version v0.0.10 - 2020-08-21
 
 Features:

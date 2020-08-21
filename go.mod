@@ -11,7 +11,7 @@ require (
 	github.com/subosito/gotenv v1.2.0
 	gopkg.in/gookit/color.v1 v1.1.6
 	gopkg.in/yaml.v2 v2.2.8
-	k8s.io/api v0.18.3
-	k8s.io/apimachinery v0.18.3
-	k8s.io/client-go v0.18.3
+	k8s.io/api v0.18.8
+	k8s.io/apimachinery v0.18.8
+	k8s.io/client-go v0.18.8
 )
