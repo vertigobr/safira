@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.12 - 2020-08-28
+
+Improvements:
+
+- Added update-template flag in `function build`
+
 ## Version v0.0.11 - 2020-08-21
 
 Improvements:
