@@ -30,7 +30,7 @@ func init() {
 	functionCmd.AddCommand(functionBuildPushCmd)
 	functionBuildPushCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
 	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "pushes all Docker images from functions to the registry")
-	functionBuildCmd.Flags().Bool("update-template", false, "update template")
+	functionBuildPushCmd.Flags().Bool("update-template", false, "update template")
 	functionBuildPushCmd.Flags().StringP("env", "e", "", "Set stack env file")
 }
 

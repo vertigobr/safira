@@ -4,12 +4,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/utils"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/k8s"
 	"github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
 )
 
 var functionUndeployCmd = &cobra.Command{
@@ -59,12 +59,12 @@ func runFunctionUndeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	if all {
-		for index, _ := range functions {
+		for index := range functions {
 			if err := removeFunction(index, namespaceFlag, kubeconfigFlag, verboseFlag); err != nil {
 				return err
 			}
 
-			for plugin, _ := range functions[index].Plugins {
+			for plugin := range functions[index].Plugins {
 				if err := removePlugin(fmt.Sprintf("%s-%s", index, plugin), kubeconfigFlag, verboseFlag); err != nil {
 					return err
 				}
@@ -77,7 +77,7 @@ func runFunctionUndeploy(cmd *cobra.Command, args []string) error {
 					return err
 				}
 
-				for plugin, _ := range functions[functionArg].Plugins {
+				for plugin := range functions[functionArg].Plugins {
 					if err := removePlugin(fmt.Sprintf("%s-%s", functionArg, plugin), kubeconfigFlag, verboseFlag); err != nil {
 						return err
 					}
@@ -103,20 +103,15 @@ func runFunctionUndeploy(cmd *cobra.Command, args []string) error {
 }
 
 func removeFunction(name, namespace, kubeconfigFlag string, verboseFlag bool) error {
-	k8sClient, err := k8s.GetClient(kubeconfigFlag)
-	if err != nil {
-		return fmt.Errorf("cluster não encontrado!\n")
-	}
-
-	if err := k8s.RemoveFunction(name, namespace, "Function", kubeconfigFlag, verboseFlag); err != nil {
+	if err := k8s.RemoveFunction(name, namespace, kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := k8s.RemoveService(k8sClient, name, "default", "Function", verboseFlag); err != nil {
+	if err := k8s.RemoveService(name, "default", kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := k8s.RemoveIngress(k8sClient, name, "default", "Function", verboseFlag); err != nil {
+	if err := k8s.RemoveIngress(name, "default", kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
@@ -124,20 +119,19 @@ func removeFunction(name, namespace, kubeconfigFlag string, verboseFlag bool) er
 }
 
 func removeSwaggerUi(name, kubeconfigFlag string, verboseFlag bool) error {
-	k8sClient, err := k8s.GetClient(kubeconfigFlag)
-	if err != nil {
-		return fmt.Errorf("cluster não encontrado!\n")
-	}
-
-	if err := k8s.RemoveDeployment(k8sClient, name, "default", "Swagger UI", verboseFlag); err != nil {
+	if err := k8s.RemoveDeployment(name, "default", kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := k8s.RemoveService(k8sClient, name, "default", "Swagger UI", verboseFlag); err != nil {
+	if err := k8s.RemoveService(name, "default", kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
-	if err := k8s.RemoveIngress(k8sClient, name, "default", "Swagger UI", verboseFlag); err != nil {
+	if err := k8s.RemoveIngress(name, "default", kubeconfigFlag, verboseFlag); err != nil {
+		return err
+	}
+
+	if err := k8s.RemoveConfigmap(name, "default", kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
@@ -145,7 +139,7 @@ func removeSwaggerUi(name, kubeconfigFlag string, verboseFlag bool) error {
 }
 
 func removePlugin(name, kubeconfigFlag string, verboseFlag bool) error {
-	if err := k8s.RemovePlugin(name, kubeconfigFlag, verboseFlag); err != nil {
+	if err := k8s.RemoveKongPlugin(name, kubeconfigFlag, verboseFlag); err != nil {
 		return err
 	}
 
