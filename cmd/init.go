@@ -10,14 +10,15 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/get"
+	"gopkg.in/gookit/color.v1"
 )
 
 var initCmd = &cobra.Command{
-	Use:     "init",
-	Short:   "Synchronizes all the dependencies necessary for the sapphire to function",
-	Long:    "Synchronizes all the dependencies necessary for the sapphire to function",
-	PreRunE: PreRunInit,
-	RunE:    runInit,
+	Use:                        "init",
+	Short:                      "Synchronizes all the dependencies necessary for the sapphire to function",
+	Long:                       "Synchronizes all the dependencies necessary for the sapphire to function",
+	PreRunE:                    PreRunInit,
+	RunE:                       runInit,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -25,18 +26,18 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func PreRunInit(cmd *cobra.Command, args []string) error {
+func PreRunInit(_ *cobra.Command, _ []string) error {
 	if os.Getuid() != 0 {
-		return fmt.Errorf("comando init executado de forma inválida, execute: \n\n\t" + safiraInit)
+		return fmt.Errorf("%s Init command executed invalidly, execute: \n\n\t%s", color.Red.Text("[!]"), safiraInit)
 	}
 
 	return nil
 }
 
-func runInit(cmd *cobra.Command, args []string) error {
+func runInit(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
-	fmt.Println("Verificando dependências...")
+	fmt.Printf("%s Checking dependencies\n", color.Green.Text("[+]"))
 	if _, err := checkAllBinaries(verboseFlag); err != nil {
 		return err
 	}
@@ -45,7 +46,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("\nTodas as dependências resolvidas!")
+	fmt.Printf("%s All dependencies resolved\n", color.Green.Text("[+]"))
 
 	return nil
 }
@@ -82,8 +83,9 @@ func checkAllBinaries(verboseFlag bool) (bool, error) {
 func checkHosts(verboseFlag bool) error {
 	host := "127.0.0.1 registry.localdomain ipaas.localdomain konga.localdomain gateway.ipaas.localdomain editor.localdomain"
 	hostsFile := "/etc/hosts"
+
 	if verboseFlag {
-		fmt.Println("[+] Verificando hosts")
+		fmt.Printf("%s Checking hosts file\n", color.Blue.Text("[v]"))
 	}
 
 	fileRead, err := os.OpenFile(hostsFile, os.O_RDONLY, 0600)
@@ -115,7 +117,7 @@ func checkHosts(verboseFlag bool) error {
 	}
 
 	if verboseFlag {
-		fmt.Println("[+] Gravado com sucesso no /etc/hosts")
+		fmt.Printf("%s Successfully saved to hosts file\n", color.Blue.Text("[v]"))
 	}
 
 	return nil

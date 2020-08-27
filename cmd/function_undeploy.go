@@ -10,6 +10,7 @@ import (
 	"github.com/vertigobr/safira/pkg/k8s"
 	"github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionUndeployCmd = &cobra.Command{
@@ -83,7 +84,7 @@ func runFunctionUndeploy(cmd *cobra.Command, args []string) error {
 					}
 				}
 			} else {
-				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+				return fmt.Errorf("%s Function %s does not exist", color.Red.Text("[!]"), functionArg)
 			}
 		}
 	}

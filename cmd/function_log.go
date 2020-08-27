@@ -3,16 +3,16 @@
 package cmd
 
 import (
-	"github.com/vertigobr/safira/pkg/k8s"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/vertigobr/safira/pkg/k8s"
 )
 
 var functionLogCmd = &cobra.Command{
-	Use:     "log [FUNCTION_NAME]",
-	Short:   "Output a function log",
-	Long:    "Output a function log",
+	Use:   "log [FUNCTION_NAME]",
+	Short: "Output a function log",
+	Long:  "Output a function log",
 	Example: `To view a function log, run:
 
     $ safira function log function-name`,

@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/gookit/color.v1"
 )
 
 func Copy(source, dest string, folders, files bool) error {
@@ -15,31 +17,27 @@ func Copy(source, dest string, folders, files bool) error {
 	dest = filepath.Clean(dest)
 
 	sourceInfo, err := os.Stat(source)
-	if err != nil {
-		return fmt.Errorf("error ao procurar a pasta template no repositório")
-	}
-
-	if !sourceInfo.IsDir() {
-		return fmt.Errorf("error template não é um diretório")
+	if err != nil || !sourceInfo.IsDir() {
+		return fmt.Errorf("%s Could not find the template folder in the repository", color.Red.Text("[!]"))
 	}
 
 	_, err = os.Stat(dest)
 	if err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("error ao acessar pasta template de destino")
+		return fmt.Errorf("%s Error accessing template folder", color.Red.Text("[!]"))
 	}
 
 	if err == nil {
-		return fmt.Errorf("pasta template de destino não existe")
+		return fmt.Errorf("%s Template folder could not be found", color.Red.Text("[!]"))
 	}
 
 	err = os.MkdirAll(dest, sourceInfo.Mode())
 	if err != nil {
-		return fmt.Errorf("error ao criar pasta template de destino")
+		return fmt.Errorf("%s Error creating template folder", color.Red.Text("[!]"))
 	}
 
 	entries, err := ioutil.ReadDir(source)
 	if err != nil {
-		return fmt.Errorf("error ao ler pasta template do repositório")
+		return fmt.Errorf("%s Error reading contents of the repository template folder", color.Red.Text("[!]"))
 	}
 
 	for _, entry := range entries {
@@ -72,13 +70,13 @@ func Copy(source, dest string, folders, files bool) error {
 func copyFile(source string, dest string) error {
 	in, err := os.Open(source)
 	if err != nil {
-		return fmt.Errorf("error ao abrir o arquivo %s", source)
+		return fmt.Errorf("%s Error opening the %s file", color.Red.Text("[!]"), source)
 	}
 	defer in.Close()
 
 	out, err := os.Create(dest)
 	if err != nil {
-		return fmt.Errorf("error ao criar o arquivo %s", dest)
+		return fmt.Errorf("%s Error reading the %s file", color.Red.Text("[!]"), dest)
 	}
 	defer func() {
 		if e := out.Close(); e != nil {
@@ -88,7 +86,7 @@ func copyFile(source string, dest string) error {
 
 	_, err = io.Copy(out, in)
 	if err != nil {
-		return fmt.Errorf("error ao copiar conteúdo do arquivo %s para %s", source, dest)
+		return fmt.Errorf("%s Error copying contents of file %s to %s", color.Red.Text("[!]"), source, dest)
 	}
 
 	err = out.Sync()
@@ -98,13 +96,12 @@ func copyFile(source string, dest string) error {
 
 	si, err := os.Stat(source)
 	if err != nil {
-		return fmt.Errorf("arquivo não existe: %s", source)
+		return fmt.Errorf("%s %s file does not exist", color.Red.Text("[!]"), source)
 	}
 	err = os.Chmod(dest, si.Mode())
 	if err != nil {
-		return fmt.Errorf("error ao aplicar chmod %s no arquivo %v", dest, si.Mode())
+		return fmt.Errorf("%s Error changing %s file permission", color.Red.Text("[!]"), dest)
 	}
 
 	return nil
 }
-

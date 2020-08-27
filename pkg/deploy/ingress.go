@@ -4,11 +4,12 @@ package deploy
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/utils"
 	"strconv"
 	"strings"
 
 	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 )
 
 type ingressSpec struct {
@@ -102,7 +103,7 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	if len(split) > 1 {
 		port, err = strconv.Atoi(split[1])
 		if err != nil {
-			return "", 0, fmt.Errorf("error ao identificar a porta do hostname: %s", err.Error())
+			return "", 0, fmt.Errorf("%s Error getting hostname port, check the stack file", color.Red.Text("[!]"))
 		}
 	} else {
 		port = 8080

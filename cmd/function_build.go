@@ -10,6 +10,7 @@ import (
 	"github.com/vertigobr/safira/pkg/docker"
 	"github.com/vertigobr/safira/pkg/get"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionBuildCmd = &cobra.Command{
@@ -61,7 +62,7 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("\nBuild realizado com sucesso!")
+	fmt.Printf("\n%s Build successfully completed\n", color.Cyan.Text("[✓]"))
 
 	return nil
 }
@@ -84,6 +85,7 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 				buildArgs = buildArgsStack
 			}
 
+			fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
 			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs)
 			if err != nil {
 				return err
@@ -102,12 +104,13 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 					buildArgs = buildArgsStack
 				}
 
+				fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
 				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs)
 				if err != nil {
 					return err
 				}
 			} else {
-				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+				return fmt.Errorf("%s Function name %s is invalid", color.Red.Text("[!]"), functionArg)
 			}
 		}
 	}

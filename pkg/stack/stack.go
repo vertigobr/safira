@@ -30,17 +30,17 @@ type Function struct {
 
 // Config apply one or all functions in stack.yaml
 type Config struct {
-	BuildArgs    map[string]string      `yaml:"buildArgs,omitempty"`
-	Scale        struct{
+	BuildArgs map[string]string `yaml:"buildArgs,omitempty"`
+	Scale     struct {
 		Min string `yaml:"min"`
 		Max string `yaml:"max"`
 	} `yaml:"scale,omitempty"`
 
 	// Resource limit that the function will use
-	Limits       CpuMemory              `yaml:"limits,omitempty"`
+	Limits CpuMemory `yaml:"limits,omitempty"`
 
 	// Minimum resource required that the function will use
-	Requests     CpuMemory              `yaml:"requests,omitempty"`
+	Requests CpuMemory `yaml:"requests,omitempty"`
 
 	// Environment variables
 	Environments map[string]interface{} `yaml:"environments,omitempty"`
@@ -76,14 +76,14 @@ type SecretKeyRef struct {
 
 // Stack root level YAML file to define FaaS function-set
 type Stack struct {
-	Version            string              `yaml:"version,omitempty"`
-	Provider           Provider            `yaml:"provider,omitempty"`
-	Hostname           string              `yaml:"hostname,omitempty"`
-	Functions          map[string]Function `yaml:"functions,omitempty"`
-	StackConfig        Config              `yaml:"config,omitempty"`
-	Custom             []string            `yaml:"custom,omitempty"`
+	Version     string              `yaml:"version,omitempty"`
+	Provider    Provider            `yaml:"provider,omitempty"`
+	Hostname    string              `yaml:"hostname,omitempty"`
+	Functions   map[string]Function `yaml:"functions,omitempty"`
+	StackConfig Config              `yaml:"config,omitempty"`
+	Custom      []string            `yaml:"custom,omitempty"`
 }
 
-func GetYamlFileName() string {
+func GetStackFileName() string {
 	return "stack.yml"
 }

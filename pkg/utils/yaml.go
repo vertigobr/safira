@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"gopkg.in/gookit/color.v1"
 )
 
 func CreateYamlFile(fileName string, bytes []byte, clearFile bool) error {
@@ -15,7 +17,7 @@ func CreateYamlFile(fileName string, bytes []byte, clearFile bool) error {
 
 	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		return fmt.Errorf("error ao abrir o arquivo %s: %s", fileName, err.Error())
+		return fmt.Errorf("%s Error opening the %s file", color.Red.Text("[!]"), fileName)
 	}
 	defer f.Close()
 
@@ -25,7 +27,7 @@ func CreateYamlFile(fileName string, bytes []byte, clearFile bool) error {
 
 	_, err = f.Write(bytes)
 	if err != nil {
-		return fmt.Errorf("error ao escrever no arquivo %s: %s", fileName, err.Error())
+		return fmt.Errorf("%s Error writing the %s file", color.Red.Text("[!]"), fileName)
 	}
 
 	return nil
@@ -38,13 +40,13 @@ func AppendYamlFile(fileName string, bytes []byte) error {
 
 	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
-		return fmt.Errorf("error ao abrir o arquivo %s: %s", fileName, err.Error())
+		return fmt.Errorf("%s Error opening the %s file", color.Red.Text("[!]"), fileName)
 	}
 	defer f.Close()
 
 	_, err = f.Write(bytes)
 	if err != nil {
-		return fmt.Errorf("error ao escrever no arquivo %s: %s", fileName, err.Error())
+		return fmt.Errorf("%s Error writing the %s file", color.Red.Text("[!]"), fileName)
 	}
 
 	return nil

@@ -4,9 +4,9 @@ package deploy
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/utils"
 
 	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
 )
 
 type serviceSpec struct {

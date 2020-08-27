@@ -9,12 +9,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/docker"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionPushCmd = &cobra.Command{
-	Use:     "push [FUNCTION_NAME]",
-	Short:   "Pushes Docker images from the function",
-	Long:    "Pushes Docker images from the function",
+	Use:   "push [FUNCTION_NAME]",
+	Short: "Pushes Docker images from the function",
+	Long:  "Pushes Docker images from the function",
 	Example: `If you want to push a function's Docker image, run:
 
     $ safira function push function-name
@@ -22,8 +23,8 @@ var functionPushCmd = &cobra.Command{
 or if you want to push the Docker image of all the functions, execute:
 
     $ safira function push -A`,
-	PreRunE: preRunFunctionPush,
-	RunE:    runFunctionPush,
+	PreRunE:                    preRunFunctionPush,
+	RunE:                       runFunctionPush,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -56,7 +57,7 @@ func runFunctionPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("\nPush realizado com sucesso!")
+	fmt.Printf("\n%s Push successfully completed\n", color.Cyan.Text("[✓]"))
 
 	return nil
 }
@@ -64,7 +65,8 @@ func runFunctionPush(cmd *cobra.Command, args []string) error {
 func pushImage(stack *s.Stack, args []string, allFunctions bool) error {
 	functions := stack.Functions
 	if allFunctions {
-		for _, f := range functions {
+		for functionName, f := range functions {
+			fmt.Printf("%s Starting push of function %s\n", color.Green.Text("[+]"), functionName)
 			err := docker.Push(f.Image)
 			if err != nil {
 				return err
@@ -76,12 +78,13 @@ func pushImage(stack *s.Stack, args []string, allFunctions bool) error {
 			if checkFunctionExists(functionName, functions) {
 				f := functions[functionArg]
 
+				fmt.Printf("%s Starting push of function %s\n", color.Green.Text("[+]"), functionName)
 				err := docker.Push(f.Image)
 				if err != nil {
 					return err
 				}
 			} else {
-				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+				return fmt.Errorf("%s Function %s does not exist", color.Red.Text("[!]"), functionArg)
 			}
 		}
 	}

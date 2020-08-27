@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/gookit/color.v1"
 )
 
 type TemplateInfo struct {
@@ -33,7 +34,7 @@ var templateListCmd = &cobra.Command{
 	Example: `To list all the official templates, run:
 
     $ safira template list`,
-	RunE:    runTemplateList,
+	RunE:                       runTemplateList,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -41,7 +42,7 @@ func init() {
 	templateCmd.AddCommand(templateListCmd)
 }
 
-func runTemplateList(cmd *cobra.Command, args []string) error {
+func runTemplateList(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
 	templateInfo, err := getTemplateInfo(verboseFlag)
@@ -54,15 +55,14 @@ func runTemplateList(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-
 func getTemplateInfo(verboseFlag bool) ([]TemplateInfo, error) {
 	if verboseFlag {
-		fmt.Println("[+] Requisitando informações dos templates")
+		fmt.Printf("%s Fetching template information\n", color.Blue.Text("[v]"))
 	}
 
 	req, reqErr := http.NewRequest(http.MethodGet, faasTemplateStoreURL, nil)
 	if reqErr != nil {
-		return nil, fmt.Errorf("error ao criar uma solicitação para pegar informações do template: %s", reqErr.Error())
+		return nil, fmt.Errorf("%s Error in requesting template information", color.Red.Text("[!]"))
 	}
 
 	reqContext, cancel := context.WithTimeout(req.Context(), 5*time.Second)
@@ -71,28 +71,23 @@ func getTemplateInfo(verboseFlag bool) ([]TemplateInfo, error) {
 	req = req.WithContext(reqContext)
 	client := http.DefaultClient
 	res, clientErr := client.Do(req)
-	if clientErr != nil {
-		return nil, fmt.Errorf("erro ao solicitar a lista de templates: %s", clientErr.Error())
-	}
-
-	if res.Body == nil {
-		return nil, fmt.Errorf("erro ao solicitar a lista de templates, boby vazio: %s", faasTemplateStoreURL)
+	if clientErr != nil || res.Body == nil {
+		return nil, fmt.Errorf("%s Error getting the list of templates", color.Red.Text("[!]"))
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status da requisição inesperado: %d got: %d", http.StatusOK, res.StatusCode)
+		return nil, fmt.Errorf("%s Unexpected request status %d", color.Red.Text("[!]"), res.StatusCode)
 	}
 
 	body, bodyErr := ioutil.ReadAll(res.Body)
 	if bodyErr != nil {
-		return nil, fmt.Errorf("error ao ler conteúdo da resposta: %s", bodyErr.Error())
+		return nil, fmt.Errorf("%s Error when getting the request body", color.Red.Text("[!]"))
 	}
 
 	var templatesInfo []TemplateInfo
-	unmarshallErr := json.Unmarshal(body, &templatesInfo)
-	if unmarshallErr != nil {
-		return nil, fmt.Errorf("error ao executar o unmarshalling da estrutura do template: %s", unmarshallErr.Error())
+	if err := json.Unmarshal(body, &templatesInfo); err != nil {
+		return nil, fmt.Errorf("%s Error when unmarshalling template information", color.Red.Text("[!]"))
 	}
 
 	return templatesInfo, nil
@@ -100,21 +95,21 @@ func getTemplateInfo(verboseFlag bool) ([]TemplateInfo, error) {
 
 func outputTemplateInfo(templates []TemplateInfo, verboseFlag bool) {
 	if len(templates) == 0 {
-		fmt.Println("Sem dados!")
+		fmt.Printf("%s No templates\n", color.Green.Text("[+]"))
 		return
 	}
 
 	if verboseFlag {
-		fmt.Println("[+] Processando informações dos templates")
+		fmt.Printf("%s Processing template information\n", color.Blue.Text("[v]"))
 	}
 
 	var buff bytes.Buffer
 	lineWriter := tabwriter.NewWriter(&buff, 0, 0, 3, ' ', 0)
 
-	fmt.Fprintln(lineWriter)
-	fmt.Fprintf(lineWriter, "NAME\tLANGUAGE\tPLATFORM\tSOURCE\tDESCRIPTION\n")
+	_, _ = fmt.Fprintln(lineWriter)
+	_, _ = fmt.Fprintf(lineWriter, "NAME\tLANGUAGE\tPLATFORM\tSOURCE\tDESCRIPTION\n")
 	for _, template := range templates {
-		fmt.Fprintf(lineWriter, "%s\t%s\t%s\t%s\t%s\n",
+		_, _ = fmt.Fprintf(lineWriter, "%s\t%s\t%s\t%s\t%s\n",
 			template.TemplateName,
 			template.Language,
 			template.Platform,
@@ -122,9 +117,9 @@ func outputTemplateInfo(templates []TemplateInfo, verboseFlag bool) {
 			template.Description)
 	}
 
-	fmt.Fprintln(lineWriter)
+	_, _ = fmt.Fprint(lineWriter)
 
-	lineWriter.Flush()
+	_ = lineWriter.Flush()
 
 	fmt.Println(buff.String())
 }

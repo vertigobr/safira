@@ -15,7 +15,7 @@ var infraKubeconfigCmd = &cobra.Command{
 	Example: `To output kubeconfig path, run:
 
     $ safira infra get-kubeconfig`,
-	RunE:  runGetKubeconfig,
+	RunE:                       runGetKubeconfig,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -23,7 +23,7 @@ func init() {
 	infraCmd.AddCommand(infraKubeconfigCmd)
 }
 
-func runGetKubeconfig(cmd *cobra.Command, args []string) error {
+func runGetKubeconfig(_ *cobra.Command, _ []string) error {
 	fmt.Println(kubeconfigPath)
 
 	return nil

@@ -14,6 +14,7 @@ import (
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
 	"github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionNewCmd = &cobra.Command{
@@ -39,14 +40,14 @@ func preRunFunctionNew(cmd *cobra.Command, args []string) error {
 	flagLang, _ := cmd.Flags().GetString("lang")
 
 	if len(flagLang) == 0 && len(args) < 1 {
-		cmd.Help()
+		_ = cmd.Help()
 		os.Exit(0)
 	} else if len(args) < 1 {
 		_ = cmd.Help()
 		fmt.Println()
-		return fmt.Errorf("nome da função não inserido")
+		return fmt.Errorf("%s Function name is required", color.Red.Text("[!]"))
 	} else if len(flagLang) == 0 {
-		return fmt.Errorf("a flag --lang é obrigatória")
+		return fmt.Errorf("%s The %s flag is required", color.Red.Text("[!]"), color.Bold.Text("lang"))
 	}
 
 	functionName := args[0]
@@ -62,7 +63,7 @@ func validateFunctionName(functionName string) error {
 	// k8s.io/kubernetes/pkg/util/validation/validation.go
 	var validDNS = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
 	if matched := validDNS.MatchString(functionName); !matched {
-		return fmt.Errorf("o nome da função deve conter apenas caracteres: a-z, 0-9 e traços")
+		return fmt.Errorf("%s Function name must contain only characters: a-z, 0-9 and dashes", color.Red.Text("[!]"))
 	}
 
 	return nil
@@ -95,7 +96,7 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 		Image:   "registry.localdomain:5000/" + functionName + ":latest",
 	}
 
-	if _, err = os.Stat("stack.yml"); err != nil {
+	if _, err = os.Stat(stack.GetStackFileName()); err != nil {
 		if err := stack.CreateTemplate(function); err != nil {
 			return err
 		}
@@ -119,7 +120,7 @@ func runFunctionNew(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("\nFunction " + functionName + " criada com sucesso!")
+	fmt.Printf("%s Function %s successfully created\n", color.Green.Text("[+]"), functionName)
 
 	return nil
 }
@@ -137,7 +138,7 @@ func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) er
 		PrintCommand: verboseFlag,
 	}
 
-	fmt.Println("Criando function " + functionName + "...")
+	fmt.Printf("%s Creating function %s\n", color.Green.Text("[+]"), functionName)
 	res, err := taskCreateFunction.Execute()
 	if err != nil {
 		return err
@@ -152,7 +153,7 @@ func createFunction(faasCliPath, functionName, lang string, verboseFlag bool) er
 	}
 
 	if err := deleteYamlFunction(functionName); err != nil {
-		return fmt.Errorf("error ao remover yaml da função gerada %s.yml: %s", functionName, err.Error())
+		return fmt.Errorf("%s Error when removing function %s", color.Green.Text("[+]"), functionName)
 	}
 
 	return nil

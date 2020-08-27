@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/execute"
+	"gopkg.in/gookit/color.v1"
 )
 
 var upgradeCmd = &cobra.Command{
@@ -39,36 +40,34 @@ func runUpgrade(cmd *cobra.Command, args []string) error {
 }
 
 func upgrade(verboseFlag bool) error {
-	msgError := "failed to update safira"
-
 	if verboseFlag {
-		fmt.Println("[+] Creating temp folder")
+		fmt.Printf("%s Creating temp folder\n", color.Blue.Text("[v]"))
 	}
 
 	tmpFile, err := ioutil.TempFile("", "safira-upgrade.*.sh")
 	if err != nil {
-		return fmt.Errorf(msgError)
+		return fmt.Errorf("%s Error creating temporary file", color.Red.Text("[!]"))
 	}
 	defer os.RemoveAll(tmpFile.Name())
 
 	if verboseFlag {
-		fmt.Println("[+] Downloading script")
+		fmt.Printf("%s Downloading script\n", color.Blue.Text("[v]"))
 	}
 
 	response, err := http.Get("https://raw.githubusercontent.com/vertigobr/safira/master/install.sh")
 	if err != nil {
-		return fmt.Errorf(msgError)
+		return fmt.Errorf("%s Error while downloading the update script", color.Red.Text("[!]"))
 	}
 	defer response.Body.Close()
 
 	body, _ := ioutil.ReadAll(response.Body)
 
 	if _, err := tmpFile.Write(body); err != nil {
-		return fmt.Errorf(msgError)
+		return fmt.Errorf("%s Error saving the update script", color.Red.Text("[!]"))
 	}
 
 	if err := tmpFile.Close(); err != nil {
-		return fmt.Errorf(msgError)
+		return fmt.Errorf("%s Error when closing the update script", color.Red.Text("[!]"))
 	}
 
 	_ = tmpFile.Chmod(0700)
@@ -81,7 +80,7 @@ func upgrade(verboseFlag bool) error {
 		StreamStdio: true,
 	}
 
-	fmt.Println("Upgrade Safira...")
+	fmt.Printf("%s Upgrade Safira\n", color.Green.Text("[+]"))
 	resUpgrade, err := taskUpgrade.Execute()
 	if err != nil {
 		return err

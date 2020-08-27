@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 )
 
 func PullTemplate(repo string, update, verboseFlag bool) error {
@@ -18,38 +19,38 @@ func PullTemplate(repo string, update, verboseFlag bool) error {
 
 	if err != nil || exists != nil && update {
 		if exists == nil {
-			fmt.Println("Baixando templates...")
 			if verboseFlag {
-				fmt.Println("[+] Templates não encontrados")
+				fmt.Printf("%s Templates not found\n", color.Blue.Text("[v]"))
 			}
+			fmt.Printf("%s Downloading templates\n", color.Green.Text("[↓]"))
 		} else {
 			if update {
 				os.RemoveAll(templateFolder)
 			}
 
-			fmt.Println("Atualizando templates...")
 			if verboseFlag {
-				fmt.Println("[+] Templates encontrados")
+				fmt.Printf("%s Found templates\n", color.Blue.Text("[v]"))
 			}
+			fmt.Printf("%s Updating templates\n", color.Green.Text("[↓]"))
 		}
 
 		dir, err := ioutil.TempDir("", "ipaasTemplates")
 		if err != nil {
-			return fmt.Errorf("error ao criar pasta temporária para download dos templates")
+			return fmt.Errorf("%s Error creating temporary folder for downloading templates", color.Red.Text("[!]"))
 		}
-		defer os.RemoveAll(dir) // clean up
+		defer os.RemoveAll(dir)
 
 		_, err = git.PlainClone(dir, false, &git.CloneOptions{
 			URL:      repo,
 			Progress: os.Stdout,
 		})
 		if err != nil {
-			return fmt.Errorf("error ao baixar os templates")
+			return fmt.Errorf("%s Error downloading templates", color.Red.Text("[!]"))
 		}
 
 		currentDir, err := os.Getwd()
 		if err != nil {
-			return fmt.Errorf("error ao obter pasta atual")
+			return fmt.Errorf("%s Error getting path to current folder", color.Red.Text("[!]"))
 		}
 
 		templateDir := filepath.Join(dir, templateFolder)
@@ -62,7 +63,7 @@ func PullTemplate(repo string, update, verboseFlag bool) error {
 		return nil
 	} else {
 		if verboseFlag {
-			fmt.Println("[+] Templates encontrados")
+			fmt.Printf("%s Found templates\n", color.Blue.Text("[v]"))
 		}
 
 		return nil

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"gopkg.in/gookit/color.v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -17,7 +18,7 @@ import (
 func OutputFunctionLog(functionName, kubeconfig, namespace, outputFlag string) error {
 	client, err := GetClient(kubeconfig)
 	if err != nil {
-		return fmt.Errorf("kubeconfig inválido, cluster não encontrado!\n")
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
 	}
 
 	pods := client.CoreV1().Pods(namespace)
@@ -61,5 +62,5 @@ func OutputFunctionLog(functionName, kubeconfig, namespace, outputFlag string) e
 		}
 	}
 
-	return fmt.Errorf("\nFunção não encontrada!")
+	return fmt.Errorf("%s Function %s not found", color.Red.Text("[!]"), functionName)
 }

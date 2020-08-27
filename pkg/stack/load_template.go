@@ -6,19 +6,20 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"gopkg.in/gookit/color.v1"
 	y "gopkg.in/yaml.v2"
 )
 
 func LoadStackFile(envFile string) (*Stack, error) {
 	var stack Stack
-	yamlBytes, err := ParseYAMLForLanguageTemplate(GetYamlFileName())
+	yamlBytes, err := ParseYAMLForLanguageTemplate(GetStackFileName())
 	if err != nil {
 		return nil, err
 	}
 
 	err = y.Unmarshal(yamlBytes, &stack)
 	if err != nil {
-		return nil, fmt.Errorf("error ao executar o unmarshalling para o arquivo %s: %s", GetYamlFileName(), err.Error())
+		return nil, fmt.Errorf("%s Error when unmarshalling the %s file", color.Red.Text("[!]"), GetStackFileName())
 	}
 
 	if len(envFile) > 0 {
@@ -30,7 +31,7 @@ func LoadStackFile(envFile string) (*Stack, error) {
 
 		err = y.Unmarshal(yamlBytes, &envStack)
 		if err != nil {
-			return nil, fmt.Errorf("error ao executar o unmarshalling para o arquivo %s: %s", GetYamlFileName(), err.Error())
+			return nil, fmt.Errorf("%s Error when unmarshalling the %s file", color.Red.Text("[!]"), GetStackFileName())
 		}
 
 		if err := prepareStack(&stack, &envStack); err != nil {
@@ -44,7 +45,7 @@ func LoadStackFile(envFile string) (*Stack, error) {
 func ParseYAMLForLanguageTemplate(fileName string) (fileData []byte, err error) {
 	fileData, err = ioutil.ReadFile(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("error ao let o arquivo %s: %s", fileName, err.Error())
+		return nil, fmt.Errorf("%s Error reading %s file", color.Red.Text("[!]"), fileName)
 	}
 
 	return

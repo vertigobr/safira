@@ -21,7 +21,7 @@ type Task struct {
 
 type Response struct {
 	Stdout   string
-	Stderr 	 string
+	Stderr   string
 	ExitCode int
 }
 
@@ -29,7 +29,7 @@ func (t Task) Execute() (Response, error) {
 	var cmd *exec.Cmd
 
 	if t.PrintCommand {
-		fmt.Printf("[+] %s %s\n", t.Command, t.Args)
+		fmt.Printf("%s %s\n", t.Command, t.Args)
 	}
 
 	if t.Shell {
@@ -85,8 +85,8 @@ func (t Task) Execute() (Response, error) {
 	}
 
 	return Response{
-		Stdout: string(stdoutBuff.Bytes()),
-		Stderr: msgError,
+		Stdout:   string(stdoutBuff.Bytes()),
+		Stderr:   msgError,
 		ExitCode: exitCode,
 	}, nil
 }

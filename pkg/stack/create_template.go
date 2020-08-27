@@ -6,13 +6,14 @@ import (
 	"fmt"
 
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 	y "gopkg.in/yaml.v2"
 )
 
 func CreateTemplate(function Function) error {
 	stack := Stack{
-		Version:   "1.0",
-		Provider:  Provider{
+		Version: "1.0",
+		Provider: Provider{
 			Name:       "openfaas",
 			GatewayURL: "http://gateway.ipaas.localdomain:8080",
 		},
@@ -29,10 +30,10 @@ func CreateTemplate(function Function) error {
 
 	yamlBytes, err := y.Marshal(&stack)
 	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo stack.yml: %s", err.Error())
+		return fmt.Errorf("%s Error reading %s file", color.Red.Text("[!]"), GetStackFileName())
 	}
 
-	if err := utils.CreateYamlFile(GetYamlFileName(), yamlBytes, true); err != nil {
+	if err := utils.CreateYamlFile(GetStackFileName(), yamlBytes, true); err != nil {
 		return err
 	}
 
