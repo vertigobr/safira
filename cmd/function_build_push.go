@@ -3,10 +3,12 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionBuildPushCmd = &cobra.Command{
@@ -62,6 +64,8 @@ func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 	if err := pushImage(stack, args, all); err != nil {
 		return err
 	}
+
+	fmt.Printf("\n%s Build and Push successfully completed\n", color.Cyan.Text("[✓]"))
 
 	return nil
 }

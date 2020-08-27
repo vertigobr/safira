@@ -3,7 +3,11 @@
 package deploy
 
 import (
+	"context"
 	"fmt"
+	"github.com/vertigobr/safira/pkg/k8s"
+	"gopkg.in/gookit/color.v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
@@ -115,4 +119,29 @@ func getServiceAnnotations(serviceName string, functions map[string]s.Function, 
 	annotations["safira.io/function"] = serviceName
 
 	return annotations, nil
+}
+
+func AddPluginInAnnotationsService(name, namespace, pluginName, kubeconfig string, verboseFlag bool) error {
+	client, err := k8s.GetClient(kubeconfig)
+	if err != nil {
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
+	}
+
+	services := client.CoreV1().Services(namespace)
+	service, err := services.Get(context.TODO(), name, v1.GetOptions{})
+	if err != nil {
+		return fmt.Errorf("")
+	}
+
+	service.ObjectMeta.Annotations["konghq.com/plugins"] = pluginName
+	_, err = services.Update(context.TODO(), service, v1.UpdateOptions{})
+	if err != nil {
+		return fmt.Errorf("")
+	}
+
+	return nil
 }

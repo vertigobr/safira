@@ -184,7 +184,7 @@ func helmUpgrade(helmPath string, verboseFlag bool) error {
 		Args: []string{
 			"upgrade", "-i",
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
-			"-f", "https://raw.githubusercontent.com/vertigobr/safira/master/k3d.yaml",
+			"-f", "../k3d.yaml",
 			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
 		},
 		StreamStdio: verboseFlag,

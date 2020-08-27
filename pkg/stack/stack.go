@@ -22,6 +22,10 @@ type Function struct {
 	// Docker image name
 	Image string `yaml:"image"`
 
+	// Path
+	Path string `yaml:"path"`
+
+	// Config
 	FunctionConfig Config `yaml:"config,omitempty"`
 
 	// Kong Plugins

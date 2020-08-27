@@ -2,6 +2,10 @@
 
 ## Version v0.0.12 - 2020-08-27
 
+Features:
+
+- Added attribute path in stack.yml
+
 Improvements:
 
 - Added update-template flag in `function build`
