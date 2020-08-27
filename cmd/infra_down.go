@@ -5,10 +5,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	"gopkg.in/gookit/color.v1"
 )
 
 var infraDownCmd = &cobra.Command{
@@ -18,7 +18,7 @@ var infraDownCmd = &cobra.Command{
 	Example: `To destroy the locally provisioned cluster, run:
 
     $ safira infra down`,
-	RunE:  runInfraDown,
+	RunE:                       runInfraDown,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -26,7 +26,7 @@ func init() {
 	infraCmd.AddCommand(infraDownCmd)
 }
 
-func runInfraDown(cmd *cobra.Command, args []string) error {
+func runInfraDown(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	err := checkInfra(verboseFlag)
 	if err != nil {
@@ -36,17 +36,17 @@ func runInfraDown(cmd *cobra.Command, args []string) error {
 	k3dPath := config.GetK3dPath()
 
 	if err := deleteCluster(k3dPath, verboseFlag); err != nil {
-		return errors.New("\nNenhum cluster encontrado!")
+		return fmt.Errorf("%s No clusters found", color.Red.Text("[!]"))
 	}
 
-	fmt.Println("\nCluster destruído com sucesso!")
+	fmt.Printf("%s Cluster destroyed successfully\n", color.Green.Text("[+]"))
 	return nil
 }
 
 func deleteCluster(k3dPath string, verboseFlag bool) error {
 	taskDeleteCluster := execute.Task{
-		Command:     k3dPath,
-		Args:        []string{
+		Command: k3dPath,
+		Args: []string{
 			"delete",
 			"-n", clusterName,
 		},
@@ -54,7 +54,7 @@ func deleteCluster(k3dPath string, verboseFlag bool) error {
 		PrintCommand: verboseFlag,
 	}
 
-	fmt.Println("Destruindo cluster local...")
+	fmt.Printf("%s Destroying local cluster\n", color.Green.Text("[+]"))
 	res, err := taskDeleteCluster.Execute()
 	if err != nil {
 		return err

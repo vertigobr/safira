@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	"gopkg.in/gookit/color.v1"
 )
 
 var infraUpCmd = &cobra.Command{
@@ -20,7 +20,7 @@ var infraUpCmd = &cobra.Command{
 	Example: `To provision the local cluster for development, run:
 
     $ safira infra up`,
-	RunE:  runInfraUp,
+	RunE:                       runInfraUp,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -28,7 +28,7 @@ func init() {
 	infraCmd.AddCommand(infraUpCmd)
 }
 
-func runInfraUp(cmd *cobra.Command, args []string) error {
+func runInfraUp(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	err := checkInfra(verboseFlag)
 	if err != nil {
@@ -52,13 +52,13 @@ func runInfraUp(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println()
-	fmt.Print(`Cluster criado com sucesso!
+	fmt.Print(`Cluster created successfully!
 Konga    - konga.localdomain:8080
 Gateway  - ipaas.localdomain:8080
 OpenFaaS - gateway.ipaas.localdomain:8080
 Editor   - editor.localdomain:8080
 
-Para acesso ao cluster:
+To access the cluster use:
 export KUBECONFIG=$(safira infra get-kubeconfig)
 `)
 
@@ -67,8 +67,8 @@ export KUBECONFIG=$(safira infra get-kubeconfig)
 
 func createCluster(k3dPath string, verboseFlag bool) error {
 	taskCreateCluster := execute.Task{
-		Command:     k3dPath,
-		Args:        []string{
+		Command: k3dPath,
+		Args: []string{
 			"create",
 			"-n", clusterName,
 			"--enable-registry",
@@ -80,7 +80,7 @@ func createCluster(k3dPath string, verboseFlag bool) error {
 		StreamStdio: verboseFlag,
 	}
 
-	fmt.Println("Provisionando cluster local...")
+	fmt.Printf("%s Provisioning local cluster\n", color.Green.Text("[+]"))
 	res, err := taskCreateCluster.Execute()
 	if err != nil {
 		return err
@@ -93,8 +93,8 @@ func createCluster(k3dPath string, verboseFlag bool) error {
 	time.Sleep(time.Second * 10)
 
 	taskCreateKubeconfig := execute.Task{
-		Command:     k3dPath,
-		Args:        []string{
+		Command: k3dPath,
+		Args: []string{
 			"get-kubeconfig",
 			"-n", clusterName,
 		},
@@ -107,11 +107,11 @@ func createCluster(k3dPath string, verboseFlag bool) error {
 	}
 
 	if resCreateKubeconfig.ExitCode != 0 {
-		return errors.New("\nFalha na exportação do KUBECONFIG, tente novamente!")
+		return fmt.Errorf("%s It was not possible to export the KUBECONFIG environment variable", color.Red.Text("[!]"))
 	}
 
-	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
-		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
+	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME")+"/.config/k3d/"+clusterName+"/kubeconfig.yaml"); err != nil {
+		return fmt.Errorf("%s It was not possible to export the KUBECONFIG environment variable", color.Red.Text("[!]"))
 	}
 
 	return nil
@@ -119,15 +119,15 @@ func createCluster(k3dPath string, verboseFlag bool) error {
 
 func createNamespace(kubectl string, verboseFlag bool) error {
 	taskCreateNamespace := execute.Task{
-		Command:     kubectl,
-		Args:        []string{
+		Command: kubectl,
+		Args: []string{
 			"create", "namespace", functionsNamespace,
 		},
 		StreamStdio: verboseFlag,
 	}
 
 	if verboseFlag {
-		fmt.Println("[+] Criando namespace ipaas-fn")
+		fmt.Printf("%s Creating ipaas-fn namespace\n", color.Blue.Text("[v]"))
 	}
 
 	resCreateNamespace, err := taskCreateNamespace.Execute()
@@ -144,15 +144,15 @@ func createNamespace(kubectl string, verboseFlag bool) error {
 
 func helmUpgrade(helmPath string, verboseFlag bool) error {
 	taskRepoAdd := execute.Task{
-		Command:     helmPath,
-		Args:        []string{
+		Command: helmPath,
+		Args: []string{
 			"repo", "add", "vtg-ipaas",
 			"https://vertigobr.gitlab.io/ipaas/vtg-ipaas-chart",
 		},
 		StreamStdio: verboseFlag,
 	}
 
-	fmt.Println("Instalando o Vertigo iPaaS...")
+	fmt.Printf("%s Installing the Vertigo iPaaS\n", color.Green.Text("[+]"))
 	resRepoAdd, err := taskRepoAdd.Execute()
 	if err != nil {
 		return err
@@ -163,8 +163,8 @@ func helmUpgrade(helmPath string, verboseFlag bool) error {
 	}
 
 	taskRepoUpdate := execute.Task{
-		Command:     helmPath,
-		Args:        []string{
+		Command: helmPath,
+		Args: []string{
 			"repo", "update",
 		},
 		StreamStdio: verboseFlag,
@@ -180,11 +180,11 @@ func helmUpgrade(helmPath string, verboseFlag bool) error {
 	}
 
 	taskUpgrade := execute.Task{
-		Command:     helmPath,
-		Args:        []string{
+		Command: helmPath,
+		Args: []string{
 			"upgrade", "-i",
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
-			"-f", "https://raw.githubusercontent.com/vertigobr/safira/master/k3d.yaml",
+			"-f", "../k3d.yaml",
 			"vtg-ipaas", "vtg-ipaas/vtg-ipaas",
 		},
 		StreamStdio: verboseFlag,

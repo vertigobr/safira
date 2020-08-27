@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 )
 
-func (k *K8sYaml) MountConfigMap(configMapName, swaggerFile string) error {
+func (k *K8sYaml) MountConfigMap(configMapName, swaggerFile, repoName string) error {
 	b, _ := ioutil.ReadFile(swaggerFile)
 
 	*k = K8sYaml{
@@ -16,6 +16,9 @@ func (k *K8sYaml) MountConfigMap(configMapName, swaggerFile string) error {
 			Name: configMapName,
 			Labels: map[string]string{
 				"name": configMapName,
+			},
+			Annotations: map[string]string{
+				"safira.io/repository": repoName,
 			},
 		},
 		Data: map[string]string{

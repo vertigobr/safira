@@ -11,6 +11,7 @@ import (
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
 	"github.com/vertigobr/safira/pkg/get"
+	"gopkg.in/gookit/color.v1"
 )
 
 var infraSecretsCmd = &cobra.Command{
@@ -20,7 +21,7 @@ var infraSecretsCmd = &cobra.Command{
 	Example: `To obtain access credentials for some services, run:
 
     $ safira infra secrets`,
-	RunE:  runInfraSecrets,
+	RunE:                       runInfraSecrets,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -28,7 +29,7 @@ func init() {
 	infraCmd.AddCommand(infraSecretsCmd)
 }
 
-func runInfraSecrets(cmd *cobra.Command, args []string) error {
+func runInfraSecrets(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	exist, err := get.CheckBinary(kubectlBinaryName, false, verboseFlag)
 	if err != nil {
@@ -48,15 +49,15 @@ func runInfraSecrets(cmd *cobra.Command, args []string) error {
 }
 
 func getSecrets(kubectlPath string, verboseFlag bool) error {
-	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
-		return fmt.Errorf("não foi possível adicionar a variável de ambiente KUBECONFIG")
+	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME")+"/.config/k3d/"+clusterName+"/kubeconfig.yaml"); err != nil {
+		return fmt.Errorf("%s It was not possible to export the KUBECONFIG environment variable", color.Red.Text("[!]"))
 	}
 
 	taskDeleteCluster := execute.Task{
-		Command:     kubectlPath,
-		Args:        []string{
+		Command: kubectlPath,
+		Args: []string{
 			"--kubeconfig", os.Getenv("KUBECONFIG"),
-			"get", "secret", "basic-auth", "-o",`jsonpath={.data.basic-auth-password}`,
+			"get", "secret", "basic-auth", "-o", `jsonpath={.data.basic-auth-password}`,
 		},
 		StreamStdio:  verboseFlag,
 		PrintCommand: verboseFlag,
@@ -68,8 +69,7 @@ func getSecrets(kubectlPath string, verboseFlag bool) error {
 	}
 
 	if res.ExitCode != 0 {
-		fmt.Println()
-		return fmt.Errorf("sem conexão com o cluster")
+		return fmt.Errorf("%s Without connection to the cluster", color.Red.Text("[!]"))
 	}
 
 	openfaasPassword, _ := base64.StdEncoding.DecodeString(res.Stdout)

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"gopkg.in/gookit/color.v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes"
 )
 
 var (
@@ -23,22 +23,31 @@ var (
 	}
 )
 
-func RemoveDeployment(client *kubernetes.Clientset, deployName, namespace, title string, verboseFlag bool) error {
+func RemoveDeployment(name, namespace, kubeconfig string, verboseFlag bool) error {
+	client, err := GetClient(kubeconfig)
+	if err != nil {
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
+	}
+
 	deployments := client.AppsV1().Deployments(namespace)
 	listDeployments, _ := deployments.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
-		fmt.Println("[+] Obtendo informações dos Deployments no cluster")
+		fmt.Printf("%s Getting deployments info in the cluster\n", color.Blue.Text("[v]"))
 	}
 
 	for _, deploy := range listDeployments.Items {
-		if deploy.Name == deployName {
-			err := deployments.Delete(context.TODO(), deployName, v1.DeleteOptions{})
+		if deploy.Name == name {
+			err := deployments.Delete(context.TODO(), name, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
 
-			fmt.Println(fmt.Sprintf("%s %s removida!", title, deployName))
+			fmt.Printf("%s Deployment %s removed\n", color.Green.Text("[+]"), name)
 			return nil
 		}
 	}
@@ -46,22 +55,34 @@ func RemoveDeployment(client *kubernetes.Clientset, deployName, namespace, title
 	return nil
 }
 
-func RemoveService(client *kubernetes.Clientset, serviceName, namespace, title string, verboseFlag bool) error {
+func RemoveService(name, namespace, kubeconfig string, verboseFlag bool) error {
+	client, err := GetClient(kubeconfig)
+	if err != nil {
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
+	}
+
 	services := client.CoreV1().Services(namespace)
 	listServices, _ := services.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
-		fmt.Println("[+] Obtendo informações dos Services no cluster")
+		fmt.Printf("%s Getting services info in the cluster\n", color.Blue.Text("[v]"))
 	}
 
 	for _, service := range listServices.Items {
-		if service.Name == serviceName {
-			err := services.Delete(context.TODO(), serviceName, v1.DeleteOptions{})
+		if service.Name == name {
+			err := services.Delete(context.TODO(), name, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
 
-			//fmt.Println(fmt.Sprintf("%s %s removida!", title, serviceName))
+			if verboseFlag {
+				fmt.Printf("%s Service %s removed\n", color.Blue.Text("[v]"), name)
+			}
+
 			return nil
 		}
 	}
@@ -69,22 +90,34 @@ func RemoveService(client *kubernetes.Clientset, serviceName, namespace, title s
 	return nil
 }
 
-func RemoveIngress(client *kubernetes.Clientset, ingressName, namespace, title string, verboseFlag bool) error {
+func RemoveIngress(name, namespace, kubeconfig string, verboseFlag bool) error {
+	client, err := GetClient(kubeconfig)
+	if err != nil {
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
+	}
+
 	ingresses := client.ExtensionsV1beta1().Ingresses(namespace)
 	listIngresses, _ := ingresses.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
-		fmt.Println("[+] Obtendo informações dos Ingresses no cluster")
+		fmt.Printf("%s Getting ingresses info in the cluster\n", color.Blue.Text("[v]"))
 	}
 
 	for _, ingress := range listIngresses.Items {
-		if ingress.Name == ingressName {
-			err := ingresses.Delete(context.TODO(), ingressName, v1.DeleteOptions{})
+		if ingress.Name == name {
+			err := ingresses.Delete(context.TODO(), name, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
 
-			//fmt.Println(fmt.Sprintf("%s %s removida!", title, ingressName))
+			if verboseFlag {
+				fmt.Printf("%s Ingress %s removed\n", color.Blue.Text("[v]"), name)
+			}
+
 			return nil
 		}
 	}
@@ -92,27 +125,66 @@ func RemoveIngress(client *kubernetes.Clientset, ingressName, namespace, title s
 	return nil
 }
 
-func RemoveFunction(functionName, namespace, title, kubeconfig string, verboseFlag bool) error {
+func RemoveConfigmap(name, namespace, kubeconfig string, verboseFlag bool) error {
+	client, err := GetClient(kubeconfig)
+	if err != nil {
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
+	}
+
+	configmaps := client.CoreV1().ConfigMaps(namespace)
+	listConfigmap, _ := configmaps.List(context.TODO(), v1.ListOptions{})
+
+	if verboseFlag {
+		fmt.Printf("%s Getting configmaps info in the cluster\n", color.Blue.Text("[v]"))
+	}
+
+	for _, service := range listConfigmap.Items {
+		if service.Name == name {
+			err := configmaps.Delete(context.TODO(), name, v1.DeleteOptions{})
+			if err != nil {
+				return err
+			}
+
+			if verboseFlag {
+				fmt.Printf("%s Configmap %s removed\n", color.Blue.Text("[v]"), name)
+			}
+
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func RemoveFunction(name, namespace, kubeconfig string, verboseFlag bool) error {
 	client, err := GetDynamicClient(kubeconfig)
 	if err != nil {
-		return err
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
 	}
 
 	functions := client.Resource(functionResource)
 	functionsList, _ := functions.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
-		fmt.Println("[+] Obtendo informações dos Functions no cluster")
+		fmt.Printf("%s Getting functions info in the cluster\n", color.Blue.Text("[v]"))
 	}
 
 	for _, function := range functionsList.Items {
-		if function.GetName() == functionName {
-			err := functions.Namespace(namespace).Delete(context.TODO(), functionName, v1.DeleteOptions{})
+		if function.GetName() == name {
+			err := functions.Namespace(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
 
-			fmt.Println(fmt.Sprintf("%s %s removida!", title, functionName))
+			fmt.Printf("%s Function %s removed\n", color.Green.Text("[+]"), name)
 			return nil
 		}
 	}
@@ -120,27 +192,31 @@ func RemoveFunction(functionName, namespace, title, kubeconfig string, verboseFl
 	return nil
 }
 
-func RemovePlugin(kongPluginName, kubeconfig string, verboseFlag bool) error {
+func RemoveKongPlugin(name, kubeconfig string, verboseFlag bool) error {
 	client, err := GetDynamicClient(kubeconfig)
 	if err != nil {
-		return err
+		if verboseFlag {
+			fmt.Println(err.Error())
+		}
+
+		return fmt.Errorf("%s Not was possible communication with the cluster", color.Red.Text("[!]"))
 	}
 
 	kongPlugin := client.Resource(kongPluginResource)
 	kongPluginList, _ := kongPlugin.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
-		fmt.Println("[+] Obtendo informações dos Kong Plugins no cluster")
+		fmt.Printf("%s Getting kongplugins info in the cluster\n", color.Blue.Text("[v]"))
 	}
 
 	for _, function := range kongPluginList.Items {
-		if function.GetName() == kongPluginName {
-			err := kongPlugin.Namespace("default").Delete(context.TODO(), kongPluginName, v1.DeleteOptions{})
+		if function.GetName() == name {
+			err := kongPlugin.Namespace("default").Delete(context.TODO(), name, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}
 
-			fmt.Println(fmt.Sprintf("Plugin %s removido!", kongPluginName))
+			fmt.Printf("%s KongPlugin %s removed\n", color.Green.Text("[+]"), name)
 			return nil
 		}
 	}

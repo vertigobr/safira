@@ -8,13 +8,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	"gopkg.in/gookit/color.v1"
 )
 
 var oktetoLoginCmd = &cobra.Command{
-	Use:   "login",
-	Short: "Login in Okteto",
-	Long:  "Login in Okteto",
-	RunE:  runOktetoLogin,
+	Use:                        "login",
+	Short:                      "Login in Okteto",
+	Long:                       "Login in Okteto",
+	RunE:                       runOktetoLogin,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -23,7 +24,7 @@ func init() {
 	oktetoLoginCmd.Flags().StringP("token", "t", "", "API token for authentication")
 }
 
-func runOktetoLogin(cmd *cobra.Command, args []string) error {
+func runOktetoLogin(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	tokenFlag, _ := cmd.Flags().GetString("token")
 
@@ -50,7 +51,7 @@ func loginOkteto(oktetoPath, tokenFlag string, verboseFlag bool) error {
 		PrintCommand: verboseFlag,
 	}
 
-	fmt.Println("Login Okteto...")
+	fmt.Printf("%s Login Okteto\n", color.Green.Text("[+]"))
 	res, err := taskCreateCluster.Execute()
 	if err != nil {
 		return err

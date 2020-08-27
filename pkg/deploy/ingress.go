@@ -4,11 +4,12 @@ package deploy
 
 import (
 	"fmt"
-	"github.com/vertigobr/safira/pkg/utils"
 	"strconv"
 	"strings"
 
 	s "github.com/vertigobr/safira/pkg/stack"
+	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 )
 
 type ingressSpec struct {
@@ -34,7 +35,7 @@ type ingressBackend struct {
 	ServicePort int    `yaml:"servicePort,omitempty"`
 }
 
-func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostname, env string) error {
+func (k *K8sYaml) MountIngress(ingressName, serviceName, namespace, path, hostname, env string) error {
 	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
@@ -57,11 +58,16 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, path, hostname, env str
 		return err
 	}
 
+	if len(path) < 1 {
+		path = getFunctionPath(stack.Functions[ingressName].Path, ingressName)
+	}
+
 	*k = K8sYaml{
 		ApiVersion: "extensions/v1beta1",
 		Kind:       "Ingress",
 		Metadata: metadata{
 			Name:        ingressName,
+			Namespace:   namespace,
 			Annotations: annotations,
 		},
 		Spec: ingressSpec{
@@ -102,7 +108,7 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	if len(split) > 1 {
 		port, err = strconv.Atoi(split[1])
 		if err != nil {
-			return "", 0, fmt.Errorf("error ao identificar a porta do hostname: %s", err.Error())
+			return "", 0, fmt.Errorf("%s Error getting hostname port, check the stack file", color.Red.Text("[!]"))
 		}
 	} else {
 		port = 8080
@@ -134,4 +140,12 @@ func GetIngressAnnotations(ingressName string, functions map[string]s.Function) 
 	annotations["safira.io/function"] = ingressName
 
 	return annotations, err
+}
+
+func getFunctionPath(path, name string) string {
+	if len(path) > 1 {
+		return path
+	}
+
+	return fmt.Sprintf("/function/%s", name)
 }

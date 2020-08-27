@@ -5,7 +5,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -17,7 +16,7 @@ import (
 var (
 	cfgFile        string
 	safiraInit     = color.Bold.Sprintf("sudo -E safira init")
-	notExistBinary = fmt.Sprintf("\nDependência(s) em falta, execute: %s", safiraInit)
+	notExistBinary = fmt.Sprintf("\n%s Missing dependencies, run: %s", color.Red.Text("[!]"), safiraInit)
 	kubeconfigPath = fmt.Sprintf("%s/.config/k3d/%s/kubeconfig.yaml", os.Getenv("HOME"), clusterName)
 )
 
@@ -37,17 +36,13 @@ var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "Safira is a toolkit for Vertigo iPaaS",
 	Long:          "Safira is a toolkit for Vertigo iPaaS",
-	Version:       "v0.0.11",
+	Version:       "v0.0.12",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		e := err.Error()
-		if len(e) != 0 {
-			fmt.Println(strings.ToUpper(e[:1]) + e[1:])
-		}
 		os.Exit(1)
 	}
 }

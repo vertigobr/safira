@@ -8,6 +8,8 @@ import (
 	"os/user"
 	p "path"
 	"strconv"
+
+	"gopkg.in/gookit/color.v1"
 )
 
 func GetSafiraDir() string {
@@ -18,13 +20,9 @@ func GetSafiraDir() string {
 func initUserDir(folder string) (string, error) {
 	safiraDir := GetSafiraDir()
 
-	//if len(safiraDir) <= 16 {
-	//	return "", fmt.Errorf("variável SUDO_USER não encontrada")
-	//}
-
 	path := p.Join(safiraDir, folder)
 	if err := os.MkdirAll(path, 0755); err != nil {
-		return "", fmt.Errorf("error ao criar pasta: %s", folder)
+		return "", fmt.Errorf("%s Error to create a folder: %s", color.Red.Text("[!]"), folder)
 	}
 
 	return path, nil
@@ -43,12 +41,12 @@ func CreateInBinDir() (string, error) {
 		Gid, _ := strconv.Atoi(u.Gid)
 
 		if err := os.Chown(path, Uid, Gid); err != nil {
-			return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+			return "", fmt.Errorf("%s Error when changing the owner of the root folder for the user: %s", color.Red.Text("[!]"), err.Error())
 		}
 
 		safiraFolder := GetSafiraDir()
 		if err := os.Chown(safiraFolder, Uid, Gid); err != nil {
-			return "", fmt.Errorf("error ao mudar o dono da pasta de root para o usuário: %s", err.Error())
+			return "", fmt.Errorf("%s Error when changing the owner of the root folder for the user: %s", color.Red.Text("[!]"), err.Error())
 		}
 	}
 
@@ -56,8 +54,8 @@ func CreateInBinDir() (string, error) {
 }
 
 func SetKubeconfig(clusterName string) error {
-	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME") + "/.config/k3d/" + clusterName + "/kubeconfig.yaml"); err != nil {
-		return fmt.Errorf("não foi possível criar a variável de ambiente: KUBECONFIG")
+	if err := os.Setenv("KUBECONFIG", os.Getenv("HOME")+"/.config/k3d/"+clusterName+"/kubeconfig.yaml"); err != nil {
+		return fmt.Errorf("%s Unable to export KUBECONFIG", color.Red.Text("[!]"))
 	}
 
 	return nil

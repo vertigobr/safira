@@ -3,9 +3,9 @@ package stack
 import (
 	"fmt"
 
-	y "gopkg.in/yaml.v2"
-
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
+	y "gopkg.in/yaml.v2"
 )
 
 func AppendFunction(function Function) error {
@@ -15,15 +15,15 @@ func AppendFunction(function Function) error {
 	}
 
 	if stack.Functions[function.Name].Handler != "" {
-		return fmt.Errorf(fmt.Sprintf("\nNome da função em uso, tente usar outro!"))
+		return fmt.Errorf("%s Function name in use, try using another", color.Red.Text("[!]"))
 	}
 
 	stack.Functions[function.Name] = function
 
 	yamlBytes, err := y.Marshal(&stack)
 	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", GetYamlFileName(), err.Error())
+		return fmt.Errorf("%s Error reading %s file", color.Red.Text("[!]"), GetStackFileName())
 	}
 
-	return utils.CreateYamlFile(GetYamlFileName(), yamlBytes, true)
+	return utils.CreateYamlFile(GetStackFileName(), yamlBytes, true)
 }

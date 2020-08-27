@@ -7,56 +7,56 @@ import (
 	"os/exec"
 
 	"github.com/vertigobr/safira/pkg/config"
+	"gopkg.in/gookit/color.v1"
 )
 
 func CheckBinary(binary string, downloadIfNotExist, verboseFlag bool) (bool, error) {
 	exists, _ := existsBinary(binary)
-	errorCheck := "não foi possível baixar o pacote: "
 
 	if verboseFlag {
-		fmt.Println("[+] Verificando " + binary)
+		fmt.Printf("%s Checking the binary: %s\n", color.Blue.Text("[v]"), binary)
 	}
 
 	if !exists && downloadIfNotExist {
-		fmt.Println("Baixando " + binary + "...")
+		fmt.Printf("%s Downloading %s\n", color.Green.Text("[↓]"), binary)
 		switch binary {
 		case "kubectl":
 			if err := DownloadKubectl(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "kubectl. Tente novamente")
+				return false, downloadMessageError("kubectl")
 			}
 		case "k3d":
 			if err := DownloadK3d(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "k3d. Tente novamente")
+				return false, downloadMessageError("k3d")
 			}
 		case "helm":
 			if err := DownloadHelm(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "helm. Tente novamente")
+				return false, downloadMessageError("helm")
 			}
 		case "faas-cli":
 			if err := DownloadFaasCli(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "faas-cli. Tente novamente")
+				return false, downloadMessageError("faas-cli")
 			}
 		case "okteto":
 			if err := DownloadOkteto(); err != nil {
 				if verboseFlag {
 					fmt.Println(err)
 				}
-				return false, fmt.Errorf(errorCheck + "okteto. Tente novamente")
+				return false, downloadMessageError("okteto")
 			}
 		default:
-			return false, fmt.Errorf("nome de binário inválido")
+			return false, fmt.Errorf("%s Invalid binary name", color.Red.Text("[!]"))
 		}
 	}
 
@@ -67,4 +67,8 @@ func existsBinary(binary string) (exists bool, err error) {
 	path, err := exec.LookPath(fmt.Sprintf("%sbin/%s", config.GetSafiraDir(), binary))
 	exists = path != ""
 	return
+}
+
+func downloadMessageError(binary string) error {
+	return fmt.Errorf("%s Unable to download %s, try again", color.Red.Text("[!]"), binary)
 }

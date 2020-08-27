@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 	y "gopkg.in/yaml.v2"
 )
 
@@ -15,21 +16,21 @@ func RemoveFunction(functionName string, removeFolder, verboseFlag bool) error {
 	}
 
 	if verboseFlag {
-		fmt.Println("[+] Checking existence of the function")
+		fmt.Printf("%s Checking the existence of the function\n", color.Blue.Text("[v]"))
 	}
 
 	if _, exists := stack.Functions[functionName]; !exists {
-		return fmt.Errorf("function not found in the stack")
+		return fmt.Errorf("%s Function not found in the stack file", color.Red.Text("[!]"))
 	}
 
 	if verboseFlag {
-		fmt.Println("[+] Removing function from project")
+		fmt.Printf("%s Removing function %s from project\n", color.Blue.Text("[v]"), functionName)
 	}
 
 	if removeFolder {
 		functionPath := stack.Functions[functionName].Handler
 		if err := os.RemoveAll(functionPath); err != nil {
-			return fmt.Errorf("error removing folder from function %s", functionName)
+			return fmt.Errorf("%s Error removing folder from function %s", color.Red.Text("[!]"), functionName)
 		}
 	}
 
@@ -37,10 +38,10 @@ func RemoveFunction(functionName string, removeFolder, verboseFlag bool) error {
 
 	yamlBytes, err := y.Marshal(&stack)
 	if err != nil {
-		return fmt.Errorf("error processing %s: %s", GetYamlFileName(), err.Error())
+		return fmt.Errorf("%s Error processing %s", color.Red.Text("[!]"), GetStackFileName())
 	}
 
-	if err := utils.CreateYamlFile(GetYamlFileName(), yamlBytes, true); err != nil {
+	if err := utils.CreateYamlFile(GetStackFileName(), yamlBytes, true); err != nil {
 		return err
 	}
 

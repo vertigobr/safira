@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
 	y "gopkg.in/yaml.v2"
 )
 
@@ -38,7 +39,7 @@ func CreateFile() error {
 
 	yamlBytes, err := y.Marshal(&gitlabCi)
 	if err != nil {
-		return fmt.Errorf("error ao executar o marshal para o arquivo %s: %s", GitlabCiFileName, err.Error())
+		return fmt.Errorf("%s Reading error to %s, check file", color.Red.Text("[!]"), GitlabCiFileName)
 	}
 
 	if err := utils.CreateYamlFile(GitlabCiFileName, yamlBytes, true); err != nil {

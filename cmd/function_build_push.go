@@ -3,10 +3,12 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionBuildPushCmd = &cobra.Command{
@@ -21,8 +23,8 @@ var functionBuildPushCmd = &cobra.Command{
 or if you want to build and push the Docker image of all the functions, execute:
 
     $ safira function build-push -A`,
-	PreRunE:  preRunFunctionBuildPush,
-	RunE:     runFunctionBuildPush,
+	PreRunE:                    preRunFunctionBuildPush,
+	RunE:                       runFunctionBuildPush,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -30,6 +32,7 @@ func init() {
 	functionCmd.AddCommand(functionBuildPushCmd)
 	functionBuildPushCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
 	functionBuildPushCmd.Flags().BoolP("all-functions", "A", false, "pushes all Docker images from functions to the registry")
+	functionBuildPushCmd.Flags().Bool("update-template", false, "update template")
 	functionBuildPushCmd.Flags().StringP("env", "e", "", "Set stack env file")
 }
 
@@ -47,19 +50,22 @@ func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
 	all, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
+	updateTemplateFlag, _ := cmd.Flags().GetBool("update-template")
 
 	stack, err := s.LoadStackFile(envFlag)
 	if err != nil {
 		return err
 	}
 
-	if err := buildFunction(stack, args, all, noCacheFlag); err != nil {
+	if err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag); err != nil {
 		return err
 	}
 
 	if err := pushImage(stack, args, all); err != nil {
 		return err
 	}
+
+	fmt.Printf("\n%s Build and Push successfully completed\n", color.Cyan.Text("[✓]"))
 
 	return nil
 }

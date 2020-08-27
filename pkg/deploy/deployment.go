@@ -58,7 +58,7 @@ type volumeConfigMap struct {
 	Items []configMapItem `yaml:"items,omitempty"`
 }
 
-func (k *K8sYaml) MountDeployment(deploymentName, imageName, path string) error {
+func (k *K8sYaml) MountDeployment(deploymentName, imageName, path, repoName string) error {
 	*k = K8sYaml{
 		ApiVersion: "apps/v1",
 		Kind:       "Deployment",
@@ -66,6 +66,9 @@ func (k *K8sYaml) MountDeployment(deploymentName, imageName, path string) error 
 			Name: deploymentName,
 			Labels: map[string]string{
 				"app": deploymentName,
+			},
+			Annotations: map[string]string{
+				"safira.io/repository": repoName,
 			},
 		},
 		Spec: deploymentSpec{
@@ -76,7 +79,7 @@ func (k *K8sYaml) MountDeployment(deploymentName, imageName, path string) error 
 				},
 			},
 			Template: deploymentSpecTemplate{
-				Metadata: metadata {
+				Metadata: metadata{
 					Labels: map[string]string{
 						"app": deploymentName,
 					},
@@ -84,7 +87,7 @@ func (k *K8sYaml) MountDeployment(deploymentName, imageName, path string) error 
 				TemplateSpec: templateSpec{
 					Containers: []containers{
 						{
-							Name: deploymentName,
+							Name:  deploymentName,
 							Image: imageName,
 							Ports: []containerPorts{
 								{
@@ -93,17 +96,17 @@ func (k *K8sYaml) MountDeployment(deploymentName, imageName, path string) error 
 							},
 							Env: []containerEnv{
 								{
-									Name: "BASE_URL",
+									Name:  "BASE_URL",
 									Value: path,
 								},
 								{
-									Name: "SWAGGER_JSON",
+									Name:  "SWAGGER_JSON",
 									Value: "/swagger-ui/swagger.yml",
 								},
 							},
-							VolumeMounts: []volumeMounts {
+							VolumeMounts: []volumeMounts{
 								{
-									Name: deploymentName,
+									Name:      deploymentName,
 									MountPath: "/swagger-ui",
 								},
 							},
@@ -116,7 +119,7 @@ func (k *K8sYaml) MountDeployment(deploymentName, imageName, path string) error 
 								Name: deploymentName,
 								Items: []configMapItem{
 									{
-										Key: "swagger",
+										Key:  "swagger",
 										Path: "swagger.yml",
 									},
 								},

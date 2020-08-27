@@ -10,12 +10,13 @@ import (
 	"github.com/vertigobr/safira/pkg/docker"
 	"github.com/vertigobr/safira/pkg/get"
 	s "github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionBuildCmd = &cobra.Command{
-	Use:     "build [FUNCTION_NAME]",
-	Short:   "Build Docker images from functions",
-	Long:    "Build Docker images from functions",
+	Use:   "build [FUNCTION_NAME]",
+	Short: "Build Docker images from functions",
+	Long:  "Build Docker images from functions",
 	Example: `If you want to build a function's Docker image, run:
 
     $ safira function build function-name
@@ -23,8 +24,8 @@ var functionBuildCmd = &cobra.Command{
 or if you want to build the Docker image of all the functions, execute:
 
     $ safira function build -A`,
-	PreRunE: preRunFunctionBuild,
-	RunE:    runFunctionBuild,
+	PreRunE:                    preRunFunctionBuild,
+	RunE:                       runFunctionBuild,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -32,7 +33,8 @@ func init() {
 	functionCmd.AddCommand(functionBuildCmd)
 	functionBuildCmd.Flags().Bool("no-cache", false, "do not use cache when building the image")
 	functionBuildCmd.Flags().BoolP("all-functions", "A", false, "build all functions")
-	functionBuildCmd.Flags().StringP("env", "e", "", "Set stack env file")
+	functionBuildCmd.Flags().Bool("update-template", false, "update template")
+	functionBuildCmd.Flags().StringP("env", "e", "", "set stack env file")
 }
 
 func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
@@ -49,26 +51,27 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
 	all, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
+	updateTemplateFlag, _ := cmd.Flags().GetBool("update-template")
 
 	stack, err := s.LoadStackFile(envFlag)
 	if err != nil {
 		return err
 	}
 
-	if err := buildFunction(stack, args, all, noCacheFlag); err != nil {
+	if err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag); err != nil {
 		return err
 	}
 
-	fmt.Println("\nBuild realizado com sucesso!")
+	fmt.Printf("\n%s Build successfully completed\n", color.Cyan.Text("[✓]"))
 
 	return nil
 }
 
-func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool) error {
+func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFlag, noCacheFlag bool) error {
 	buildArgsStack := stack.StackConfig.BuildArgs
-	functions      := stack.Functions
+	functions := stack.Functions
 
-	if err := get.DownloadTemplate(faasTemplateRepo, false, false); err != nil {
+	if err := get.DownloadTemplate(faasTemplateRepo, updateTemplateFlag, false); err != nil {
 		return err
 	}
 
@@ -82,6 +85,7 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool
 				buildArgs = buildArgsStack
 			}
 
+			fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
 			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs)
 			if err != nil {
 				return err
@@ -100,12 +104,13 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, noCacheFlag bool
 					buildArgs = buildArgsStack
 				}
 
+				fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
 				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs)
 				if err != nil {
 					return err
 				}
 			} else {
-				return fmt.Errorf("nome dá função %s é inválido", functionArg)
+				return fmt.Errorf("%s Function name %s is invalid", color.Red.Text("[!]"), functionArg)
 			}
 		}
 	}

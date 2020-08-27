@@ -1,5 +1,21 @@
 # Release Notes
 
+## Version v0.0.12 - 2020-08-27
+
+Features:
+
+- Added attribute path in stack.yml
+
+Improvements:
+
+- Added update-template flag in `function build`
+- All outputs placed in English
+- Standardized displays of all outputs
+
+Bug Fixes:
+
+- A fixed bug that did not remove the swagger configmap when executing the `safira function undeploy` command
+
 ## Version v0.0.11 - 2020-08-21
 
 Improvements:

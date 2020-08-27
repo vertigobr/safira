@@ -23,7 +23,7 @@ var infraStatusCmd = &cobra.Command{
 	Example: `To view the status of services and functions in the cluster, run:
 
     $ safira infra status`,
-	RunE:  runInfraStatus,
+	RunE:                       runInfraStatus,
 	SuggestionsMinimumDistance: 1,
 }
 
@@ -31,12 +31,12 @@ func init() {
 	infraCmd.AddCommand(infraStatusCmd)
 }
 
-func runInfraStatus(cmd *cobra.Command, args []string) error {
+func runInfraStatus(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
 	k8sClient, err := k8s.GetClient(kubeconfigPath)
 	if err != nil {
-		return fmt.Errorf("cluster local não encontrado!\n")
+		return fmt.Errorf("%s No clusters found", color.Red.Text("[!]"))
 	}
 
 	if err := outputStatus(k8sClient, verboseFlag); err != nil {
@@ -54,15 +54,15 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 	listFunction, _ := deploymentsFunctions.List(context.TODO(), v1.ListOptions{})
 
 	if verboseFlag {
-		fmt.Println("[+] Processando informações dos deployments")
+		fmt.Printf("%s Processing cluster information\n", color.Blue.Text("[v]"))
 	}
 
 	var buff bytes.Buffer
 	lineWriter := tabwriter.NewWriter(&buff, 0, 0, 3, ' ', 0)
 
-	fmt.Fprintln(lineWriter)
-	fmt.Fprintf(lineWriter, color.Bold.Sprintf("SERVICES\n"))
-	fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
+	_, _ = fmt.Fprintln(lineWriter)
+	_, _ = fmt.Fprintf(lineWriter, color.Bold.Sprintf("SERVICES\n"))
+	_, _ = fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
 	for _, d := range list.Items {
 		checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
 		var status string
@@ -77,7 +77,7 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 			deployName = strings.Split(deployName, "vtg-ipaas-")[1]
 		}
 
-		fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
+		_, _ = fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
 			deployName,
 			fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 			status,
@@ -86,9 +86,9 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 	}
 
 	if len(listFunction.Items) > 0 {
-		fmt.Fprintln(lineWriter)
-		fmt.Fprintf(lineWriter, color.Bold.Sprintf("FUNCTIONS\n"))
-		fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
+		_, _ = fmt.Fprintln(lineWriter)
+		_, _ = fmt.Fprintf(lineWriter, color.Bold.Sprintf("FUNCTIONS\n"))
+		_, _ = fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
 		for _, d := range listFunction.Items {
 			checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
 			var status string
@@ -98,7 +98,7 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 				status = color.Red.Sprintf("Not Ready")
 			}
 
-			fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
+			_, _ = fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
 				d.Name,
 				fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
 				status,
@@ -107,7 +107,7 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 		}
 	}
 
-	lineWriter.Flush()
+	_ = lineWriter.Flush()
 
 	fmt.Println(buff.String())
 

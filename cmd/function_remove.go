@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/stack"
+	"gopkg.in/gookit/color.v1"
 )
 
 var functionRemoveCmd = &cobra.Command{
@@ -32,6 +33,6 @@ func runFunctionRemove(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(fmt.Sprintf("Function %s successfully removed!", args[0]))
+	fmt.Printf("%s Function %s successfully removed\n", color.Red.Text("[!]"), args[0])
 	return nil
 }

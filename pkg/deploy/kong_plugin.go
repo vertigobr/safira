@@ -26,7 +26,8 @@ func (k *K8sYaml) MountKongPlugin(functionName, pluginName, namespace, env strin
 		ApiVersion: "configuration.konghq.com/v1",
 		Kind:       "KongPlugin",
 		Metadata: metadata{
-			Name: metadataName,
+			Name:      metadataName,
+			Namespace: namespace,
 			Labels: map[string]string{
 				"global": stack.Functions[functionName].Plugins[pluginName].Global,
 			},

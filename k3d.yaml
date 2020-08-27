@@ -70,6 +70,7 @@ openfaas:
   enabled: true
   functionNamespace: ipaas-fn
   generateBasicAuth: true
+  exposeServices: false
   operator:
     create: true
   ingress:
