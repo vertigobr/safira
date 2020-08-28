@@ -18,9 +18,9 @@ type dockerBuild struct {
 	buildArgs map[string]string
 }
 
-func Build(image, functionName, handler, language string, noCache bool, args map[string]string) error {
+func Build(image, functionName, handler, language string, noCache bool, args map[string]string, verboseFlag bool) error {
 	if isValidTemplate(language) {
-		buildPath, err := createBuildFolder(functionName, handler, language)
+		buildPath, err := createBuildFolder(functionName, handler, language, verboseFlag)
 		if err != nil {
 			return err
 		}
@@ -38,6 +38,10 @@ func Build(image, functionName, handler, language string, noCache bool, args map
 			Command:     "docker",
 			Args:        taskBuildArgs,
 			StreamStdio: true,
+		}
+
+		if verboseFlag {
+			fmt.Printf("%s Running build\n", color.Blue.Text("[v]"))
 		}
 
 		res, err := taskBuild.Execute()
@@ -66,7 +70,7 @@ func isValidTemplate(lang string) bool {
 	return false
 }
 
-func createBuildFolder(functionName, handler, language string) (string, error) {
+func createBuildFolder(functionName, handler, language string, verboseFlag bool) (string, error) {
 	buildPath := fmt.Sprintf("./build/%s/", functionName)
 
 	err := os.RemoveAll(buildPath)
@@ -74,11 +78,23 @@ func createBuildFolder(functionName, handler, language string) (string, error) {
 		return "", fmt.Errorf("%s Error cleaning build folder: %s", color.Red.Text("[!]"), buildPath)
 	}
 
+	if verboseFlag {
+		fmt.Printf("%s Build %s function folder removed\n", color.Blue.Text("[v]"), functionName)
+	}
+
 	functionPath := path.Join(buildPath, "function")
+
+	if verboseFlag {
+		fmt.Printf("%s Copying build artifacts\n", color.Blue.Text("[v]"))
+	}
 
 	err = utils.Copy(path.Join("./template/", language), buildPath, false, true)
 	if err != nil {
 		return "", fmt.Errorf("%s Error copying template %s files to the build folder: %s", color.Red.Text("[!]"), language, buildPath)
+	}
+
+	if verboseFlag {
+		fmt.Printf("%s Copying files from function %s\n", color.Blue.Text("[v]"), functionName)
 	}
 
 	err = utils.Copy(filepath.Clean(handler), filepath.Clean(functionPath), true, true)

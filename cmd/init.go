@@ -46,7 +46,7 @@ func runInit(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	fmt.Printf("%s All dependencies resolved\n", color.Green.Text("[+]"))
+	fmt.Printf("\n%s All dependencies resolved\n", color.Cyan.Text("[✓]"))
 
 	return nil
 }

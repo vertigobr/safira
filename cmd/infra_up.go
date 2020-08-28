@@ -51,12 +51,12 @@ func runInfraUp(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	fmt.Println()
-	fmt.Print(`Cluster created successfully!
-Konga    - konga.localdomain:8080
-Gateway  - ipaas.localdomain:8080
-OpenFaaS - gateway.ipaas.localdomain:8080
-Editor   - editor.localdomain:8080
+	fmt.Printf("\n%s Cluster successfully provisioned\n\n", color.Cyan.Text("[✓]"))
+	fmt.Print(`Vertigo iPaaS services:
+   Konga    konga.localdomain:8080
+ Gateway    ipaas.localdomain:8080
+OpenFaaS    gateway.ipaas.localdomain:8080
+  Editor    editor.localdomain:8080
 
 To access the cluster use:
 export KUBECONFIG=$(safira infra get-kubeconfig)

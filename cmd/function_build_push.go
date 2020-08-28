@@ -47,6 +47,7 @@ func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {
 }
 
 func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
+	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
 	all, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
@@ -57,7 +58,7 @@ func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag); err != nil {
+	if err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
 		return err
 	}
 
