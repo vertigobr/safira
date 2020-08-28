@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.13 - 2020-08-28
+
+Bug Fixes:
+
+- Installation Vertigo iPaaS in local cluster fixed
+
 ## Version v0.0.12 - 2020-08-27
 
 Features:
