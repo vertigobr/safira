@@ -87,6 +87,11 @@ func prepareFunctions(stackFunction, envStackFunction map[string]Function) (func
 				function.Image = envStackFunction[functionName].Image
 			}
 
+			function.Path = stackFunction[functionName].Path
+			if len(envStackFunction[functionName].Path) != 0 {
+				function.Path = envStackFunction[functionName].Path
+			}
+
 			function.FunctionConfig = stackFunction[functionName].FunctionConfig
 
 			if len(envStackFunction[functionName].FunctionConfig.Environments) != 0 {

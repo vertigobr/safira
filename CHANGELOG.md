@@ -5,6 +5,7 @@
 Bug Fixes:
 
 - Installation Vertigo iPaaS in local cluster fixed
+- A bug did not allow the use of the path attribute in environment files
 
 ## Version v0.0.12 - 2020-08-27
 
