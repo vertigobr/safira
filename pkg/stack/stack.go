@@ -23,7 +23,7 @@ type Function struct {
 	Image string `yaml:"image"`
 
 	// Path
-	Path string `yaml:"path"`
+	Path string `yaml:"path,omitempty"`
 
 	// Config
 	FunctionConfig Config `yaml:"config,omitempty"`

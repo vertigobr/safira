@@ -30,6 +30,7 @@ func init() {
 
 func runInfraUp(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
+
 	err := checkInfra(verboseFlag)
 	if err != nil {
 		return err
@@ -47,16 +48,16 @@ func runInfraUp(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := helmUpgrade(helmPath, verboseFlag); err != nil {
+	if err := installVertigoIpaas(helmPath, verboseFlag); err != nil {
 		return err
 	}
 
-	fmt.Println()
-	fmt.Print(`Cluster created successfully!
-Konga    - konga.localdomain:8080
-Gateway  - ipaas.localdomain:8080
-OpenFaaS - gateway.ipaas.localdomain:8080
-Editor   - editor.localdomain:8080
+	fmt.Printf("\n%s Cluster successfully provisioned\n\n", color.Cyan.Text("[✓]"))
+	fmt.Print(`Vertigo iPaaS services:
+   Konga    konga.localdomain:8080
+ Gateway    ipaas.localdomain:8080
+OpenFaaS    gateway.ipaas.localdomain:8080
+  Editor    editor.localdomain:8080
 
 To access the cluster use:
 export KUBECONFIG=$(safira infra get-kubeconfig)
@@ -81,6 +82,7 @@ func createCluster(k3dPath string, verboseFlag bool) error {
 	}
 
 	fmt.Printf("%s Provisioning local cluster\n", color.Green.Text("[+]"))
+
 	res, err := taskCreateCluster.Execute()
 	if err != nil {
 		return err
@@ -142,7 +144,7 @@ func createNamespace(kubectl string, verboseFlag bool) error {
 	return nil
 }
 
-func helmUpgrade(helmPath string, verboseFlag bool) error {
+func installVertigoIpaas(helmPath string, verboseFlag bool) error {
 	taskRepoAdd := execute.Task{
 		Command: helmPath,
 		Args: []string{
@@ -152,7 +154,10 @@ func helmUpgrade(helmPath string, verboseFlag bool) error {
 		StreamStdio: verboseFlag,
 	}
 
-	fmt.Printf("%s Installing the Vertigo iPaaS\n", color.Green.Text("[+]"))
+	if verboseFlag {
+		fmt.Printf("%s Configuring Vertigo iPaaS repository\n", color.Blue.Text("[v]"))
+	}
+
 	resRepoAdd, err := taskRepoAdd.Execute()
 	if err != nil {
 		return err
@@ -189,6 +194,8 @@ func helmUpgrade(helmPath string, verboseFlag bool) error {
 		},
 		StreamStdio: verboseFlag,
 	}
+
+	fmt.Printf("%s Installing Vertigo iPaaS\n", color.Green.Text("[+]"))
 
 	resUpgrade, err := taskUpgrade.Execute()
 	if err != nil {

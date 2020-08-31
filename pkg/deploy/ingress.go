@@ -143,7 +143,7 @@ func GetIngressAnnotations(ingressName string, functions map[string]s.Function) 
 }
 
 func getFunctionPath(path, name string) string {
-	if len(path) > 1 {
+	if len(path) > 0 {
 		return path
 	}
 

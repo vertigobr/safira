@@ -36,13 +36,17 @@ var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "Safira is a toolkit for Vertigo iPaaS",
 	Long:          "Safira is a toolkit for Vertigo iPaaS",
-	Version:       "v0.0.13",
+	Version:       "v0.0.14",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
+		e := err.Error()
+		if len(e) != 0 {
+			fmt.Println(e)
+		}
 		os.Exit(1)
 	}
 }
