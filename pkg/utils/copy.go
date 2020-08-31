@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/gookit/color.v1"
 )
@@ -45,7 +46,7 @@ func Copy(source, dest string, folders, files bool) error {
 		dstPath := filepath.Join(dest, entry.Name())
 
 		if entry.IsDir() {
-			if folders {
+			if folders && !strings.Contains(srcPath, "node_modules") {
 				err = Copy(srcPath, dstPath, folders, files)
 				if err != nil {
 					return err

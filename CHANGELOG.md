@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version v0.0.14 - 2020-08-31
+
+Features:
+
+- Ignore node_modules in build
+
+Bug Fixes:
+
+- Fix output errors
+
 ## Version v0.0.13 - 2020-08-28
 
 Bug Fixes:

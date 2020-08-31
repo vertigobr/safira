@@ -36,7 +36,7 @@ var rootCmd = &cobra.Command{
 	Use:           "safira",
 	Short:         "Safira is a toolkit for Vertigo iPaaS",
 	Long:          "Safira is a toolkit for Vertigo iPaaS",
-	Version:       "v0.0.13",
+	Version:       "v0.0.14",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }

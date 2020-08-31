@@ -36,10 +36,11 @@ func runInfraDown(cmd *cobra.Command, _ []string) error {
 	k3dPath := config.GetK3dPath()
 
 	if err := deleteCluster(k3dPath, verboseFlag); err != nil {
-		return fmt.Errorf("%s No clusters found", color.Red.Text("[!]"))
+		return fmt.Errorf("\n%s No clusters found", color.Red.Text("[!]"))
 	}
 
-	fmt.Printf("%s Cluster destroyed successfully\n", color.Green.Text("[+]"))
+	fmt.Printf("\n%s Cluster destroyed successfully\n", color.Cyan.Text("[✓]"))
+
 	return nil
 }
 
