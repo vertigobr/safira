@@ -14,14 +14,14 @@ var templatePullCmd = &cobra.Command{
 	Example: `To pull the official templates, run:
 
     $ safira template pull`,
-	RunE:  runTemplatePull,
+	RunE: runTemplatePull,
 }
 
 func init() {
 	templateCmd.AddCommand(templatePullCmd)
 }
 
-func runTemplatePull(cmd *cobra.Command, args []string) error {
+func runTemplatePull(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	if err := get.DownloadTemplate(faasTemplateRepo, true, verboseFlag); err != nil {
 		return err

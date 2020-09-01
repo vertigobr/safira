@@ -17,7 +17,6 @@ func CreateFile() error {
 		Stages: []string{
 			"publish",
 			"deploy",
-			"undeploy",
 		},
 		BeforeScript: []string{
 			"safira init",
