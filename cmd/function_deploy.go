@@ -80,7 +80,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	functions := stack.Functions
 	if all {
 		for index := range functions {
-			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins); err != nil {
+			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins, functions[index].FunctionConfig.Build.UseSha); err != nil {
 				return err
 			}
 
@@ -93,7 +93,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
 
-				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins); err != nil {
+				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins, functions[functionArg].FunctionConfig.Build.UseSha); err != nil {
 					return err
 				}
 
@@ -208,7 +208,7 @@ func addPluginInAnnotations(functionName, namespace, kubeconfig, envFlag string,
 	return nil
 }
 
-func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin) error {
+func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin, useSha bool) error {
 	deployFolder := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYamlName := deployFolder + "function.yml"
 	ingressYamlName := deployFolder + "ingress.yml"
@@ -222,7 +222,7 @@ func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string,
 	}
 
 	var functionYaml d.K8sYaml
-	if err := functionYaml.MountFunction(functionName, namespaceFlag, envFlag); err != nil {
+	if err := functionYaml.MountFunction(functionName, namespaceFlag, envFlag, useSha); err != nil {
 		return err
 	}
 

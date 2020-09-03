@@ -7,6 +7,7 @@ import (
 
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/git"
 	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
 )
@@ -25,7 +26,7 @@ type cpuMemory struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
-func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
+func (k *K8sYaml) MountFunction(functionName, namespace, env string, useSha bool) error {
 	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
@@ -35,6 +36,14 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
 	cpuLimits, memoryLimits := getLimitsConfig(stack, functionName)
 	cpuRequests, memoryRequests := getRequestsConfig(stack, functionName)
 	environments := getFunctionEnvironment(stack, functionName)
+
+	image := stack.Functions[functionName].Image
+	if useSha {
+		imageWithCommitSha, _ := git.GetImageWithCommitSha(image)
+		if len(imageWithCommitSha) > 0 {
+			image = imageWithCommitSha
+		}
+	}
 
 	repoName, err := utils.GetCurrentFolder()
 	if err != nil {
@@ -54,7 +63,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
 		},
 		Spec: functionSpec{
 			Name:  functionName,
-			Image: stack.Functions[functionName].Image,
+			Image: image,
 			Labels: map[string]string{
 				"com.openfaas.scale.min": scaleMin,
 				"com.openfaas.scale.max": scaleMax,

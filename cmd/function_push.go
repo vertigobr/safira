@@ -67,7 +67,7 @@ func pushImage(stack *s.Stack, args []string, allFunctions bool) error {
 	if allFunctions {
 		for functionName, f := range functions {
 			fmt.Printf("%s Starting push of function %s\n", color.Green.Text("[+]"), functionName)
-			err := docker.Push(f.Image)
+			err := docker.Push(f.Image, f.FunctionConfig.Build.UseSha)
 			if err != nil {
 				return err
 			}
@@ -79,7 +79,7 @@ func pushImage(stack *s.Stack, args []string, allFunctions bool) error {
 				f := functions[functionArg]
 
 				fmt.Printf("%s Starting push of function %s\n", color.Green.Text("[+]"), functionName)
-				err := docker.Push(f.Image)
+				err := docker.Push(f.Image, f.FunctionConfig.Build.UseSha)
 				if err != nil {
 					return err
 				}

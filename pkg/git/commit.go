@@ -5,12 +5,13 @@ package git
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"gopkg.in/gookit/color.v1"
 )
 
-func GetCommitSha() (string, error) {
+func GetImageWithCommitSha(image string) (string, error) {
 	path, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("%s Error getting path to current folder", color.Red.Text("[!]"))
@@ -27,5 +28,7 @@ func GetCommitSha() (string, error) {
 		return "", err
 	}
 
-	return h.String()[:7], nil
+	untaggedImage := strings.Split(image, ":")
+
+	return strings.Replace(image, untaggedImage[len(untaggedImage)-1], h.String()[:7], 1), nil
 }
