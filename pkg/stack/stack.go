@@ -34,8 +34,8 @@ type Function struct {
 
 // Config apply one or all functions in stack.yaml
 type Config struct {
-	BuildArgs map[string]string `yaml:"buildArgs,omitempty"`
-	Scale     struct {
+	Build Build `yaml:"build,omitempty"`
+	Scale struct {
 		Min string `yaml:"min"`
 		Max string `yaml:"max"`
 	} `yaml:"scale,omitempty"`
@@ -48,6 +48,11 @@ type Config struct {
 
 	// Environment variables
 	Environments map[string]interface{} `yaml:"environments,omitempty"`
+}
+
+type Build struct {
+	Enabled *bool             `yaml:"enabled,omitempty"`
+	Args    map[string]string `yaml:"args,omitempty"`
 }
 
 type CpuMemory struct {

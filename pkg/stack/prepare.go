@@ -27,9 +27,9 @@ func prepareStack(stack, envStack *Stack) error {
 		}
 	}
 
-	if len(envStack.StackConfig.BuildArgs) > 0 {
-		for buildArgsName := range envStack.StackConfig.BuildArgs {
-			stack.StackConfig.BuildArgs[buildArgsName] = envStack.StackConfig.BuildArgs[buildArgsName]
+	if len(envStack.StackConfig.Build.Args) > 0 {
+		for buildArgsName := range envStack.StackConfig.Build.Args {
+			stack.StackConfig.Build.Args[buildArgsName] = envStack.StackConfig.Build.Args[buildArgsName]
 		}
 	}
 
@@ -100,9 +100,9 @@ func prepareFunctions(stackFunction, envStackFunction map[string]Function) (func
 				}
 			}
 
-			if len(envStackFunction[functionName].FunctionConfig.BuildArgs) != 0 {
-				for buildArgsName := range envStackFunction[functionName].FunctionConfig.BuildArgs {
-					function.FunctionConfig.BuildArgs[buildArgsName] = envStackFunction[functionName].FunctionConfig.BuildArgs[buildArgsName]
+			if len(envStackFunction[functionName].FunctionConfig.Build.Args) != 0 {
+				for buildArgsName := range envStackFunction[functionName].FunctionConfig.Build.Args {
+					function.FunctionConfig.Build.Args[buildArgsName] = envStackFunction[functionName].FunctionConfig.Build.Args[buildArgsName]
 				}
 			}
 

@@ -59,8 +59,10 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
+	if skipped, err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
 		return err
+	} else if skipped {
+		os.Exit(0)
 	}
 
 	fmt.Printf("\n%s Build successfully completed\n", color.Cyan.Text("[✓]"))
@@ -68,20 +70,34 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFlag, noCacheFlag, verboseFlag bool) error {
-	buildArgsStack := stack.StackConfig.BuildArgs
+func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFlag, noCacheFlag, verboseFlag bool) (bool, error) {
+	if stack.StackConfig.Build.Enabled != nil {
+		if !*stack.StackConfig.Build.Enabled {
+			fmt.Printf("%s All functions skipped the build process\n", color.Yellow.Text("[*]"))
+			return true, nil
+		}
+	}
+
+	buildArgsStack := stack.StackConfig.Build.Args
 	functions := stack.Functions
 
 	if err := get.DownloadTemplate(faasTemplateRepo, updateTemplateFlag, false); err != nil {
-		return err
+		return false, err
 	}
 
 	if allFunctions {
 		for functionName, f := range functions {
+			if f.FunctionConfig.Build.Enabled != nil {
+				if !*f.FunctionConfig.Build.Enabled {
+					fmt.Printf("%s Function %s skipped the build process\n", color.Yellow.Text("[*]"), functionName)
+					continue
+				}
+			}
+
 			var buildArgs map[string]string
 
-			if len(f.FunctionConfig.BuildArgs) != 0 {
-				buildArgs = f.FunctionConfig.BuildArgs
+			if len(f.FunctionConfig.Build.Args) != 0 {
+				buildArgs = f.FunctionConfig.Build.Args
 			} else {
 				buildArgs = buildArgsStack
 			}
@@ -89,7 +105,7 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 			fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
 			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs, verboseFlag)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 	} else {
@@ -97,10 +113,18 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 			functionName := args[index]
 			if checkFunctionExists(functionName, functions) {
 				f := functions[functionArg]
+
+				if f.FunctionConfig.Build.Enabled != nil {
+					if !*f.FunctionConfig.Build.Enabled {
+						fmt.Printf("%s Function %s skipped the build process\n", color.Yellow.Text("[*]"), functionName)
+						continue
+					}
+				}
+
 				var buildArgs map[string]string
 
-				if len(f.FunctionConfig.BuildArgs) != 0 {
-					buildArgs = f.FunctionConfig.BuildArgs
+				if len(f.FunctionConfig.Build.Args) != 0 {
+					buildArgs = f.FunctionConfig.Build.Args
 				} else {
 					buildArgs = buildArgsStack
 				}
@@ -108,13 +132,13 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 				fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
 				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs, verboseFlag)
 				if err != nil {
-					return err
+					return false, err
 				}
 			} else {
-				return fmt.Errorf("%s Function name %s is invalid", color.Red.Text("[!]"), functionArg)
+				return false, fmt.Errorf("%s Function name %s is invalid", color.Red.Text("[!]"), functionArg)
 			}
 		}
 	}
 
-	return nil
+	return false, nil
 }

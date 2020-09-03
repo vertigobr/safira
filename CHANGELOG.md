@@ -2,6 +2,10 @@
 
 ## Version v0.0.15 - 2020-09-03
 
+Features:
+
+- Added possibility to disable the build of a function
+
 Improvements:
 
 - Rewritten `safira upgrade` command
