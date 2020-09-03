@@ -5,6 +5,7 @@
 Improvements:
 
 - Rewritten `safira upgrade` command
+- Openfaas url updated
 
 ## Version v0.0.14 - 2020-08-31
 

@@ -119,7 +119,7 @@ func getUrl(deployName string, function bool) string {
 	case "swaggereditor":
 		return "editor.localdomain:8080"
 	case "gateway":
-		return "gateway.ipaas.localdomain:8080"
+		return "openfaas.ipaas.localdomain:8080"
 	case "kong":
 		return "ipaas.localdomain:8080"
 	case "konga":

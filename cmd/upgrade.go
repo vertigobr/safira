@@ -17,7 +17,8 @@ var upgradeCmd = &cobra.Command{
 	Example: `To upgrade CLI, run:
 
     $ safira upgrade`,
-	RunE: runUpgrade,
+	RunE:                       runUpgrade,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {

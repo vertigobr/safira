@@ -14,7 +14,8 @@ var templatePullCmd = &cobra.Command{
 	Example: `To pull the official templates, run:
 
     $ safira template pull`,
-	RunE: runTemplatePull,
+	RunE:                       runTemplatePull,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {
