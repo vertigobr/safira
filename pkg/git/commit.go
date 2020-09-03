@@ -1,0 +1,31 @@
+// Copyright © 2020 Vertigo Tecnologia. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
+package git
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/go-git/go-git/v5"
+	"gopkg.in/gookit/color.v1"
+)
+
+func GetCommitSha() (string, error) {
+	path, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("%s Error getting path to current folder", color.Red.Text("[!]"))
+	}
+
+	repo, err := git.PlainOpen(path)
+	if err != nil {
+		return "", err
+	}
+
+	h, err := repo.ResolveRevision("HEAD")
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	return h.String()[:7], nil
+}

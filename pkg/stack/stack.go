@@ -52,6 +52,7 @@ type Config struct {
 
 type Build struct {
 	Enabled *bool             `yaml:"enabled,omitempty"`
+	UseSha  bool              `yaml:"useSha,omitempty"`
 	Args    map[string]string `yaml:"args,omitempty"`
 }
 
