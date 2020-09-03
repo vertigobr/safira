@@ -58,8 +58,10 @@ func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
+	if skipped, err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
 		return err
+	} else if skipped {
+		os.Exit(0)
 	}
 
 	if err := pushImage(stack, args, all); err != nil {

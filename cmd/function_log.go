@@ -16,8 +16,9 @@ var functionLogCmd = &cobra.Command{
 	Example: `To view a function log, run:
 
     $ safira function log function-name`,
-	PreRunE: preRunFunctionLog,
-	RunE:    runFunctionLog,
+	PreRunE:                    preRunFunctionLog,
+	RunE:                       runFunctionLog,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {

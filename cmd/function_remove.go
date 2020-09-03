@@ -17,7 +17,8 @@ var functionRemoveCmd = &cobra.Command{
 	Example: `To remove the function from the project, run:
 
     $ safira function remove function-name`,
-	RunE: runFunctionRemove,
+	RunE:                       runFunctionRemove,
+	SuggestionsMinimumDistance: 1,
 }
 
 func init() {

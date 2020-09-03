@@ -1,5 +1,16 @@
 # Release Notes
 
+## Version v0.0.15 - 2020-09-03
+
+Features:
+
+- Added possibility to disable the build of a function
+
+Improvements:
+
+- Rewritten `safira upgrade` command
+- Openfaas url updated
+
 ## Version v0.0.14 - 2020-08-31
 
 Features:

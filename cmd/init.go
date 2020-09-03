@@ -81,7 +81,7 @@ func checkAllBinaries(verboseFlag bool) (bool, error) {
 }
 
 func checkHosts(verboseFlag bool) error {
-	host := "127.0.0.1 registry.localdomain ipaas.localdomain konga.localdomain gateway.ipaas.localdomain editor.localdomain"
+	host := "127.0.0.1 registry.localdomain ipaas.localdomain konga.localdomain openfaas.ipaas.localdomain editor.localdomain"
 	hostsFile := "/etc/hosts"
 
 	if verboseFlag {
