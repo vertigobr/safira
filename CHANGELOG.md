@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.15 - 2020-09-03
+
+Improvements:
+
+- Rewritten `safira upgrade` command
+
 ## Version v0.0.14 - 2020-08-31
 
 Features:

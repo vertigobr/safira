@@ -4,12 +4,9 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/get"
 	"gopkg.in/gookit/color.v1"
 )
 
@@ -29,7 +26,7 @@ func init() {
 	upgradeCmd.Flags().StringP("version", "v", "latest", "CLI download version")
 }
 
-func runUpgrade(cmd *cobra.Command, args []string) error {
+func runUpgrade(cmd *cobra.Command, _ []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 
 	if err := upgrade(verboseFlag); err != nil {
@@ -40,55 +37,14 @@ func runUpgrade(cmd *cobra.Command, args []string) error {
 }
 
 func upgrade(verboseFlag bool) error {
-	if verboseFlag {
-		fmt.Printf("%s Creating temp folder\n", color.Blue.Text("[v]"))
-	}
+	fmt.Printf("%s Upgrading Safira\n", color.Green.Text("[+]"))
 
-	tmpFile, err := ioutil.TempFile("", "safira-upgrade.*.sh")
-	if err != nil {
-		return fmt.Errorf("%s Error creating temporary file", color.Red.Text("[!]"))
-	}
-	defer os.RemoveAll(tmpFile.Name())
-
-	if verboseFlag {
-		fmt.Printf("%s Downloading script\n", color.Blue.Text("[v]"))
-	}
-
-	response, err := http.Get("https://raw.githubusercontent.com/vertigobr/safira/master/install.sh")
-	if err != nil {
-		return fmt.Errorf("%s Error while downloading the update script", color.Red.Text("[!]"))
-	}
-	defer response.Body.Close()
-
-	body, _ := ioutil.ReadAll(response.Body)
-
-	if _, err := tmpFile.Write(body); err != nil {
-		return fmt.Errorf("%s Error saving the update script", color.Red.Text("[!]"))
-	}
-
-	if err := tmpFile.Close(); err != nil {
-		return fmt.Errorf("%s Error when closing the update script", color.Red.Text("[!]"))
-	}
-
-	_ = tmpFile.Chmod(0700)
-
-	taskUpgrade := execute.Task{
-		Command: "bash",
-		Args: []string{
-			tmpFile.Name(),
-		},
-		StreamStdio: true,
-	}
-
-	fmt.Printf("%s Upgrade Safira\n", color.Green.Text("[+]"))
-	resUpgrade, err := taskUpgrade.Execute()
+	tag, err := get.DownloadSafira(rootCmd.Version, verboseFlag)
 	if err != nil {
 		return err
 	}
 
-	if resUpgrade.ExitCode != 0 {
-		return fmt.Errorf(resUpgrade.Stderr)
-	}
+	fmt.Printf("\n%s Upgrading version %s finished successfully\n", color.Cyan.Text("[✓]"), tag)
 
 	return nil
 }
