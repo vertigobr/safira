@@ -45,7 +45,7 @@ func preRunFunctionPush(cmd *cobra.Command, args []string) error {
 }
 
 func runFunctionPush(cmd *cobra.Command, args []string) error {
-	all, _ := cmd.Flags().GetBool("all-functions")
+	allFlag, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
 
 	stack, err := s.LoadStackFile(envFlag)
@@ -53,7 +53,7 @@ func runFunctionPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := pushImage(stack, args, all); err != nil {
+	if err := pushImage(stack, args, allFlag); err != nil {
 		return err
 	}
 

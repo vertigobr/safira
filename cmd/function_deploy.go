@@ -56,7 +56,7 @@ func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
-	all, _ := cmd.Flags().GetBool("all-functions")
+	allFlag, _ := cmd.Flags().GetBool("all-functions")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
 	hostnameFlag, _ := cmd.Flags().GetString("hostname")
 	namespaceFlag, _ := cmd.Flags().GetString("namespace")
@@ -78,7 +78,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	functions := stack.Functions
-	if all {
+	if allFlag {
 		for index := range functions {
 			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins, functions[index].FunctionConfig.Build.UseSha); err != nil {
 				return err
@@ -116,7 +116,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	if swaggerFile := checkSwaggerFileExist(); len(swaggerFile) > 1 {
-		if err := deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfigFlag, envFlag, verboseFlag); err != nil {
+		if err := deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfigFlag, envFlag, updateFlag, verboseFlag); err != nil {
 			return err
 		}
 	}
@@ -292,7 +292,7 @@ func rolloutFunction(kubectlPath, kubeconfig, functionName, namespaceFlag string
 }
 
 // Receber flag update para executar o rollout no deployment
-func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag string, verboseFlag bool) error {
+func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag string, update, verboseFlag bool) error {
 	deployFolder := "./deploy/swagger-ui/"
 	repoName, err := utils.GetCurrentFolder()
 	if err != nil {
@@ -368,6 +368,27 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 
 	if res.ExitCode != 0 {
 		return fmt.Errorf(res.Stderr)
+	}
+
+	if update {
+		taskRolloutSwagger := execute.Task{
+			Command: kubectlPath,
+			Args: []string{
+				"rollout", "restart", "deployments", swaggerUIName,
+				"--kubeconfig", kubeconfig,
+			},
+			StreamStdio:  verboseFlag,
+			PrintCommand: verboseFlag,
+		}
+
+		res, err := taskRolloutSwagger.Execute()
+		if err != nil {
+			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf(res.Stderr)
+		}
 	}
 
 	return nil
