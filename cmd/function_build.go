@@ -50,7 +50,7 @@ func preRunFunctionBuild(cmd *cobra.Command, args []string) error {
 func runFunctionBuild(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
-	all, _ := cmd.Flags().GetBool("all-functions")
+	allFlag, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
 	updateTemplateFlag, _ := cmd.Flags().GetBool("update-template")
 
@@ -59,7 +59,7 @@ func runFunctionBuild(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if skipped, err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
+	if skipped, err := buildFunction(stack, args, allFlag, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
 		return err
 	} else if skipped {
 		os.Exit(0)
@@ -103,7 +103,8 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 			}
 
 			fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
-			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs, verboseFlag)
+			useSha := f.FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, useSha, noCacheFlag, buildArgs, verboseFlag)
 			if err != nil {
 				return false, err
 			}
@@ -130,7 +131,8 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 				}
 
 				fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
-				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, noCacheFlag, buildArgs, verboseFlag)
+				useSha := f.FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, useSha, noCacheFlag, buildArgs, verboseFlag)
 				if err != nil {
 					return false, err
 				}

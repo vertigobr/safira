@@ -45,7 +45,7 @@ func preRunFunctionPush(cmd *cobra.Command, args []string) error {
 }
 
 func runFunctionPush(cmd *cobra.Command, args []string) error {
-	all, _ := cmd.Flags().GetBool("all-functions")
+	allFlag, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
 
 	stack, err := s.LoadStackFile(envFlag)
@@ -53,7 +53,7 @@ func runFunctionPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := pushImage(stack, args, all); err != nil {
+	if err := pushImage(stack, args, allFlag); err != nil {
 		return err
 	}
 
@@ -67,7 +67,8 @@ func pushImage(stack *s.Stack, args []string, allFunctions bool) error {
 	if allFunctions {
 		for functionName, f := range functions {
 			fmt.Printf("%s Starting push of function %s\n", color.Green.Text("[+]"), functionName)
-			err := docker.Push(f.Image)
+			useSha := f.FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+			err := docker.Push(f.Image, useSha)
 			if err != nil {
 				return err
 			}
@@ -79,7 +80,8 @@ func pushImage(stack *s.Stack, args []string, allFunctions bool) error {
 				f := functions[functionArg]
 
 				fmt.Printf("%s Starting push of function %s\n", color.Green.Text("[+]"), functionName)
-				err := docker.Push(f.Image)
+				useSha := f.FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+				err := docker.Push(f.Image, useSha)
 				if err != nil {
 					return err
 				}

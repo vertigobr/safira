@@ -56,7 +56,7 @@ func preRunFunctionDeploy(cmd *cobra.Command, args []string) error {
 func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	updateFlag, _ := cmd.Flags().GetBool("update")
-	all, _ := cmd.Flags().GetBool("all-functions")
+	allFlag, _ := cmd.Flags().GetBool("all-functions")
 	kubeconfigFlag, _ := cmd.Flags().GetString("kubeconfig")
 	hostnameFlag, _ := cmd.Flags().GetString("hostname")
 	namespaceFlag, _ := cmd.Flags().GetString("namespace")
@@ -78,9 +78,10 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	functions := stack.Functions
-	if all {
+	if allFlag {
 		for index := range functions {
-			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins); err != nil {
+			useSha := functions[index].FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins, useSha); err != nil {
 				return err
 			}
 
@@ -92,8 +93,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-
-				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins); err != nil {
+				useSha := functions[functionArg].FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins, useSha); err != nil {
 					return err
 				}
 
@@ -115,8 +116,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if swaggerFile := checkSwaggerFileExist(); len(swaggerFile) > 1 {
-		if err := deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfigFlag, envFlag, verboseFlag); err != nil {
+	if swaggerFile := checkSwaggerFileExist(stack.Swagger.File); len(swaggerFile) > 1 {
+		if err := deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfigFlag, envFlag, updateFlag, verboseFlag); err != nil {
 			return err
 		}
 	}
@@ -194,12 +195,16 @@ func addPluginInAnnotations(functionName, namespace, kubeconfig, envFlag string,
 
 	for pluginName, plugin := range stack.Functions[functionName].Plugins {
 		if len(plugin.Type) == 0 || plugin.Type == "service" {
-			plugins = plugins + ", " + pluginName
+			if len(plugins) > 0 {
+				plugins = plugins + ", " + d.GetDeployName(stack, pluginName)
+			} else {
+				plugins = d.GetDeployName(stack, pluginName)
+			}
 		}
 	}
 
 	if len(stack.Functions[functionName].Plugins) > 0 && len(plugins) > 0 {
-		err = d.AddPluginInAnnotationsService(functionName, namespace, plugins[2:], kubeconfig, verboseFlag)
+		err = d.AddPluginInAnnotationsService(d.GetDeployName(stack, functionName), namespace, plugins, kubeconfig, verboseFlag)
 		if err != nil {
 			return err
 		}
@@ -208,7 +213,7 @@ func addPluginInAnnotations(functionName, namespace, kubeconfig, envFlag string,
 	return nil
 }
 
-func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin) error {
+func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string, plugins map[string]s.Plugin, useSha bool) error {
 	deployFolder := fmt.Sprintf("./deploy/%s/", functionName)
 	functionYamlName := deployFolder + "function.yml"
 	ingressYamlName := deployFolder + "ingress.yml"
@@ -222,7 +227,7 @@ func checkDeployFiles(functionName, hostnameFlag, namespaceFlag, envFlag string,
 	}
 
 	var functionYaml d.K8sYaml
-	if err := functionYaml.MountFunction(functionName, namespaceFlag, envFlag); err != nil {
+	if err := functionYaml.MountFunction(functionName, namespaceFlag, envFlag, useSha); err != nil {
 		return err
 	}
 
@@ -292,7 +297,7 @@ func rolloutFunction(kubectlPath, kubeconfig, functionName, namespaceFlag string
 }
 
 // Receber flag update para executar o rollout no deployment
-func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag string, verboseFlag bool) error {
+func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag string, update, verboseFlag bool) error {
 	deployFolder := "./deploy/swagger-ui/"
 	repoName, err := utils.GetCurrentFolder()
 	if err != nil {
@@ -313,7 +318,7 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 	}
 
 	var swaggerDeploymentYaml d.K8sYaml
-	if err := swaggerDeploymentYaml.MountDeployment(swaggerUIName, "swaggerapi/swagger-ui:v3.24.3", swaggerPath, repoName); err != nil {
+	if err := swaggerDeploymentYaml.MountDeployment(swaggerUIName, "swaggerapi/swagger-ui:v3.24.3", swaggerPath, repoName, envFlag); err != nil {
 		return err
 	}
 
@@ -340,7 +345,7 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 	}
 
 	var swaggerConfigMapYaml d.K8sYaml
-	if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, swaggerFile, repoName); err != nil {
+	if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, swaggerFile, repoName, envFlag); err != nil {
 		return err
 	}
 
@@ -370,18 +375,46 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 		return fmt.Errorf(res.Stderr)
 	}
 
+	if update {
+		taskRolloutSwagger := execute.Task{
+			Command: kubectlPath,
+			Args: []string{
+				"rollout", "restart", "deployments", swaggerUIName,
+				"--kubeconfig", kubeconfig,
+			},
+			StreamStdio:  verboseFlag,
+			PrintCommand: verboseFlag,
+		}
+
+		res, err := taskRolloutSwagger.Execute()
+		if err != nil {
+			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf(res.Stderr)
+		}
+	}
+
 	return nil
 }
 
-func checkSwaggerFileExist() string {
-	swaggerPath := filepath.Join("swagger.yml")
-	if _, err := os.Stat(swaggerPath); err == nil {
-		return "swagger.yml"
-	}
+func checkSwaggerFileExist(fileName string) string {
+	if len(fileName) > 0 {
+		swaggerPath := filepath.Join(fileName)
+		if _, err := os.Stat(swaggerPath); err == nil {
+			return fileName
+		}
+	} else {
+		swaggerPath := filepath.Join("swagger.yml")
+		if _, err := os.Stat(swaggerPath); err == nil {
+			return "swagger.yml"
+		}
 
-	swaggerPath = filepath.Join("swagger.yaml")
-	if _, err := os.Stat(swaggerPath); err == nil {
-		return "swagger.yaml"
+		swaggerPath = filepath.Join("swagger.yaml")
+		if _, err := os.Stat(swaggerPath); err == nil {
+			return "swagger.yaml"
+		}
 	}
 
 	return ""

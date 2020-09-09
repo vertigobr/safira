@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root for full license information.
 package deploy
 
+import s "github.com/vertigobr/safira/pkg/stack"
+
 type deploymentSpec struct {
 	Replicas int                    `yaml:"replicas,omitempty"`
 	Selector deploymentSpecSelector `yaml:"selector,omitempty"`
@@ -58,7 +60,14 @@ type volumeConfigMap struct {
 	Items []configMapItem `yaml:"items,omitempty"`
 }
 
-func (k *K8sYaml) MountDeployment(deploymentName, imageName, path, repoName string) error {
+func (k *K8sYaml) MountDeployment(deploymentName, imageName, path, repoName, env string) error {
+	stack, err := s.LoadStackFile(env)
+	if err != nil {
+		return err
+	}
+
+	deploymentName = GetDeployName(stack, deploymentName)
+
 	*k = K8sYaml{
 		ApiVersion: "apps/v1",
 		Kind:       "Deployment",

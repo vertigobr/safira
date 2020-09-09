@@ -53,7 +53,7 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, namespace, path, hostna
 		return err
 	}
 
-	annotations, err := GetIngressAnnotations(ingressName, stack.Functions)
+	annotations, err := GetIngressAnnotations(stack, ingressName)
 	if err != nil {
 		return err
 	}
@@ -61,6 +61,8 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, namespace, path, hostna
 	if len(path) < 1 {
 		path = getFunctionPath(stack.Functions[ingressName].Path, ingressName)
 	}
+
+	ingressName = GetDeployName(stack, ingressName)
 
 	*k = K8sYaml{
 		ApiVersion: "extensions/v1beta1",
@@ -117,14 +119,14 @@ func getGatewayPort(url string) (gateway string, port int, err error) {
 	return
 }
 
-func GetIngressAnnotations(ingressName string, functions map[string]s.Function) (map[string]string, error) {
+func GetIngressAnnotations(stack *s.Stack, ingressName string) (map[string]string, error) {
 	annotations := make(map[string]string)
 
-	for functionName, function := range functions {
+	for functionName, function := range stack.Functions {
 		if functionName == ingressName {
 			for pluginName, plugin := range function.Plugins {
 				if plugin.Type == "ingress" {
-					annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", functionName, pluginName)
+					annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", GetDeployName(stack, functionName), pluginName)
 				}
 			}
 		}

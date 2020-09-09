@@ -49,7 +49,7 @@ func preRunFunctionBuildPush(cmd *cobra.Command, args []string) error {
 func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	noCacheFlag, _ := cmd.Flags().GetBool("no-cache")
-	all, _ := cmd.Flags().GetBool("all-functions")
+	allFlag, _ := cmd.Flags().GetBool("all-functions")
 	envFlag, _ := cmd.Flags().GetString("env")
 	updateTemplateFlag, _ := cmd.Flags().GetBool("update-template")
 
@@ -58,13 +58,13 @@ func runFunctionBuildPush(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if skipped, err := buildFunction(stack, args, all, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
+	if skipped, err := buildFunction(stack, args, allFlag, updateTemplateFlag, noCacheFlag, verboseFlag); err != nil {
 		return err
 	} else if skipped {
 		os.Exit(0)
 	}
 
-	if err := pushImage(stack, args, all); err != nil {
+	if err := pushImage(stack, args, allFlag); err != nil {
 		return err
 	}
 

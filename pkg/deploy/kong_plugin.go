@@ -15,7 +15,7 @@ func (k *K8sYaml) MountKongPlugin(functionName, pluginName, namespace, env strin
 		return err
 	}
 
-	metadataName := fmt.Sprintf("%s-%s", functionName, pluginName)
+	name := fmt.Sprintf("%s-%s", GetDeployName(stack, functionName), pluginName)
 
 	repoName, err := utils.GetCurrentFolder()
 	if err != nil {
@@ -26,7 +26,7 @@ func (k *K8sYaml) MountKongPlugin(functionName, pluginName, namespace, env strin
 		ApiVersion: "configuration.konghq.com/v1",
 		Kind:       "KongPlugin",
 		Metadata: metadata{
-			Name:      metadataName,
+			Name:      name,
 			Namespace: namespace,
 			Labels: map[string]string{
 				"global": stack.Functions[functionName].Plugins[pluginName].Global,

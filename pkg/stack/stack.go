@@ -34,8 +34,9 @@ type Function struct {
 
 // Config apply one or all functions in stack.yaml
 type Config struct {
-	Build Build `yaml:"build,omitempty"`
-	Scale struct {
+	Build  Build  `yaml:"build,omitempty"`
+	Deploy Deploy `yaml:"deploy,omitempty"`
+	Scale  struct {
 		Min string `yaml:"min"`
 		Max string `yaml:"max"`
 	} `yaml:"scale,omitempty"`
@@ -52,7 +53,14 @@ type Config struct {
 
 type Build struct {
 	Enabled *bool             `yaml:"enabled,omitempty"`
+	UseSha  bool              `yaml:"useSha,omitempty"`
 	Args    map[string]string `yaml:"args,omitempty"`
+}
+
+type Deploy struct {
+	//Enabled *bool  `yaml:"enabled,omitempty"`
+	Prefix string `yaml:"prefix,omitempty"`
+	Suffix string `yaml:"suffix,omitempty"`
 }
 
 type CpuMemory struct {
@@ -88,9 +96,14 @@ type Stack struct {
 	Version     string              `yaml:"version,omitempty"`
 	Provider    Provider            `yaml:"provider,omitempty"`
 	Hostname    string              `yaml:"hostname,omitempty"`
+	Swagger     Swagger             `yaml:"swagger,omitempty"`
 	Functions   map[string]Function `yaml:"functions,omitempty"`
 	StackConfig Config              `yaml:"config,omitempty"`
 	Custom      []string            `yaml:"custom,omitempty"`
+}
+
+type Swagger struct {
+	File string `yaml:"file,omitempty"`
 }
 
 func GetStackFileName() string {

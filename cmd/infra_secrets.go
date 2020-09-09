@@ -73,7 +73,7 @@ func getSecrets(kubectlPath string, verboseFlag bool) error {
 	}
 
 	openfaasPassword, _ := base64.StdEncoding.DecodeString(res.Stdout)
-	fmt.Println("OpenFaaS - gateway.ipaas.localdomain:8080")
+	fmt.Println("OpenFaaS - openfaas.ipaas.localdomain:8080")
 	fmt.Println("    User: admin")
 	fmt.Println("Password: " + string(openfaasPassword))
 	fmt.Println("\nKonga - konga.localdomain:8080")

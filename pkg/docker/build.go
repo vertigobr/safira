@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/git"
 	"github.com/vertigobr/safira/pkg/utils"
 	"gopkg.in/gookit/color.v1"
 )
@@ -18,7 +19,7 @@ type dockerBuild struct {
 	buildArgs map[string]string
 }
 
-func Build(image, functionName, handler, language string, noCache bool, args map[string]string, verboseFlag bool) error {
+func Build(image, functionName, handler, language string, useSha, noCache bool, args map[string]string, verboseFlag bool) error {
 	if isValidTemplate(language) {
 		buildPath, err := createBuildFolder(functionName, handler, language, verboseFlag)
 		if err != nil {
@@ -32,7 +33,12 @@ func Build(image, functionName, handler, language string, noCache bool, args map
 			buildArgs: args,
 		}
 
-		taskBuildArgs := getTaskBuildArgs(db)
+		imageWithCommitSha := ""
+		if useSha {
+			imageWithCommitSha, _ = git.GetImageWithCommitSha(db.image)
+		}
+
+		taskBuildArgs := getTaskBuildArgs(db, imageWithCommitSha)
 
 		taskBuild := execute.Task{
 			Command:     "docker",
@@ -105,9 +111,13 @@ func createBuildFolder(functionName, handler, language string, verboseFlag bool)
 	return buildPath, nil
 }
 
-func getTaskBuildArgs(db dockerBuild) (args []string) {
+func getTaskBuildArgs(db dockerBuild, imageWithCommitSha string) (args []string) {
 	args = append(args, "build")
 	args = append(args, "--tag", db.image)
+
+	if len(imageWithCommitSha) > 0 {
+		args = append(args, "--tag", imageWithCommitSha)
+	}
 
 	if db.noCache {
 		args = append(args, "--no-cache")

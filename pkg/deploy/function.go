@@ -3,10 +3,12 @@
 package deploy
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/vertigobr/safira/pkg/config"
 	"github.com/vertigobr/safira/pkg/execute"
+	"github.com/vertigobr/safira/pkg/git"
 	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
 )
@@ -25,7 +27,7 @@ type cpuMemory struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
-func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
+func (k *K8sYaml) MountFunction(functionName, namespace, env string, useSha bool) error {
 	stack, err := s.LoadStackFile(env)
 	if err != nil {
 		return err
@@ -35,6 +37,16 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
 	cpuLimits, memoryLimits := getLimitsConfig(stack, functionName)
 	cpuRequests, memoryRequests := getRequestsConfig(stack, functionName)
 	environments := getFunctionEnvironment(stack, functionName)
+
+	image := stack.Functions[functionName].Image
+	if useSha {
+		imageWithCommitSha, _ := git.GetImageWithCommitSha(image)
+		if len(imageWithCommitSha) > 0 {
+			image = imageWithCommitSha
+		}
+	}
+
+	functionName = GetDeployName(stack, functionName)
 
 	repoName, err := utils.GetCurrentFolder()
 	if err != nil {
@@ -54,7 +66,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string) error {
 		},
 		Spec: functionSpec{
 			Name:  functionName,
-			Image: stack.Functions[functionName].Image,
+			Image: image,
 			Labels: map[string]string{
 				"com.openfaas.scale.min": scaleMin,
 				"com.openfaas.scale.max": scaleMax,
@@ -166,4 +178,25 @@ func compareFuncStackValue(functionValue, stackValue, defaultValue string) (valu
 	}
 
 	return
+}
+
+func GetDeployName(stack *s.Stack, name string) string {
+	prefixFunction := stack.Functions[name].FunctionConfig.Deploy.Prefix
+	suffixFunction := stack.Functions[name].FunctionConfig.Deploy.Suffix
+	prefixStack := stack.StackConfig.Deploy.Prefix
+	suffixStack := stack.StackConfig.Deploy.Suffix
+
+	if len(prefixFunction) > 0 {
+		name = fmt.Sprintf("%s-%s", prefixFunction, name)
+	} else if len(prefixStack) > 0 {
+		name = fmt.Sprintf("%s-%s", prefixStack, name)
+	}
+
+	if len(suffixFunction) > 0 {
+		name = fmt.Sprintf("%s-%s", name, suffixFunction)
+	} else if len(suffixStack) > 0 {
+		name = fmt.Sprintf("%s-%s", name, suffixStack)
+	}
+
+	return name
 }

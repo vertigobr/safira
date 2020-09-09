@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version v0.0.16 - 2020-09-044
+
+Features:
+
+- Added functionality to use sha commit in image build
+
+Improvements:
+
+- The update flag in the deploy process now impacts the swagger ui
+
 ## Version v0.0.15 - 2020-09-03
 
 Features:
