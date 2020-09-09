@@ -3,11 +3,19 @@
 package deploy
 
 import (
+	s "github.com/vertigobr/safira/pkg/stack"
 	"io/ioutil"
 )
 
-func (k *K8sYaml) MountConfigMap(configMapName, swaggerFile, repoName string) error {
+func (k *K8sYaml) MountConfigMap(configMapName, swaggerFile, repoName, env string) error {
 	b, _ := ioutil.ReadFile(swaggerFile)
+
+	stack, err := s.LoadStackFile(env)
+	if err != nil {
+		return err
+	}
+
+	configMapName = GetDeployName(stack, configMapName)
 
 	*k = K8sYaml{
 		ApiVersion: "v1",

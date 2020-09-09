@@ -3,6 +3,7 @@
 package deploy
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/vertigobr/safira/pkg/config"
@@ -44,6 +45,8 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string, useSha bool
 			image = imageWithCommitSha
 		}
 	}
+
+	functionName = GetDeployName(stack, functionName)
 
 	repoName, err := utils.GetCurrentFolder()
 	if err != nil {
@@ -175,4 +178,25 @@ func compareFuncStackValue(functionValue, stackValue, defaultValue string) (valu
 	}
 
 	return
+}
+
+func GetDeployName(stack *s.Stack, name string) string {
+	prefixFunction := stack.Functions[name].FunctionConfig.Deploy.Prefix
+	suffixFunction := stack.Functions[name].FunctionConfig.Deploy.Suffix
+	prefixStack := stack.StackConfig.Deploy.Prefix
+	suffixStack := stack.StackConfig.Deploy.Suffix
+
+	if len(prefixFunction) > 0 {
+		name = fmt.Sprintf("%s-%s", prefixFunction, name)
+	} else if len(prefixStack) > 0 {
+		name = fmt.Sprintf("%s-%s", prefixStack, name)
+	}
+
+	if len(suffixFunction) > 0 {
+		name = fmt.Sprintf("%s-%s", name, suffixFunction)
+	} else if len(suffixStack) > 0 {
+		name = fmt.Sprintf("%s-%s", name, suffixStack)
+	}
+
+	return name
 }

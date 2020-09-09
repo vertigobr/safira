@@ -194,12 +194,16 @@ func addPluginInAnnotations(functionName, namespace, kubeconfig, envFlag string,
 
 	for pluginName, plugin := range stack.Functions[functionName].Plugins {
 		if len(plugin.Type) == 0 || plugin.Type == "service" {
-			plugins = plugins + ", " + pluginName
+			if len(plugins) > 0 {
+				plugins = plugins + ", " + d.GetDeployName(stack, pluginName)
+			} else {
+				plugins = d.GetDeployName(stack, pluginName)
+			}
 		}
 	}
 
 	if len(stack.Functions[functionName].Plugins) > 0 && len(plugins) > 0 {
-		err = d.AddPluginInAnnotationsService(functionName, namespace, plugins[2:], kubeconfig, verboseFlag)
+		err = d.AddPluginInAnnotationsService(d.GetDeployName(stack, functionName), namespace, plugins, kubeconfig, verboseFlag)
 		if err != nil {
 			return err
 		}
@@ -313,7 +317,7 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 	}
 
 	var swaggerDeploymentYaml d.K8sYaml
-	if err := swaggerDeploymentYaml.MountDeployment(swaggerUIName, "swaggerapi/swagger-ui:v3.24.3", swaggerPath, repoName); err != nil {
+	if err := swaggerDeploymentYaml.MountDeployment(swaggerUIName, "swaggerapi/swagger-ui:v3.24.3", swaggerPath, repoName, envFlag); err != nil {
 		return err
 	}
 
@@ -340,7 +344,7 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 	}
 
 	var swaggerConfigMapYaml d.K8sYaml
-	if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, swaggerFile, repoName); err != nil {
+	if err := swaggerConfigMapYaml.MountConfigMap(swaggerUIName, swaggerFile, repoName, envFlag); err != nil {
 		return err
 	}
 

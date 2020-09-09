@@ -5,12 +5,12 @@ package deploy
 import (
 	"context"
 	"fmt"
-	"github.com/vertigobr/safira/pkg/k8s"
-	"gopkg.in/gookit/color.v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/vertigobr/safira/pkg/k8s"
 	s "github.com/vertigobr/safira/pkg/stack"
 	"github.com/vertigobr/safira/pkg/utils"
+	"gopkg.in/gookit/color.v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type serviceSpec struct {
@@ -44,10 +44,12 @@ func (k *K8sYaml) MountService(serviceName, hostname, env string, isFunction boo
 	}
 
 	spec := getServiceSpec(serviceName, port, isFunction)
-	annotations, err := getServiceAnnotations(serviceName, stack.Functions, isFunction)
+	annotations, err := getServiceAnnotations(stack, serviceName, isFunction)
 	if err != nil {
 		return err
 	}
+
+	serviceName = GetDeployName(stack, serviceName)
 
 	*k = K8sYaml{
 		ApiVersion: "v1",
@@ -95,15 +97,15 @@ func getServiceSpec(serviceName string, port int, isFunction bool) (spec service
 	return
 }
 
-func getServiceAnnotations(serviceName string, functions map[string]s.Function, isFunction bool) (map[string]string, error) {
+func getServiceAnnotations(stack *s.Stack, serviceName string, isFunction bool) (map[string]string, error) {
 	annotations := make(map[string]string)
 
 	if isFunction {
-		for functionName, function := range functions {
+		for functionName, function := range stack.Functions {
 			if functionName == serviceName {
 				for pluginName, plugin := range function.Plugins {
 					if len(plugin.Type) == 0 || plugin.Type == "service" {
-						annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", functionName, pluginName)
+						annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", GetDeployName(stack, functionName), pluginName)
 					}
 				}
 			}
