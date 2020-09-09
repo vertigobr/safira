@@ -103,7 +103,8 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 			}
 
 			fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
-			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, f.FunctionConfig.Build.UseSha, noCacheFlag, buildArgs, verboseFlag)
+			useSha := f.FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+			err := docker.Build(f.Image, functionName, f.Handler, f.Lang, useSha, noCacheFlag, buildArgs, verboseFlag)
 			if err != nil {
 				return false, err
 			}
@@ -130,7 +131,8 @@ func buildFunction(stack *s.Stack, args []string, allFunctions, updateTemplateFl
 				}
 
 				fmt.Printf("%s Starting build of function %s\n", color.Green.Text("[+]"), functionName)
-				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, f.FunctionConfig.Build.UseSha, noCacheFlag, buildArgs, verboseFlag)
+				useSha := f.FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+				err := docker.Build(f.Image, functionName, f.Handler, f.Lang, useSha, noCacheFlag, buildArgs, verboseFlag)
 				if err != nil {
 					return false, err
 				}

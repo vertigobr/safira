@@ -80,7 +80,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	functions := stack.Functions
 	if allFlag {
 		for index := range functions {
-			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins, functions[index].FunctionConfig.Build.UseSha); err != nil {
+			useSha := functions[index].FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+			if err := checkDeployFiles(index, hostnameFlag, namespaceFlag, envFlag, functions[index].Plugins, useSha); err != nil {
 				return err
 			}
 
@@ -92,8 +93,8 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 	} else {
 		for index, functionArg := range args {
 			if checkFunctionExists(args[index], functions) {
-
-				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins, functions[functionArg].FunctionConfig.Build.UseSha); err != nil {
+				useSha := functions[functionArg].FunctionConfig.Build.UseSha || stack.StackConfig.Build.UseSha
+				if err := checkDeployFiles(functionArg, hostnameFlag, namespaceFlag, envFlag, functions[functionArg].Plugins, useSha); err != nil {
 					return err
 				}
 
@@ -115,7 +116,7 @@ func runFunctionDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if swaggerFile := checkSwaggerFileExist(); len(swaggerFile) > 1 {
+	if swaggerFile := checkSwaggerFileExist(stack.Swagger.File); len(swaggerFile) > 1 {
 		if err := deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfigFlag, envFlag, updateFlag, verboseFlag); err != nil {
 			return err
 		}
@@ -398,15 +399,22 @@ func deploySwaggerUi(swaggerFile, hostnameFlag, kubectlPath, kubeconfig, envFlag
 	return nil
 }
 
-func checkSwaggerFileExist() string {
-	swaggerPath := filepath.Join("swagger.yml")
-	if _, err := os.Stat(swaggerPath); err == nil {
-		return "swagger.yml"
-	}
+func checkSwaggerFileExist(fileName string) string {
+	if len(fileName) > 0 {
+		swaggerPath := filepath.Join(fileName)
+		if _, err := os.Stat(swaggerPath); err == nil {
+			return fileName
+		}
+	} else {
+		swaggerPath := filepath.Join("swagger.yml")
+		if _, err := os.Stat(swaggerPath); err == nil {
+			return "swagger.yml"
+		}
 
-	swaggerPath = filepath.Join("swagger.yaml")
-	if _, err := os.Stat(swaggerPath); err == nil {
-		return "swagger.yaml"
+		swaggerPath = filepath.Join("swagger.yaml")
+		if _, err := os.Stat(swaggerPath); err == nil {
+			return "swagger.yaml"
+		}
 	}
 
 	return ""

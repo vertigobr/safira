@@ -96,9 +96,14 @@ type Stack struct {
 	Version     string              `yaml:"version,omitempty"`
 	Provider    Provider            `yaml:"provider,omitempty"`
 	Hostname    string              `yaml:"hostname,omitempty"`
+	Swagger     Swagger             `yaml:"swagger,omitempty"`
 	Functions   map[string]Function `yaml:"functions,omitempty"`
 	StackConfig Config              `yaml:"config,omitempty"`
 	Custom      []string            `yaml:"custom,omitempty"`
+}
+
+type Swagger struct {
+	File string `yaml:"file,omitempty"`
 }
 
 func GetStackFileName() string {
