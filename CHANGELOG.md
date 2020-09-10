@@ -4,7 +4,8 @@
 
 Bug Fixes:
 
-- Fix stack declaration swagger.file
+- Fix bug in stack declaration swagger.file
+- Fix bug in use sha commit
 
 ## Version v0.0.17 - 2020-09-10
 
