@@ -77,6 +77,10 @@ func prepareStack(stack, envStack *Stack) error {
 		stack.Custom = envStack.Custom
 	}
 
+	if len(envStack.Swagger.File) > 0 {
+		stack.Swagger.File = envStack.Swagger.File
+	}
+
 	return nil
 }
 

@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version v0.0.18 - 2020-09-11
+
+Bug Fixes:
+
+- Fix stack declaration swagger.file
+
 ## Version v0.0.17 - 2020-09-10
 
 Bug Fixes:
