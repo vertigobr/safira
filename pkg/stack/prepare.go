@@ -27,10 +27,26 @@ func prepareStack(stack, envStack *Stack) error {
 		}
 	}
 
+	if envStack.StackConfig.Build.Enabled != nil {
+		stack.StackConfig.Build.Enabled = envStack.StackConfig.Build.Enabled
+	}
+
 	if len(envStack.StackConfig.Build.Args) > 0 {
 		for buildArgsName := range envStack.StackConfig.Build.Args {
 			stack.StackConfig.Build.Args[buildArgsName] = envStack.StackConfig.Build.Args[buildArgsName]
 		}
+	}
+
+	if envStack.StackConfig.Build.UseSha {
+		stack.StackConfig.Build.UseSha = envStack.StackConfig.Build.UseSha
+	}
+
+	if len(envStack.StackConfig.Deploy.Prefix) > 0 {
+		stack.StackConfig.Deploy.Prefix = envStack.StackConfig.Deploy.Prefix
+	}
+
+	if len(envStack.StackConfig.Deploy.Suffix) > 0 {
+		stack.StackConfig.Deploy.Suffix = envStack.StackConfig.Deploy.Suffix
 	}
 
 	if len(envStack.StackConfig.Scale.Min) > 0 {
@@ -100,10 +116,26 @@ func prepareFunctions(stackFunction, envStackFunction map[string]Function) (func
 				}
 			}
 
+			if envStackFunction[functionName].FunctionConfig.Build.Enabled != nil {
+				function.FunctionConfig.Build.Enabled = envStackFunction[functionName].FunctionConfig.Build.Enabled
+			}
+
 			if len(envStackFunction[functionName].FunctionConfig.Build.Args) != 0 {
 				for buildArgsName := range envStackFunction[functionName].FunctionConfig.Build.Args {
 					function.FunctionConfig.Build.Args[buildArgsName] = envStackFunction[functionName].FunctionConfig.Build.Args[buildArgsName]
 				}
+			}
+
+			if envStackFunction[functionName].FunctionConfig.Build.UseSha {
+				function.FunctionConfig.Build.UseSha = envStackFunction[functionName].FunctionConfig.Build.UseSha
+			}
+
+			if len(envStackFunction[functionName].FunctionConfig.Deploy.Prefix) != 0 {
+				function.FunctionConfig.Deploy.Prefix = envStackFunction[functionName].FunctionConfig.Deploy.Prefix
+			}
+
+			if len(envStackFunction[functionName].FunctionConfig.Deploy.Suffix) != 0 {
+				function.FunctionConfig.Deploy.Suffix = envStackFunction[functionName].FunctionConfig.Deploy.Suffix
 			}
 
 			if len(envStackFunction[functionName].FunctionConfig.Requests.Memory) != 0 {

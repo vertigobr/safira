@@ -63,6 +63,7 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, namespace, path, hostna
 	}
 
 	ingressName = GetDeployName(stack, ingressName)
+	serviceName = GetDeployName(stack, serviceName)
 
 	*k = K8sYaml{
 		ApiVersion: "extensions/v1beta1",
