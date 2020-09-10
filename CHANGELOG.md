@@ -1,10 +1,11 @@
 # Release Notes
 
-## Version v0.0.17 - 2020-09-00
+## Version v0.0.17 - 2020-09-10
 
 Bug Fixes:
 
 - Fix ingress backend
+- Fix declaration build.useSha, deploy.prefix and deploy.suffix
 
 ## Version v0.0.16 - 2020-09-09
 
