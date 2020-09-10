@@ -1,10 +1,18 @@
 # Release Notes
 
-## Version v0.0.16 - 2020-09-044
+## Version v0.0.17 - 2020-09-00
+
+Bug Fixes:
+
+- Fix ingress backend
+
+## Version v0.0.16 - 2020-09-09
 
 Features:
 
 - Added functionality to use sha commit in image build
+- Added swagger file name declaration option
+- Added the possibility to use prefix and suffix in the name of the deploy
 
 Improvements:
 

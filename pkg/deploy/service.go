@@ -43,13 +43,13 @@ func (k *K8sYaml) MountService(serviceName, hostname, env string, isFunction boo
 		return err
 	}
 
+	serviceName = GetDeployName(stack, serviceName)
+
 	spec := getServiceSpec(serviceName, port, isFunction)
 	annotations, err := getServiceAnnotations(stack, serviceName, isFunction)
 	if err != nil {
 		return err
 	}
-
-	serviceName = GetDeployName(stack, serviceName)
 
 	*k = K8sYaml{
 		ApiVersion: "v1",
