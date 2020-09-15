@@ -10,7 +10,9 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
+	d "github.com/vertigobr/safira/pkg/deploy"
 	"github.com/vertigobr/safira/pkg/k8s"
+	s "github.com/vertigobr/safira/pkg/stack"
 	"gopkg.in/gookit/color.v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -47,6 +49,11 @@ func runInfraStatus(cmd *cobra.Command, _ []string) error {
 }
 
 func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
+	stack, err := s.LoadStackFile("")
+	if err != nil {
+		return err
+	}
+
 	deploymentsClient := client.AppsV1().Deployments("default")
 	list, _ := deploymentsClient.List(context.TODO(), v1.ListOptions{})
 
@@ -89,8 +96,8 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 		_, _ = fmt.Fprintln(lineWriter)
 		_, _ = fmt.Fprintf(lineWriter, color.Bold.Sprintf("FUNCTIONS\n"))
 		_, _ = fmt.Fprintf(lineWriter, "NAME\t\t    STATUS\t    AVAILABILITY\t\t URL\n")
-		for _, d := range listFunction.Items {
-			checkStatus := d.Status.AvailableReplicas == d.Status.Replicas
+		for _, f := range listFunction.Items {
+			checkStatus := f.Status.AvailableReplicas == f.Status.Replicas
 			var status string
 			if checkStatus {
 				status = color.Green.Sprintf("Ready")
@@ -99,10 +106,10 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 			}
 
 			_, _ = fmt.Fprintf(lineWriter, "%s\t\t%s\t%s\t\t\t\t%s\n",
-				d.Name,
-				fmt.Sprintf("%v/%v", d.Status.AvailableReplicas, d.Status.Replicas),
+				f.Name,
+				fmt.Sprintf("%v/%v", f.Status.AvailableReplicas, f.Status.Replicas),
 				status,
-				getUrl(d.Name, true),
+				getUrl(d.GetFunctionPath(stack.Functions[f.Name].Path, f.Name), true),
 			)
 		}
 	}
@@ -115,6 +122,12 @@ func outputStatus(client *kubernetes.Clientset, verboseFlag bool) error {
 }
 
 func getUrl(deployName string, function bool) string {
+	if function {
+		return fmt.Sprintf("ipaas.localdomain:8080%s", deployName)
+	} else if strings.HasSuffix(deployName, "swagger-ui") {
+		return "ipaas.localdomain:8080/swagger-ui/" + strings.Split(deployName, "-swagger-ui")[0]
+	}
+
 	switch deployName {
 	case "swaggereditor":
 		return "editor.localdomain:8080"
@@ -126,12 +139,6 @@ func getUrl(deployName string, function bool) string {
 		return "konga.localdomain:8080"
 	default:
 		break
-	}
-
-	if function {
-		return "ipaas.localdomain:8080/function/" + deployName
-	} else if strings.HasSuffix(deployName, "swagger-ui") {
-		return "ipaas.localdomain:8080/swagger-ui/" + strings.Split(deployName, "-swagger-ui")[0]
 	}
 
 	return ""
