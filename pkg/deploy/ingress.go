@@ -59,7 +59,7 @@ func (k *K8sYaml) MountIngress(ingressName, serviceName, namespace, path, hostna
 	}
 
 	if len(path) < 1 {
-		path = getFunctionPath(stack.Functions[ingressName].Path, ingressName)
+		path = GetFunctionPath(stack.Functions[ingressName].Path, ingressName)
 	}
 
 	ingressName = GetDeployName(stack, ingressName)
@@ -145,7 +145,7 @@ func GetIngressAnnotations(stack *s.Stack, ingressName string) (map[string]strin
 	return annotations, err
 }
 
-func getFunctionPath(path, name string) string {
+func GetFunctionPath(path, name string) string {
 	if len(path) > 0 {
 		return path
 	}

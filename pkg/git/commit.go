@@ -30,5 +30,10 @@ func GetImageWithCommitSha(image string) (string, error) {
 
 	untaggedImage := strings.Split(image, ":")
 
-	return strings.Replace(image, untaggedImage[len(untaggedImage)-1], h.String()[:7], 1), nil
+	shaCommit := h.String()[:7]
+	if len(untaggedImage) > 1 {
+		return strings.Replace(image, untaggedImage[len(untaggedImage)-1], shaCommit, 1), nil
+	} else {
+		return fmt.Sprintf("%s:%s", image, shaCommit), nil
+	}
 }
