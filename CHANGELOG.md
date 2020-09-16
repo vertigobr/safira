@@ -6,6 +6,7 @@ Bug Fixes:
 
 - Fix bug in stack declaration swagger.file
 - Fix bug in use sha commit
+- Fixed url of functions in `safira status`
 
 ## Version v0.0.17 - 2020-09-10
 
