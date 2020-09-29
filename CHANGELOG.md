@@ -1,6 +1,12 @@
 # Release Notes
 
-## Version v0.0.18 - 2020-09-11
+## Version v0.0.19 - 2020-10-00
+
+Improvements:
+
+- Updated function labels
+
+## Version v0.0.18 - 2020-09-16
 
 Bug Fixes:
 

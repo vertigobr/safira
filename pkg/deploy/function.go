@@ -71,6 +71,7 @@ func (k *K8sYaml) MountFunction(functionName, namespace, env string, useSha bool
 				"com.openfaas.scale.min": scaleMin,
 				"com.openfaas.scale.max": scaleMax,
 				"function":               functionName,
+				"safira.io/function":     functionName,
 			},
 			Environments: environments,
 			Limits: cpuMemory{
