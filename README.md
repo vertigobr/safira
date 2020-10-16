@@ -135,5 +135,4 @@ The documentation can be found in the following links:
 Pull requests/Merge Requests are welcome! Please open an issue first and discuss with us about the proposing changes and be sure to perform tests in a proper way.
 
 ## License
-
-[TODO]
+Safira is licensed under the [Apache License Version 2.0](https://github.com/vertigobr/safira/blob/master/LICENSE).
