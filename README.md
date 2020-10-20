@@ -7,7 +7,7 @@
     <img src="https://github.com/vertigobr/safira/workflows/Build%20Release/badge.svg" />
 </p>
 
-Safira is a CLI Tool build with [Go](https://golang.org/) that has the objetive to make it easier for the Develops to Build and Deploy it's functions on the runtime cluster. 
+Safira is a CLI Tool build with [Go](https://golang.org/) that has the objetive to make it easier for the Develops to Build and Deploy it's functions in Vertigo IPaaS. 
 
 It makes use of [Open FaaS](https://www.openfaas.com/), to enable that people out of the DevOps scope can manage it's application without the need to know how to operate the Containers in such a low level.
 
