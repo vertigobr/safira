@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/vertigobr/safira/pkg/config"
@@ -204,7 +205,15 @@ func addPluginInAnnotations(functionName, namespace, kubeconfig, envFlag string,
 	}
 
 	if len(stack.Functions[functionName].Plugins) > 0 && len(plugins) > 0 {
-		err = d.AddPluginInAnnotationsService(d.GetDeployName(stack, functionName), namespace, plugins, kubeconfig, verboseFlag)
+		for i := 0; i < 30; i++ {
+			err = d.AddPluginInAnnotationsService(d.GetDeployName(stack, functionName), namespace, plugins, kubeconfig, verboseFlag)
+			if err != nil {
+				time.Sleep(time.Second * 2)
+			} else {
+				break
+			}
+		}
+
 		if err != nil {
 			return err
 		}

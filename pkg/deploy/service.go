@@ -136,10 +136,10 @@ func AddPluginInAnnotationsService(name, namespace, pluginName, kubeconfig strin
 	services := client.CoreV1().Services(namespace)
 	service, err := services.Get(context.TODO(), name, v1.GetOptions{})
 	if err != nil {
-		return fmt.Errorf("")
+		return fmt.Errorf("%s Timeout in the creation of the plugin: %s", color.Red.Text("[!]"), pluginName)
 	}
 
-	service.ObjectMeta.Annotations["konghq.com/plugins"] = pluginName
+	service.ObjectMeta.Annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", name, pluginName)
 	_, err = services.Update(context.TODO(), service, v1.UpdateOptions{})
 	if err != nil {
 		return fmt.Errorf("")
