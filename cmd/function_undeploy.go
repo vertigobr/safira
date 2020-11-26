@@ -140,7 +140,7 @@ func removeSwaggerUi(name, kubeconfigFlag string, verboseFlag bool) error {
 }
 
 func removePlugin(name, kubeconfigFlag string, verboseFlag bool) error {
-	if err := k8s.RemoveKongPlugin(name, kubeconfigFlag, verboseFlag); err != nil {
+	if err := k8s.RemoveKongPlugin(name, kubeconfigFlag, functionsNamespace, verboseFlag); err != nil {
 		return err
 	}
 

@@ -192,7 +192,7 @@ func RemoveFunction(name, namespace, kubeconfig string, verboseFlag bool) error 
 	return nil
 }
 
-func RemoveKongPlugin(name, kubeconfig string, verboseFlag bool) error {
+func RemoveKongPlugin(name, kubeconfig, namespace string, verboseFlag bool) error {
 	client, err := GetDynamicClient(kubeconfig)
 	if err != nil {
 		if verboseFlag {
@@ -211,7 +211,7 @@ func RemoveKongPlugin(name, kubeconfig string, verboseFlag bool) error {
 
 	for _, function := range kongPluginList.Items {
 		if function.GetName() == name {
-			err := kongPlugin.Namespace("default").Delete(context.TODO(), name, v1.DeleteOptions{})
+			err := kongPlugin.Namespace(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
 			if err != nil {
 				return err
 			}

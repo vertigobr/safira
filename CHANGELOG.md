@@ -6,6 +6,11 @@ Improvements:
 
 - Updated function labels
 
+Bug Fixes:
+
+- Fixed plugin configuration failure in the function's service
+- Fixed removing the function plugin
+
 ## Version v0.0.18 - 2020-09-16
 
 Bug Fixes:
