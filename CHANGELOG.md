@@ -10,7 +10,8 @@ Bug Fixes:
 
 - Fixed plugin configuration failure in the function's service
 - Fix removing the function plugin
-- Fix in the declaration of multiple plugins in the service
+- Fix in the declaration of multiple plugins in the service and ingress
+
 
 ## Version v0.0.18 - 2020-09-16
 
