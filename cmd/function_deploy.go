@@ -197,9 +197,9 @@ func addPluginInAnnotations(functionName, namespace, kubeconfig, envFlag string,
 	for pluginName, plugin := range stack.Functions[functionName].Plugins {
 		if len(plugin.Type) == 0 || plugin.Type == "service" {
 			if len(plugins) > 0 {
-				plugins = plugins + ", " + d.GetDeployName(stack, pluginName)
+				plugins = plugins + ", " + d.GetDeployName(stack, fmt.Sprintf("%s-%s", functionName, pluginName))
 			} else {
-				plugins = d.GetDeployName(stack, pluginName)
+				plugins = d.GetDeployName(stack, fmt.Sprintf("%s-%s", functionName, pluginName))
 			}
 		}
 	}

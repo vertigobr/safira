@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version v0.0.19 - 2020-10-00
+## Version v0.0.19 - 2020-11-27
 
 Improvements:
 
@@ -9,7 +9,8 @@ Improvements:
 Bug Fixes:
 
 - Fixed plugin configuration failure in the function's service
-- Fixed removing the function plugin
+- Fix removing the function plugin
+- Fix in the declaration of multiple plugins in the service
 
 ## Version v0.0.18 - 2020-09-16
 
