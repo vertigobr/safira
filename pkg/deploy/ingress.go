@@ -125,11 +125,17 @@ func GetIngressAnnotations(stack *s.Stack, ingressName string) (map[string]strin
 
 	for functionName, function := range stack.Functions {
 		if functionName == ingressName {
+			plugins := ""
 			for pluginName, plugin := range function.Plugins {
 				if plugin.Type == "ingress" {
-					annotations["konghq.com/plugins"] = fmt.Sprintf("%s-%s", GetDeployName(stack, functionName), pluginName)
+					if len(plugins) > 0 {
+						plugins = plugins + ", " + fmt.Sprintf("%s-%s", GetDeployName(stack, functionName), pluginName)
+					} else {
+						plugins = fmt.Sprintf("%s-%s", GetDeployName(stack, functionName), pluginName)
+					}
 				}
 			}
+			annotations["konghq.com/plugins"] = plugins
 		}
 	}
 

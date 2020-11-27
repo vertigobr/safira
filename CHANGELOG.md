@@ -1,6 +1,19 @@
 # Release Notes
 
-## Version v0.0.18 - 2020-09-11
+## Version v0.0.19 - 2020-11-27
+
+Improvements:
+
+- Updated function labels
+
+Bug Fixes:
+
+- Fixed plugin configuration failure in the function's service
+- Fix removing the function plugin
+- Fix in the declaration of multiple plugins in the service and ingress
+
+
+## Version v0.0.18 - 2020-09-16
 
 Bug Fixes:
 
