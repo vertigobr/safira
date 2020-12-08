@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version v0.0.20 - 2020-12-08
+
+Improvements:
+
+- Create namespace ipaas-fn deprecated
+
+
 ## Version v0.0.19 - 2020-11-27
 
 Improvements:
